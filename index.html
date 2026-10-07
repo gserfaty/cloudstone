@@ -31,6 +31,12 @@
   li .sub { display:block; color:var(--muted); font-size:11.5px; }
   .muted { color:var(--muted); font-size:12px; }
   .err { color:var(--err); white-space:pre-wrap; }
+  input[type=text], input[type=password] { width:100%; margin-top:6px; padding:6px 8px; background:var(--bg); color:var(--fg); border:1px solid var(--line); border-radius:6px; font:inherit; }
+  button.plain { background:none; color:var(--fg); border:1px solid var(--line); border-radius:6px; padding:6px 12px; cursor:pointer; }
+  button.link { all:unset; cursor:pointer; color:var(--accent); }
+  details { margin-top:8px; } summary { cursor:pointer; color:var(--muted); font-size:12px; }
+  form + form { margin-top:12px; }
+  [hidden] { display:none !important; }
   .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px; }
   @media (max-width:700px) { body { grid-template-columns:1fr; } aside { border-right:0; border-bottom:1px solid var(--line); } }
 </style>
@@ -38,14 +44,37 @@
 <body>
 <aside>
   <h1>Cloudstone</h1>
-  <label class="muted">Upload CSV, JSON, NDJSON, XLSX<br>
-    <input id="file" type="file" accept=".csv,.json,.ndjson,.jsonl,.xlsx" multiple>
+  <form id="authform" hidden>
+    <input id="username" type="text" autocomplete="username" placeholder="Username" aria-label="Username" required>
+    <input id="password" type="password" autocomplete="current-password" placeholder="Password (8+ characters)" aria-label="Password" required>
+    <div class="row"><button class="primary" value="login">Log in</button><button class="plain" value="signup">Sign up</button></div>
+    <div id="authmsg" class="muted"></div>
+  </form>
+  <div id="signedin" hidden>
+    <span class="muted">Signed in as</span> <b id="who"></b> · <button class="link" id="logout">Log out</button>
+    <details>
+      <summary>Account</summary>
+      <form id="pwform">
+        <input id="oldpw" type="password" autocomplete="current-password" placeholder="Current password" aria-label="Current password" required>
+        <input id="newpw" type="password" autocomplete="new-password" placeholder="New password" aria-label="New password" required>
+        <div class="row"><button class="plain">Change password</button></div>
+      </form>
+      <form id="delform">
+        <input id="delpw" type="password" autocomplete="current-password" placeholder="Password" aria-label="Password to delete account" required>
+        <div class="row"><button class="plain">Delete account and data</button></div>
+      </form>
+      <div id="acctmsg" class="muted"></div>
+    </details>
+  </div>
+  <h2 class="side">Upload</h2>
+  <label class="muted"><span id="uphint"></span><br>
+    <input id="file" type="file" accept=".csv,.json,.ndjson,.jsonl,.xlsx" multiple disabled>
   </label>
   <div id="upmsg" class="muted"></div>
   <h2 class="side">Demo data</h2>
   <ul id="demo"></ul>
   <h2 class="side">Your tables</h2>
-  <ul id="tables"><li class="muted">None yet. Upload a file.</li></ul>
+  <ul id="tables"></ul>
   <h2 class="side">Example queries</h2>
   <ul id="examples"></ul>
 </aside>
@@ -72,7 +101,7 @@
 </main>
 <script>
 const $ = id => document.getElementById(id);
-let last = null, chart = null;
+let last = null, chart = null, user = null;
 const ident = name => name.split('.').map(p => `"${p}"`).join('.');
 
 const EXAMPLES = [
@@ -130,8 +159,56 @@ async function loadTables() {
   const item = n => listItem(n, '', () => showProfile(n));
   $('demo').replaceChildren(...names.filter(n => n.startsWith('demo.')).map(item));
   const mine = names.filter(n => !n.startsWith('demo.'));
-  if (mine.length) $('tables').replaceChildren(...mine.map(item));
+  $('tables').replaceChildren(...(mine.length ? mine.map(item)
+    : [Object.assign(document.createElement('li'), {className: 'muted', textContent: user ? 'None yet. Upload a file.' : 'Log in to save your own tables.'})]));
 }
+
+function say(el, text, isErr) {
+  el.className = isErr ? 'err' : 'muted';
+  el.textContent = text;
+}
+
+function setUser(u) {
+  user = u;
+  $('authform').hidden = !!u;
+  $('signedin').hidden = !u;
+  $('who').textContent = u || '';
+  $('file').disabled = !u;
+  $('uphint').textContent = u ? 'CSV, JSON, NDJSON or XLSX. Saved to your account.' : 'Log in to upload and save your own data.';
+  for (const f of document.querySelectorAll('form')) f.reset();
+  return loadTables();
+}
+
+const post = (path, data) => api(path, {method: 'POST', body: JSON.stringify(data)});
+
+$('authform').onsubmit = async e => {
+  e.preventDefault();
+  try {
+    const j = await post('/' + e.submitter.value, {username: $('username').value, password: $('password').value});
+    say($('authmsg'), '');
+    await setUser(j.user);
+  } catch (err) { say($('authmsg'), err.message, true); }
+};
+
+$('logout').onclick = async () => setUser((await post('/logout', {})).user);
+
+$('pwform').onsubmit = async e => {
+  e.preventDefault();
+  try {
+    await post('/password', {old: $('oldpw').value, new: $('newpw').value});
+    e.target.reset();
+    say($('acctmsg'), 'Password changed. Other sessions were logged out.');
+  } catch (err) { say($('acctmsg'), err.message, true); }
+};
+
+$('delform').onsubmit = async e => {
+  e.preventDefault();
+  if (!confirm(`Delete account "${user}" and all its tables? This can't be undone.`)) return;
+  try {
+    await setUser((await post('/account/delete', {password: $('delpw').value})).user);
+    say($('upmsg'), 'Account deleted.');
+  } catch (err) { say($('acctmsg'), err.message, true); }
+};
 
 async function showProfile(name, prof) {
   $('proftitle').textContent = `Profile · ${name}`;
@@ -189,7 +266,7 @@ $('run').onclick = run;
 $('sql').onkeydown = e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) run(); };
 for (const id of ['ctype', 'cx', 'cy']) $(id).onchange = drawChart;
 $('examples').replaceChildren(...EXAMPLES.map(([label, sub, sql]) => listItem(label, sub, () => { $('sql').value = sql; run(); })));
-loadTables().then(() => showProfile('demo.sales'));
+api('/me').then(j => setUser(j.user)).then(() => showProfile('demo.sales'));
 </script>
 </body>
 </html>

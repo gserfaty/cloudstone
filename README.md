@@ -4,7 +4,7 @@ A local data workbench: upload structured and semi-structured files, then profil
 
 ## Features
 
-- **Demo data** for every supported format, loaded into a read-only-by-convention `demo` schema on startup, plus one-click example queries in the sidebar:
+- **Demo data** for every supported format, read-only and open to everyone (no login needed), plus one-click example queries in the sidebar:
 
   | Table | Source file | Shape |
   |-------|-------------|-------|
@@ -12,10 +12,11 @@ A local data workbench: upload structured and semi-structured files, then profil
   | `demo.employees` | `demo/employees.xlsx` | Spreadsheet: 8 staff (joins to sales via `rep_id`) |
   | `demo.products` | `demo/products.json` | JSON array: nested `specs` object, `tags` list, `variants` list of objects |
   | `demo.events` | `demo/events.ndjson` | NDJSON: 200 web events, nested `user`/`context`, optional `query` and `items` fields |
-- **Upload** CSV, JSON, NDJSON/JSONL and XLSX (several at once). Each file becomes a table named after the file under **Your tables**; re-uploading replaces it.
+- **Accounts** — sign up, log in, log out, change password, delete account. Each user's uploads are saved in their own database and survive restarts.
+- **Upload** (logged in) CSV, JSON, NDJSON/JSONL and XLSX (several at once). Each file becomes a table named after the file under **Your tables**; re-uploading replaces it.
 - **Structured + nested data** — column types are inferred, and nested JSON is queryable directly (`SELECT context.page FROM demo.events`).
 - **Auto profile** — per column: type, null %, approx distinct count, min/max, mean, std, quartiles.
-- **SQL box** — any DuckDB SQL, results capped at 1,000 rows, with timing.
+- **SQL box** — any DuckDB SQL over the demo tables and your own, results capped at 1,000 rows, with timing.
 - **Charts** — bar, line or scatter from the last query result; pick the X and Y columns.
 - Light/dark mode, works at phone width.
 
@@ -33,7 +34,9 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python app.py
 ```
 
-Open http://127.0.0.1:8000. The page opens on `demo.sales`; click any table to see its profile and first 100 rows. Your uploads persist in `data.duckdb` (git-ignored).
+Open http://127.0.0.1:8000. The page opens on `demo.sales`; click any table to see its profile and first 100 rows. Sign up in the sidebar to upload your own files.
+
+All runtime data lives in `data/` (git-ignored): accounts in `data/auth.sqlite3`, each user's tables in `data/users/u<id>.duckdb`. Delete `data/` to reset everything.
 
 ## Check
 
@@ -41,13 +44,21 @@ Open http://127.0.0.1:8000. The page opens on `demo.sales`; click any table to s
 .venv/bin/python app.py check
 ```
 
-Prints `ok` when loading, profiling and querying all work.
+Prints `ok` when loading, profiling, querying, accounts and per-user isolation all work.
+
+## Security
+
+- Passwords are hashed with scrypt and a per-user salt. Sessions are random tokens, stored hashed, sent as `HttpOnly; SameSite=Strict` cookies, valid 30 days.
+- 5 failed logins lock that username for 15 minutes.
+- Each user's SQL runs in their own DuckDB with file, network and extension access turned off, so it can't read other users' data or files on disk. Demo data is attached read-only.
+- Cross-origin POSTs are refused.
 
 ## Limits
 
 - Excel: first sheet only.
-- Single user, localhost only, no auth. The SQL box can run any statement, including `DROP`.
-- No delete/export buttons yet; use SQL (`DROP TABLE x`, `COPY x TO 'x.parquet'`).
-- Demo tables can be modified or dropped with SQL; they're reloaded from `demo/` on every restart.
+- Runs on localhost over plain HTTP. Put it behind HTTPS (and add `Secure` to the cookie) before exposing it to a network.
+- No password reset by email: a forgotten password means a new account.
+- No delete/export buttons yet. Drop tables with SQL (`DROP TABLE x`); export isn't possible because SQL file access is disabled.
+- Uploads are capped at 200 MB.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for how it works and [CHANGELOG.md](CHANGELOG.md) for history.
