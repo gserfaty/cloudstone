@@ -16,7 +16,7 @@ A local data workbench: upload structured and semi-structured files, then profil
 - **Upload** (logged in) CSV, JSON, NDJSON/JSONL and XLSX (several at once). Each file becomes a table named after the file under **Your tables**; re-uploading replaces it.
 - **Structured + nested data** — column types are inferred, and nested JSON is queryable directly (`SELECT context.page FROM demo.events`).
 - **Auto profile** — per column: type, null %, approx distinct count, min/max, mean, std, quartiles.
-- **Ask in plain English** — type a question ("Which sales rep sold the most speakers?"); Claude writes the SQL, it runs, and you see the results, the SQL and a one-line explanation. Edit the SQL and press Run to refine. Works on demo data and your own tables.
+- **Ask in plain English** (off by default) — type a question ("Which sales rep sold the most speakers?"); Claude writes the SQL, it runs, and you see the results, the SQL and a one-line explanation. Edit the SQL and press Run to refine. Works on demo data and your own tables.
 - **SQL box** — any DuckDB SQL over the demo tables and your own, results capped at 1,000 rows, with timing.
 - **Charts** — bar, line or scatter from the last query result; pick the X and Y columns.
 - Light/dark mode, works at phone width.
@@ -29,15 +29,17 @@ Requires Python 3.10+.
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 ```
 
-## Claude API key (for plain-English questions)
+## Plain-English questions (off by default)
 
-Asking in plain English calls the Claude API. Everything else works without it.
+The Ask box is hidden and `/ask` is refused unless you turn it on, so Cloudstone can't spend money by accident. Everything else works without it.
+
+To turn it on with a Claude API key (billed per request by Anthropic, separately from any Claude Pro/Max subscription):
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...
+CLOUDSTONE_ASK=api ANTHROPIC_API_KEY=sk-ant-... .venv/bin/python app.py
 ```
 
-Set it in the shell you start the server from. Each question is one request to `claude-opus-5-5` and sends Claude your question, the names and types of every table you can see, and 3 sample rows of each.
+Each question is one request to `claude-opus-5-5` and sends Claude your question, the names and types of every table you can see, and 3 sample rows of each. The server prints the Ask mode on startup.
 
 ## Run
 
@@ -72,7 +74,7 @@ Prints `ok` when loading, profiling, querying, accounts, per-user isolation and 
 - No password reset by email: a forgotten password means a new account.
 - No delete/export buttons yet. Drop tables with SQL (`DROP TABLE x`); export isn't possible because SQL file access is disabled.
 - Uploads are capped at 200 MB.
-- Logged-out visitors can ask questions too, and every question is billed to the server's API key. Fine on localhost; add a login requirement or rate limit before exposing it.
+- With Ask on, logged-out visitors can ask questions too, and every question is billed to the server's API key. Fine on localhost; add a login requirement or rate limit before exposing it.
 - Questions don't carry context: each one is answered on its own, without the previous question.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for how it works and [CHANGELOG.md](CHANGELOG.md) for history.

@@ -102,6 +102,14 @@ ASK_SYSTEM = """You turn a question about the user's data into one DuckDB SQL qu
 explanation: one short sentence, for a non-technical reader, saying what the query returns."""
 
 _claude = None
+ASK_MODES = ("off", "api")  # off by default so nothing can be billed unless you opt in
+
+
+def ask_mode():
+    mode = os.environ.get("CLOUDSTONE_ASK", "off")
+    if mode not in ASK_MODES:
+        raise SystemExit(f"CLOUDSTONE_ASK must be one of {', '.join(ASK_MODES)}, not {mode!r}")
+    return mode
 NO_KEY = "Claude API key missing or invalid: set ANTHROPIC_API_KEY and restart the server"
 
 
@@ -343,7 +351,7 @@ class Handler(BaseHTTPRequestHandler):
                 if url.path == "/":
                     return self.send(200, (HERE / "index.html").read_bytes(), "text/html; charset=utf-8")
                 if url.path == "/me":
-                    return self.send(200, {"user": me[1] if me else None})
+                    return self.send(200, {"user": me[1] if me else None, "ask": ask_mode() != "off"})
                 if url.path == "/tables":
                     return self.send(200, tables(db))
                 if url.path == "/profile":
@@ -367,6 +375,8 @@ class Handler(BaseHTTPRequestHandler):
             if url.path == "/query":
                 return self.send(200, query(db, data["sql"]))
             if url.path == "/ask":
+                if ask_mode() == "off":
+                    return self.send(403, {"error": "Ask is turned off; start the server with CLOUDSTONE_ASK=api"})
                 return self.send(200, ask(db, str(data.get("question", ""))))
             if not me:
                 return self.send(401, {"error": "log in to do that"})
@@ -402,6 +412,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def start():
+    print(f"Ask (plain-English questions): {ask_mode()}")
     DATA.mkdir(exist_ok=True)
     build_demo()
     Handler.auth, Handler.anon = open_auth(), open_anon_db()
@@ -502,6 +513,12 @@ def check():
         def no_key(**kw):
             raise TypeError("Could not resolve authentication method.")
         raises(ValueError, ask, anon, "x", NS(beta=NS(messages=NS(create=no_key))))
+
+        os.environ.pop("CLOUDSTONE_ASK", None)
+        assert ask_mode() == "off"
+        os.environ["CLOUDSTONE_ASK"] = "bogus"
+        raises(SystemExit, ask_mode)
+        del os.environ["CLOUDSTONE_ASK"]
 
         # password change ends sessions; account deletion removes data
         change_password(auth, ana, "ana", "correct horse", "new secret!")

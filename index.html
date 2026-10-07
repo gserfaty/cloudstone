@@ -294,7 +294,7 @@ $('run').onclick = run;
 $('sql').onkeydown = e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) run(); };
 for (const id of ['ctype', 'cx', 'cy']) $(id).onchange = drawChart;
 $('examples').replaceChildren(...EXAMPLES.map(([label, sub, sql]) => listItem(label, sub, () => { $('sql').value = sql; run(); })));
-api('/me').then(j => setUser(j.user)).then(() => showProfile('demo.sales'));
+api('/me').then(j => { $('askform').hidden = $('askmsg').hidden = !j.ask; return setUser(j.user); }).then(() => showProfile('demo.sales'));
 </script>
 </body>
 </html>

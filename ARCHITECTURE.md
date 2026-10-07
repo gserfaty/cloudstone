@@ -24,11 +24,11 @@ browser (index.html) ──fetch + session cookie──▶ app.py (http.server)
 | Method | Path | Auth | Body / query | Returns |
 |--------|------|------|--------------|---------|
 | GET | `/` | | | `index.html` |
-| GET | `/me` | | | `{user: name or null}` |
+| GET | `/me` | | | `{user: name or null, ask: true/false}`; the page hides the Ask box when `ask` is false |
 | GET | `/tables` | | | `["demo.sales", ..., "my_upload"]`: demo tables first, then your own |
 | GET | `/profile` | | `?table=name` | `{columns, rows, truncated}` from `SUMMARIZE` |
 | POST | `/query` | | `{"sql": "..."}` | `{columns, rows, truncated}` |
-| POST | `/ask` | | `{"question": "..."}` | `{sql, explanation, columns, rows, truncated, error?}`; `error` is set when the generated SQL fails |
+| POST | `/ask` | | `{"question": "..."}` | `{sql, explanation, columns, rows, truncated, error?}`; `error` is set when the generated SQL fails. 403 when Ask is off |
 | POST | `/signup` | | `{username, password}` | `{user}` + session cookie |
 | POST | `/login` | | `{username, password}` | `{user}` + session cookie |
 | POST | `/logout` | ✓ | `{}` | `{user: null}`, clears cookie |
@@ -61,6 +61,8 @@ Every request looks up the `cs_session` cookie. Without a valid session it uses 
 4. The response includes the profile, so the UI renders it without another request.
 
 ## Plain-English questions
+
+Off unless `CLOUDSTONE_ASK=api` is set (`ask_mode()`; any other value stops the server at startup). Off means the Ask box is hidden and `/ask` returns 403 without contacting Claude.
 
 1. `describe()` lists every table the request's connection can see (demo plus the user's own), with column names, DuckDB types (nested `STRUCT`/`LIST` types included) and 3 sample rows, truncated to 1,500 characters per table.
 2. `create_message()` sends that schema and the question to `claude-opus-5-5`:

@@ -16,6 +16,7 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 - README, ARCHITECTURE and CHANGELOG docs, plus a `CLAUDE.md` rule to keep them current with every commit and push.
 
 ### Changed
+- Plain-English questions are off by default: the Ask box is hidden and `/ask` returns 403 until the server is started with `CLOUDSTONE_ASK=api`. Nothing can be billed by accident.
 - SQL runs sandboxed: no file, network or extension access, so `COPY ... TO` and reading arbitrary files no longer work.
 - Logged-out visitors can browse and query demo data but not upload.
 - Demo data now lives in a read-only `data/demo.duckdb`, attached to every user's database as `demo`.
