@@ -15,6 +15,7 @@ browser (index.html) ──fetch + session cookie──▶ app.py (http.server)
 |------|------|
 | `app.py` | Stdlib `HTTPServer` on `127.0.0.1:8000`. Serves the page, accounts, uploads, queries. Also holds the self-check (`python app.py check`). |
 | `index.html` | Whole UI: plain HTML/CSS/JS, no build step. Chart.js loaded from cdnjs. |
+| Claude API | Called from `ask()` through the `anthropic` SDK to turn questions into SQL. Credentials from `ANTHROPIC_API_KEY`. |
 | `demo/` | Demo files, one per supported format. Rebuilt into `data/demo.duckdb` on every start. |
 | `data/` | All runtime state, git-ignored. Created on first run. |
 
@@ -27,6 +28,7 @@ browser (index.html) ──fetch + session cookie──▶ app.py (http.server)
 | GET | `/tables` | | | `["demo.sales", ..., "my_upload"]`: demo tables first, then your own |
 | GET | `/profile` | | `?table=name` | `{columns, rows, truncated}` from `SUMMARIZE` |
 | POST | `/query` | | `{"sql": "..."}` | `{columns, rows, truncated}` |
+| POST | `/ask` | | `{"question": "..."}` | `{sql, explanation, columns, rows, truncated, error?}`; `error` is set when the generated SQL fails |
 | POST | `/signup` | | `{username, password}` | `{user}` + session cookie |
 | POST | `/login` | | `{username, password}` | `{user}` + session cookie |
 | POST | `/logout` | ✓ | `{}` | `{user: null}`, clears cookie |
@@ -34,7 +36,7 @@ browser (index.html) ──fetch + session cookie──▶ app.py (http.server)
 | POST | `/account/delete` | ✓ | `{password}` | `{user: null}`; user's database and uploads deleted |
 | POST | `/upload` | ✓ | `?name=file.ext`, raw file bytes | `{table, profile}` |
 
-Errors return JSON `{"error": "..."}`: 400 bad input, 401 not logged in or wrong password, 403 cross-origin or locked out, 413 body over 200 MB. Values JSON-encode with `default=str` (dates, decimals, UUIDs become strings; structs and lists stay JSON).
+Errors return JSON `{"error": "..."}`: 400 bad input, 401 not logged in or wrong password, 403 cross-origin or locked out, 413 body over 200 MB, 502 Claude API failure (missing key, rate limit, outage). Values JSON-encode with `default=str` (dates, decimals, UUIDs become strings; structs and lists stay JSON).
 
 ## Which database a request uses
 
@@ -58,6 +60,19 @@ Every request looks up the `cs_session` cookie. Without a valid session it uses 
 3. `CREATE OR REPLACE TABLE main."<name>" AS SELECT * FROM reader(path)`, then the temp dir is removed. The name comes from `table_name()`: lowercase, non-word characters become `_`, and names starting with a digit get a `t_` prefix.
 4. The response includes the profile, so the UI renders it without another request.
 
+## Plain-English questions
+
+1. `describe()` lists every table the request's connection can see (demo plus the user's own), with column names, DuckDB types (nested `STRUCT`/`LIST` types included) and 3 sample rows, truncated to 1,500 characters per table.
+2. `create_message()` sends that schema and the question to `claude-opus-5-5`:
+   - `output_config.format` is a JSON schema `{sql, explanation}`, so the reply is always parseable JSON.
+   - `output_config.effort = "medium"`: translating a question into one query doesn't need deeper reasoning.
+   - `fallbacks: "default"` (beta `server-side-fallback-2026-07-01`): if Opus's safety classifiers decline, the API retries on Anthropic's recommended fallback model within the same call.
+   - The system prompt asks for one read-only DuckDB query, explains nested-field and `unnest` syntax, and allows an empty `sql` when the data can't answer.
+3. `ask()` runs the SQL on the same connection inside `BEGIN TRANSACTION … ROLLBACK`, so even a bad `DELETE` changes nothing. A refusal or a cut-off reply becomes a 400; a failing query returns its SQL plus `error` so the user can fix it.
+4. The page shows the explanation, puts the SQL in the SQL box, and renders the result and chart like any other query.
+
+The self-check passes a stand-in client to `ask()`, so it tests the prompt contents, rollback, errors and refusals without calling the API.
+
 ## Accounts
 
 - `data/auth.sqlite3` (stdlib `sqlite3`, kept apart from DuckDB so no user SQL can reach it):
@@ -74,6 +89,7 @@ Every request looks up the `cs_session` cookie. Without a valid session it uses 
 - **DuckDB over SQLite/Postgres for data:** schema inference for CSV/JSON, native nested types, fast analytics, embedded (no server).
 - **One DuckDB file per user:** isolation comes from separate files plus the sandbox instead of row-level permissions in a shared database, and deleting an account is deleting a file.
 - **SQLite for accounts:** stdlib, and out of reach of user SQL.
+- **Claude writes SQL, DuckDB answers:** the model never sees full tables, only schema and samples, and the user can read and edit the exact query that produced the answer.
 - **Stdlib server, no framework:** a dozen routes don't need one. Raw-body uploads avoid multipart parsing.
 - **Single-threaded server:** fine for local use. Upgrade path: `ThreadingHTTPServer` plus `cursor()` per request. `USER_DBS` never closes idle connections; add an LRU if many users are active.
 - **Results capped at 1,000 rows** (`MAX_ROWS`) to keep the browser responsive.

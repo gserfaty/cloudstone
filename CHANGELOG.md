@@ -5,6 +5,8 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 ## [Unreleased]
 
 ### Added
+- Ask questions in plain English: Claude (`claude-opus-5-5`, via the `anthropic` SDK) writes DuckDB SQL from your question and the tables you can see; the page shows the result, the SQL and a one-line explanation. Generated SQL runs in a rolled-back transaction.
+- `anthropic` added to `requirements.txt`; set `ANTHROPIC_API_KEY` to use plain-English questions.
 - User accounts: sign up, log in, log out, change password (ends other sessions), delete account (removes all its data).
 - Per-user storage: each user's uploads persist in their own DuckDB file under `data/users/`.
 - Security: scrypt password hashing, hashed session tokens in `HttpOnly; SameSite=Strict` cookies, login lockout after 5 failures, cross-origin POST refusal, 200 MB body cap.

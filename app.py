@@ -9,6 +9,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 
+import anthropic
 import duckdb
 
 HERE = Path(__file__).parent
@@ -79,6 +80,83 @@ def query(db, sql):
     rows = cur.fetchmany(MAX_ROWS + 1)
     return {"columns": [d[0] for d in cur.description], "rows": rows[:MAX_ROWS],
             "truncated": len(rows) > MAX_ROWS}
+
+
+# ---------- natural-language questions (Claude) ----------
+
+MODEL = "claude-opus-5-5"
+ASK_SCHEMA = {
+    "type": "object",
+    "properties": {"sql": {"type": "string"}, "explanation": {"type": "string"}},
+    "required": ["sql", "explanation"],
+    "additionalProperties": False,
+}
+ASK_SYSTEM = """You turn a question about the user's data into one DuckDB SQL query.
+
+- Use only the tables and columns in <schema>. Table names are exactly as listed (demo tables are demo.<name>).
+- Read-only: a single SELECT or WITH ... SELECT. Never modify data.
+- Nested data: struct fields are struct_col.field; expand lists with FROM t, unnest(list_col) AS u(item).
+- Round money and averages to 2 decimals, name computed columns clearly, and order results meaningfully.
+- If the data can't answer the question, return an empty sql and say why in the explanation.
+
+explanation: one short sentence, for a non-technical reader, saying what the query returns."""
+
+_claude = None
+NO_KEY = "Claude API key missing or invalid: set ANTHROPIC_API_KEY and restart the server"
+
+
+def describe(db):
+    """Schema plus a few sample rows for every table this connection can see."""
+    parts = []
+    for name in tables(db):
+        cols = db.execute(f"DESCRIBE {ident(name)}").fetchall()
+        sample = json.dumps(db.execute(f"SELECT * FROM {ident(name)} LIMIT 3").fetchall(), default=str)
+        parts.append(f"TABLE {name}\n" + "\n".join(f"  {c[0]} {c[1]}" for c in cols)
+                     + f"\n  sample rows: {sample[:1500]}")
+    return "\n\n".join(parts)
+
+
+def create_message(client, question, db):
+    return client.beta.messages.create(
+        model=MODEL,
+        max_tokens=16000,
+        betas=["server-side-fallback-2026-07-01"],
+        fallbacks="default",  # if Opus declines, Anthropic retries on its recommended fallback model
+        output_config={"effort": "medium", "format": {"type": "json_schema", "schema": ASK_SCHEMA}},
+        system=ASK_SYSTEM,
+        messages=[{"role": "user", "content": f"<schema>\n{describe(db)}\n</schema>\n\nQuestion: {question}"}],
+    )
+
+
+def ask(db, question, client=None):
+    """Ask Claude for SQL answering `question`, run it (changes rolled back), return sql + result."""
+    global _claude
+    question = question.strip()
+    if not question:
+        raise ValueError("type a question first")
+    if client is None:
+        client = _claude = _claude or anthropic.Anthropic()
+    try:
+        resp = create_message(client, question, db)
+    except TypeError as e:  # the SDK raises this when no credentials are configured
+        if "authentication" not in str(e):
+            raise
+        raise ValueError(NO_KEY) from e
+    if resp.stop_reason == "refusal":
+        raise ValueError("Claude declined to answer that question")
+    if resp.stop_reason == "max_tokens":
+        raise ValueError("Claude's answer was cut off; try a simpler question")
+    out = json.loads(next(b.text for b in resp.content if b.type == "text"))
+    result = {"sql": out["sql"], "explanation": out["explanation"], "columns": [], "rows": [], "truncated": False}
+    if out["sql"].strip():
+        db.execute("BEGIN TRANSACTION")  # the prompt says read-only; the rollback makes sure
+        try:
+            result.update(query(db, out["sql"]))
+        except duckdb.Error as e:
+            result["error"] = str(e)
+        finally:
+            db.execute("ROLLBACK")
+    return result
 
 
 # ---------- databases: demo, anonymous, per user ----------
@@ -288,6 +366,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send(200, {"user": name}, cookie=new_session(self.auth, uid))
             if url.path == "/query":
                 return self.send(200, query(db, data["sql"]))
+            if url.path == "/ask":
+                return self.send(200, ask(db, str(data.get("question", ""))))
             if not me:
                 return self.send(401, {"error": "log in to do that"})
             if url.path == "/logout":
@@ -307,6 +387,12 @@ class Handler(BaseHTTPRequestHandler):
             self.send(401 if url.path in ("/login", "/password", "/account/delete") else 403, {"error": str(e)})
         except (duckdb.Error, ValueError, KeyError, TypeError) as e:
             self.send(400, {"error": str(e)})
+        except anthropic.AuthenticationError:
+            self.send(502, {"error": NO_KEY})
+        except anthropic.RateLimitError:
+            self.send(502, {"error": "Claude API rate limit reached; try again in a minute"})
+        except anthropic.AnthropicError as e:
+            self.send(502, {"error": f"Claude API error: {e}"})
 
     def do_GET(self):
         self.route("GET")
@@ -390,6 +476,32 @@ def check():
             raises(PermissionError, verify, auth, "bob", "nope nope")
         raises(PermissionError, verify, auth, "bob", "battery staple")
         FAILS.clear()
+
+        # natural-language questions, with a stand-in for the Claude client
+        from types import SimpleNamespace as NS
+        sent, a = {}, user_db(ana)
+
+        def fake(answer, stop="end_turn"):
+            def create(**kw):
+                sent.update(kw)
+                return NS(stop_reason=stop, content=[NS(type="text", text=json.dumps(answer))])
+            return NS(beta=NS(messages=NS(create=create)))
+
+        r = ask(a, "total of my values?", fake({"sql": "SELECT sum(v) AS total FROM mine", "explanation": "Sum."}))
+        assert r["rows"] == [(3,)] and r["sql"].startswith("SELECT")
+        prompt = sent["messages"][0]["content"]
+        assert "TABLE demo.sales" in prompt and "TABLE mine" in prompt and "v BIGINT" in prompt
+        assert sent["model"] == MODEL and sent["output_config"]["format"]["schema"] == ASK_SCHEMA
+        r = ask(a, "wipe it", fake({"sql": "DELETE FROM mine", "explanation": "x"}))
+        assert query(a, "SELECT count(*) FROM mine")["rows"] == [(2,)]  # rolled back
+        r = ask(anon, "bad", fake({"sql": "SELECT nope FROM demo.sales", "explanation": "x"}))
+        assert "nope" in r["error"]
+        assert ask(anon, "weather?", fake({"sql": "", "explanation": "No weather data."}))["rows"] == []
+        raises(ValueError, ask, anon, "x", fake({}, stop="refusal"))
+        raises(ValueError, ask, anon, "   ", fake({}))
+        def no_key(**kw):
+            raise TypeError("Could not resolve authentication method.")
+        raises(ValueError, ask, anon, "x", NS(beta=NS(messages=NS(create=no_key))))
 
         # password change ends sessions; account deletion removes data
         change_password(auth, ana, "ana", "correct horse", "new secret!")

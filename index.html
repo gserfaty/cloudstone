@@ -85,6 +85,12 @@
   </section>
   <section>
     <h2>Query</h2>
+    <form id="askform" class="row" style="margin:0 0 10px">
+      <input id="question" type="text" style="flex:1; margin:0" aria-label="Question in plain English"
+        placeholder="Ask in plain English, e.g. Which sales rep sold the most speakers?">
+      <button class="primary">Ask</button>
+    </form>
+    <div id="askmsg" class="muted" style="margin-bottom:8px"></div>
     <textarea id="sql" spellcheck="false" placeholder="SELECT * FROM demo.sales LIMIT 100&#10;-- nested JSON: SELECT context.device, count(*) FROM demo.events GROUP BY 1"></textarea>
     <div class="row"><button class="primary" id="run">Run</button><span class="muted">Ctrl/⌘+Enter</span></div>
     <div id="qmsg" class="muted"></div>
@@ -238,18 +244,40 @@ async function run() {
   $('qmsg').textContent = 'Running…';
   const t0 = performance.now();
   try {
-    last = await api('/query', {method: 'POST', body: JSON.stringify({sql: $('sql').value})});
-    $('qmsg').textContent = `${last.rows.length}${last.truncated ? '+ (showing first 1000)' : ''} rows · ${Math.round(performance.now() - t0)} ms`;
-    renderTable($('result'), last);
-    for (const s of [$('cx'), $('cy')]) s.replaceChildren(...last.columns.map((c, i) => new Option(c, i)));
-    if (last.columns.length > 1) $('cy').value = 1;
-    drawChart();
+    showResult(await api('/query', {method: 'POST', body: JSON.stringify({sql: $('sql').value})}), t0);
     loadTables();
   } catch (err) {
-    $('qmsg').className = 'err';
-    $('qmsg').textContent = err.message;
+    say($('qmsg'), err.message, true);
   }
 }
+
+function showResult(r, t0) {
+  last = r;
+  say($('qmsg'), `${r.rows.length}${r.truncated ? '+ (showing first 1000)' : ''} rows · ${Math.round(performance.now() - t0)} ms`);
+  renderTable($('result'), r);
+  for (const s of [$('cx'), $('cy')]) s.replaceChildren(...r.columns.map((c, i) => new Option(c, i)));
+  if (r.columns.length > 1) $('cy').value = 1;
+  drawChart();
+}
+
+$('askform').onsubmit = async e => {
+  e.preventDefault();
+  const btn = e.target.querySelector('button');
+  btn.disabled = true;
+  say($('askmsg'), 'Asking Claude…');
+  const t0 = performance.now();
+  try {
+    const j = await post('/ask', {question: $('question').value});
+    $('sql').value = j.sql;
+    say($('askmsg'), j.explanation + (j.sql ? ' The SQL is below; edit it and press Run to refine.' : ''));
+    if (j.error) say($('qmsg'), j.error, true);
+    else if (j.sql) showResult(j, t0);
+  } catch (err) {
+    say($('askmsg'), err.message, true);
+  } finally {
+    btn.disabled = false;
+  }
+};
 
 function drawChart() {
   chart?.destroy();
