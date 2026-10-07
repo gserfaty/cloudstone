@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloudstone</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root { --bg:#fafafa; --fg:#1d1d1f; --muted:#6e6e73; --line:#e3e3e6; --card:#fff; --accent:#2563eb; --err:#c0392b; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#111214; --fg:#e8e8ea; --muted:#9a9aa0; --line:#2a2b2f; --card:#1a1b1e; --accent:#60a5fa; --err:#ff6b5b; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.45 system-ui,sans-serif; background:var(--bg); color:var(--fg); display:grid; grid-template-columns:220px 1fr; min-height:100vh; }
+  aside { border-right:1px solid var(--line); padding:16px; }
+  main { padding:16px; display:grid; gap:16px; align-content:start; min-width:0; }
+  h1 { font-size:15px; margin:0 0 12px; }
+  h2 { font-size:13px; margin:0 0 8px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px; min-width:0; }
+  ul { list-style:none; padding:0; margin:12px 0 0; }
+  li button { all:unset; cursor:pointer; display:block; width:100%; padding:4px 6px; border-radius:4px; }
+  li button:hover, li button:focus-visible { background:var(--line); }
+  textarea { width:100%; min-height:90px; font:13px ui-monospace,monospace; background:var(--bg); color:var(--fg); border:1px solid var(--line); border-radius:6px; padding:8px; }
+  button.primary { background:var(--accent); color:#fff; border:0; border-radius:6px; padding:6px 14px; cursor:pointer; }
+  select { background:var(--bg); color:var(--fg); border:1px solid var(--line); border-radius:4px; padding:3px; }
+  .scroll { overflow:auto; max-height:420px; }
+  table { border-collapse:collapse; font-size:12.5px; }
+  th, td { border-bottom:1px solid var(--line); padding:4px 10px; text-align:left; white-space:nowrap; max-width:360px; overflow:hidden; text-overflow:ellipsis; }
+  th { position:sticky; top:0; background:var(--card); }
+  .muted { color:var(--muted); font-size:12px; }
+  .err { color:var(--err); white-space:pre-wrap; }
+  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px; }
+  @media (max-width:700px) { body { grid-template-columns:1fr; } aside { border-right:0; border-bottom:1px solid var(--line); } }
+</style>
+</head>
+<body>
+<aside>
+  <h1>Cloudstone</h1>
+  <label class="muted">Upload CSV, JSON, NDJSON, XLSX<br>
+    <input id="file" type="file" accept=".csv,.json,.ndjson,.jsonl,.xlsx" multiple>
+  </label>
+  <div id="upmsg" class="muted"></div>
+  <ul id="tables"></ul>
+</aside>
+<main>
+  <section>
+    <h2 id="proftitle">Profile</h2>
+    <div id="profile" class="scroll muted">Upload a file or pick a table.</div>
+  </section>
+  <section>
+    <h2>Query</h2>
+    <textarea id="sql" spellcheck="false" placeholder="SELECT * FROM my_table LIMIT 100&#10;-- nested JSON: SELECT meta.tag, count(*) FROM events GROUP BY 1"></textarea>
+    <div class="row"><button class="primary" id="run">Run</button><span class="muted">Ctrl/⌘+Enter</span></div>
+    <div id="qmsg" class="muted"></div>
+    <div id="result" class="scroll"></div>
+  </section>
+  <section>
+    <h2>Chart</h2>
+    <div class="row">
+      <select id="ctype"><option>bar</option><option>line</option><option>scatter</option></select>
+      X <select id="cx"></select> Y <select id="cy"></select>
+    </div>
+    <canvas id="chart" height="110"></canvas>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+let last = null, chart = null;
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error);
+  return j;
+}
+
+function renderTable(el, {columns, rows}) {
+  const t = document.createElement('table');
+  const head = t.createTHead().insertRow();
+  columns.forEach(c => head.appendChild(document.createElement('th')).textContent = c);
+  const body = t.createTBody();
+  rows.forEach(r => {
+    const tr = body.insertRow();
+    r.forEach(v => {
+      const td = tr.insertCell();
+      td.textContent = v === null ? '∅' : typeof v === 'object' ? JSON.stringify(v) : v;
+      td.title = td.textContent;
+    });
+  });
+  el.replaceChildren(t);
+  el.classList.remove('muted');
+}
+
+async function loadTables() {
+  const names = await api('/tables');
+  $('tables').replaceChildren(...names.map(n => {
+    const li = document.createElement('li'), b = document.createElement('button');
+    b.textContent = n;
+    b.onclick = () => showProfile(n);
+    li.appendChild(b);
+    return li;
+  }));
+}
+
+async function showProfile(name, prof) {
+  $('proftitle').textContent = `Profile · ${name}`;
+  renderTable($('profile'), prof || await api('/profile?table=' + encodeURIComponent(name)));
+  $('sql').value = `SELECT * FROM "${name}" LIMIT 100`;
+}
+
+$('file').onchange = async e => {
+  for (const f of e.target.files) {
+    $('upmsg').textContent = `Loading ${f.name}…`;
+    try {
+      const j = await api('/upload?name=' + encodeURIComponent(f.name), {method: 'POST', body: f});
+      $('upmsg').textContent = `Loaded ${f.name} → ${j.table}`;
+      await loadTables();
+      await showProfile(j.table, j.profile);
+    } catch (err) {
+      $('upmsg').innerHTML = '';
+      $('upmsg').appendChild(Object.assign(document.createElement('div'), {className: 'err', textContent: err.message}));
+    }
+  }
+  e.target.value = '';
+};
+
+async function run() {
+  $('qmsg').className = 'muted';
+  $('qmsg').textContent = 'Running…';
+  const t0 = performance.now();
+  try {
+    last = await api('/query', {method: 'POST', body: JSON.stringify({sql: $('sql').value})});
+    $('qmsg').textContent = `${last.rows.length}${last.truncated ? '+ (showing first 1000)' : ''} rows · ${Math.round(performance.now() - t0)} ms`;
+    renderTable($('result'), last);
+    for (const s of [$('cx'), $('cy')]) s.replaceChildren(...last.columns.map((c, i) => new Option(c, i)));
+    if (last.columns.length > 1) $('cy').value = 1;
+    drawChart();
+    loadTables();
+  } catch (err) {
+    $('qmsg').className = 'err';
+    $('qmsg').textContent = err.message;
+  }
+}
+
+function drawChart() {
+  chart?.destroy();
+  if (!last?.rows.length) return;
+  const x = +$('cx').value, y = +$('cy').value, type = $('ctype').value;
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+  const data = type === 'scatter'
+    ? {datasets: [{label: last.columns[y], data: last.rows.map(r => ({x: +r[x], y: +r[y]})), backgroundColor: accent}]}
+    : {labels: last.rows.map(r => r[x]), datasets: [{label: last.columns[y], data: last.rows.map(r => +r[y]), backgroundColor: accent, borderColor: accent}]};
+  chart = new Chart($('chart'), {type, data, options: {plugins: {legend: {display: false}}}});
+}
+
+$('run').onclick = run;
+$('sql').onkeydown = e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) run(); };
+for (const id of ['ctype', 'cx', 'cy']) $(id).onchange = drawChart;
+loadTables();
+</script>
+</body>
+</html>
