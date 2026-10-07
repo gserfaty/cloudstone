@@ -1,0 +1,114 @@
+[
+  {
+    "sku": "CS-100",
+    "name": "Basalt Mug",
+    "category": "kitchen",
+    "price": 14.0,
+    "specs": {
+      "material": "stoneware",
+      "capacity_ml": 350
+    },
+    "tags": [
+      "gift",
+      "bestseller"
+    ],
+    "variants": [
+      {
+        "color": "charcoal",
+        "stock": 120
+      },
+      {
+        "color": "sand",
+        "stock": 45
+      }
+    ]
+  },
+  {
+    "sku": "CS-200",
+    "name": "Granite Coaster Set",
+    "category": "kitchen",
+    "price": 22.5,
+    "specs": {
+      "material": "granite",
+      "pieces": 4
+    },
+    "tags": [
+      "gift"
+    ],
+    "variants": [
+      {
+        "color": "grey",
+        "stock": 80
+      }
+    ]
+  },
+  {
+    "sku": "CS-300",
+    "name": "Slate Notebook",
+    "category": "office",
+    "price": 9.0,
+    "specs": {
+      "pages": 120,
+      "ruled": true
+    },
+    "tags": [],
+    "variants": [
+      {
+        "color": "black",
+        "stock": 300
+      },
+      {
+        "color": "blue",
+        "stock": 0
+      }
+    ]
+  },
+  {
+    "sku": "CS-400",
+    "name": "Quartz Desk Lamp",
+    "category": "office",
+    "price": 64.0,
+    "specs": {
+      "watts": 8,
+      "dimmable": true,
+      "material": "quartz"
+    },
+    "tags": [
+      "new"
+    ],
+    "variants": [
+      {
+        "color": "white",
+        "stock": 25
+      }
+    ]
+  },
+  {
+    "sku": "CS-500",
+    "name": "Pebble Speaker",
+    "category": "electronics",
+    "price": 89.0,
+    "specs": {
+      "battery_h": 12,
+      "bluetooth": "5.3"
+    },
+    "tags": [
+      "new",
+      "bestseller"
+    ],
+    "variants": [
+      {
+        "color": "black",
+        "stock": 60
+      },
+      {
+        "color": "white",
+        "stock": 15
+      },
+      {
+        "color": "green",
+        "stock": 5
+      }
+    ]
+  }
+]

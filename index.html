@@ -27,6 +27,8 @@
   table { border-collapse:collapse; font-size:12.5px; }
   th, td { border-bottom:1px solid var(--line); padding:4px 10px; text-align:left; white-space:nowrap; max-width:360px; overflow:hidden; text-overflow:ellipsis; }
   th { position:sticky; top:0; background:var(--card); }
+  h2.side { margin:20px 0 0; }
+  li .sub { display:block; color:var(--muted); font-size:11.5px; }
   .muted { color:var(--muted); font-size:12px; }
   .err { color:var(--err); white-space:pre-wrap; }
   .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px; }
@@ -40,7 +42,12 @@
     <input id="file" type="file" accept=".csv,.json,.ndjson,.jsonl,.xlsx" multiple>
   </label>
   <div id="upmsg" class="muted"></div>
-  <ul id="tables"></ul>
+  <h2 class="side">Demo data</h2>
+  <ul id="demo"></ul>
+  <h2 class="side">Your tables</h2>
+  <ul id="tables"><li class="muted">None yet. Upload a file.</li></ul>
+  <h2 class="side">Example queries</h2>
+  <ul id="examples"></ul>
 </aside>
 <main>
   <section>
@@ -49,7 +56,7 @@
   </section>
   <section>
     <h2>Query</h2>
-    <textarea id="sql" spellcheck="false" placeholder="SELECT * FROM my_table LIMIT 100&#10;-- nested JSON: SELECT meta.tag, count(*) FROM events GROUP BY 1"></textarea>
+    <textarea id="sql" spellcheck="false" placeholder="SELECT * FROM demo.sales LIMIT 100&#10;-- nested JSON: SELECT context.device, count(*) FROM demo.events GROUP BY 1"></textarea>
     <div class="row"><button class="primary" id="run">Run</button><span class="muted">Ctrl/⌘+Enter</span></div>
     <div id="qmsg" class="muted"></div>
     <div id="result" class="scroll"></div>
@@ -66,6 +73,33 @@
 <script>
 const $ = id => document.getElementById(id);
 let last = null, chart = null;
+const ident = name => name.split('.').map(p => `"${p}"`).join('.');
+
+const EXAMPLES = [
+  ['Revenue by region', 'CSV', `SELECT region, round(sum(quantity * unit_price), 2) AS revenue
+FROM demo.sales GROUP BY 1 ORDER BY 2 DESC`],
+  ['Revenue by month', 'CSV', `SELECT strftime(order_date, '%Y-%m') AS month, round(sum(quantity * unit_price), 2) AS revenue
+FROM demo.sales GROUP BY 1 ORDER BY 1`],
+  ['Events by device', 'NDJSON · nested object', `SELECT context.device, count(*) AS events
+FROM demo.events GROUP BY 1 ORDER BY 2 DESC`],
+  ['Units purchased per SKU', 'NDJSON · unnest array', `SELECT item.sku, sum(item.qty) AS units
+FROM demo.events, unnest(items) AS t(item)
+WHERE type = 'purchase' GROUP BY 1 ORDER BY 2 DESC`],
+  ['Stock by product variant', 'JSON · array of objects', `SELECT name, v.color, v.stock
+FROM demo.products, unnest(variants) AS t(v) ORDER BY v.stock`],
+  ['Revenue per sales rep', 'XLSX ⋈ CSV join', `SELECT e.name, e.region, round(sum(s.quantity * s.unit_price), 2) AS revenue
+FROM demo.sales s JOIN demo.employees e ON s.rep_id = e.employee_id
+GROUP BY 1, 2 ORDER BY 3 DESC`],
+];
+
+function listItem(label, sub, onclick) {
+  const li = document.createElement('li'), b = document.createElement('button');
+  b.textContent = label;
+  if (sub) b.appendChild(Object.assign(document.createElement('span'), {className: 'sub', textContent: sub}));
+  b.onclick = onclick;
+  li.appendChild(b);
+  return li;
+}
 
 async function api(path, opts) {
   const r = await fetch(path, opts);
@@ -93,19 +127,17 @@ function renderTable(el, {columns, rows}) {
 
 async function loadTables() {
   const names = await api('/tables');
-  $('tables').replaceChildren(...names.map(n => {
-    const li = document.createElement('li'), b = document.createElement('button');
-    b.textContent = n;
-    b.onclick = () => showProfile(n);
-    li.appendChild(b);
-    return li;
-  }));
+  const item = n => listItem(n, '', () => showProfile(n));
+  $('demo').replaceChildren(...names.filter(n => n.startsWith('demo.')).map(item));
+  const mine = names.filter(n => !n.startsWith('demo.'));
+  if (mine.length) $('tables').replaceChildren(...mine.map(item));
 }
 
 async function showProfile(name, prof) {
   $('proftitle').textContent = `Profile · ${name}`;
   renderTable($('profile'), prof || await api('/profile?table=' + encodeURIComponent(name)));
-  $('sql').value = `SELECT * FROM "${name}" LIMIT 100`;
+  $('sql').value = `SELECT * FROM ${ident(name)} LIMIT 100`;
+  run();
 }
 
 $('file').onchange = async e => {
@@ -156,7 +188,8 @@ function drawChart() {
 $('run').onclick = run;
 $('sql').onkeydown = e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) run(); };
 for (const id of ['ctype', 'cx', 'cy']) $(id).onchange = drawChart;
-loadTables();
+$('examples').replaceChildren(...EXAMPLES.map(([label, sub, sql]) => listItem(label, sub, () => { $('sql').value = sql; run(); })));
+loadTables().then(() => showProfile('demo.sales'));
 </script>
 </body>
 </html>

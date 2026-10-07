@@ -12,6 +12,7 @@ browser (index.html) ──fetch──▶ app.py (http.server) ──▶ DuckDB 
 |------|------|
 | `app.py` | Stdlib `HTTPServer` on `127.0.0.1:8000`. Serves the page, loads uploads, runs queries. Also holds the self-check (`python app.py check`). |
 | `index.html` | Whole UI: plain HTML/CSS/JS, no build step. Chart.js loaded from cdnjs. |
+| `demo/` | Demo files, one per supported format. Loaded into the `demo` schema on every start. |
 | `data.duckdb` | All tables. Created on first run, git-ignored. |
 
 ## HTTP API
@@ -19,12 +20,18 @@ browser (index.html) ──fetch──▶ app.py (http.server) ──▶ DuckDB 
 | Method | Path | Body / query | Returns |
 |--------|------|--------------|---------|
 | GET | `/` | | `index.html` |
-| GET | `/tables` | | `["name", ...]` |
+| GET | `/tables` | | `["demo.sales", ..., "my_upload"]`: demo tables first, then uploads |
 | GET | `/profile` | `?table=name` | `{columns, rows, truncated}` from `SUMMARIZE` |
 | POST | `/upload` | `?name=file.ext`, raw file bytes | `{table, profile}` |
 | POST | `/query` | `{"sql": "..."}` | `{columns, rows, truncated}` |
 
 Errors return `400 {"error": "..."}`. Values JSON-encode with `default=str` (dates, decimals, UUIDs become strings; structs and lists stay JSON).
+
+## Tables and schemas
+
+- Uploads go into DuckDB's default `main` schema and are named without a prefix (`my_upload`).
+- Demo files go into the `demo` schema (`demo.sales`). `load_demo()` re-creates them on startup with the same `load()` path as uploads, so demo data exercises every reader.
+- `tables()` returns these qualified names. `profile()` only accepts a name from that list, and `ident()` quotes it (`"demo"."sales"`) for SQL.
 
 ## Upload flow
 
@@ -33,7 +40,7 @@ Errors return `400 {"error": "..."}`. Values JSON-encode with `default=str` (dat
    - `.csv` → `read_csv_auto`
    - `.json` / `.ndjson` / `.jsonl` → `read_json_auto` (nested objects become `STRUCT`, arrays become `LIST`)
    - `.xlsx` → openpyxl converts the first sheet to CSV, then `read_csv_auto`
-3. `CREATE OR REPLACE TABLE "<name>" AS SELECT * FROM reader(path)`. The name comes from `table_name()`: lowercase, non-word characters become `_`, and names starting with a digit get a `t_` prefix.
+3. `CREATE OR REPLACE TABLE "<schema>"."<name>" AS SELECT * FROM reader(path)`. The name comes from `table_name()`: lowercase, non-word characters become `_`, and names starting with a digit get a `t_` prefix.
 4. The response includes the profile, so the UI renders it without another request.
 
 ## Design decisions

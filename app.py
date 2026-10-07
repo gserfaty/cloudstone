@@ -11,6 +11,7 @@ from urllib.parse import urlparse, parse_qs
 import duckdb
 
 HERE = Path(__file__).parent
+DEMO = HERE / "demo"
 MAX_ROWS = 1000
 
 
@@ -26,7 +27,7 @@ def xlsx_to_csv(src, dst):
         csv.writer(f).writerows(ws.iter_rows(values_only=True))
 
 
-def load(db, filename, data):
+def load(db, filename, data, schema="main"):
     ext = Path(filename).suffix.lower()
     readers = {".csv": "read_csv_auto", ".json": "read_json_auto", ".ndjson": "read_json_auto",
                ".jsonl": "read_json_auto", ".xlsx": "read_csv_auto"}
@@ -38,18 +39,32 @@ def load(db, filename, data):
         if ext == ".xlsx":
             xlsx_to_csv(path, path := os.path.join(tmp, "upload.csv"))
         name = table_name(filename)
-        db.execute(f'CREATE OR REPLACE TABLE "{name}" AS SELECT * FROM {readers[ext]}(?)', [path])
-    return name
+        db.execute(f'CREATE OR REPLACE TABLE "{schema}"."{name}" AS SELECT * FROM {readers[ext]}(?)', [path])
+    return name if schema == "main" else f"{schema}.{name}"
+
+
+def load_demo(db):
+    """(Re)load every file in demo/ into the `demo` schema."""
+    db.execute("CREATE SCHEMA IF NOT EXISTS demo")
+    for f in sorted(DEMO.iterdir()):
+        load(db, f.name, f.read_bytes(), "demo")
+
+
+def ident(name):
+    """'demo.sales' -> "demo"."sales"; only call on names returned by tables()."""
+    return ".".join(f'"{part}"' for part in name.split(".", 1))
 
 
 def profile(db, name):
     if name not in tables(db):
         raise ValueError(f"no such table: {name}")
-    return query(db, f'SUMMARIZE "{name}"')
+    return query(db, f"SUMMARIZE {ident(name)}")
 
 
 def tables(db):
-    return [r[0] for r in db.execute("SELECT table_name FROM information_schema.tables ORDER BY 1").fetchall()]
+    rows = db.execute("SELECT table_schema, table_name FROM information_schema.tables "
+                      "WHERE table_catalog = current_database() ORDER BY table_schema = 'main', 1, 2").fetchall()
+    return [t if s == "main" else f"{s}.{t}" for s, t in rows]
 
 
 def query(db, sql):
@@ -125,6 +140,13 @@ def check():
     except ValueError:
         pass
     assert sorted(tables(db)) == ["events", "nested", "people", "sheet"]
+    load_demo(db)
+    assert tables(db)[:4] == ["demo.employees", "demo.events", "demo.products", "demo.sales"]
+    assert "events" in tables(db)  # user table with the same name as a demo table is kept
+    assert profile(db, "demo.sales")["rows"]
+    assert query(db, "SELECT count(*) FROM demo.sales s JOIN demo.employees e ON s.rep_id = e.employee_id "
+                     "JOIN demo.products p USING (sku)")["rows"] == [(120,)]
+    assert query(db, "SELECT count(*) FROM demo.events WHERE items IS NOT NULL")["rows"][0][0] > 0
     print("ok")
 
 
@@ -133,6 +155,7 @@ if __name__ == "__main__":
         check()
     else:
         Handler.db = duckdb.connect(str(HERE / "data.duckdb"))
+        load_demo(Handler.db)
         # ponytail: single-threaded server + one connection; fine for one local user
         print("http://127.0.0.1:8000")
         HTTPServer(("127.0.0.1", 8000), Handler).serve_forever()
