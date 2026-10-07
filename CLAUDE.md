@@ -1,6 +1,6 @@
 # Cloudstone
 
-Local data workbench: `app.py` (stdlib server, accounts, per-user DuckDB, plain-English questions via Claude), `index.html` (UI), `demo/` (demo data), `data/` (runtime state, git-ignored). Details in ARCHITECTURE.md.
+Local data workbench: `app.py` (stdlib server, accounts, per-user DuckDB, plain-English questions via Claude Code on the user's plan or the API; off by default), `index.html` (UI), `demo/` (demo data), `data/` (runtime state, git-ignored). Details in ARCHITECTURE.md.
 
 ## Docs rule: every commit, then push
 

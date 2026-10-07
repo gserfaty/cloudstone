@@ -31,15 +31,34 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 ## Plain-English questions (off by default)
 
-The Ask box is hidden and `/ask` is refused unless you turn it on, so Cloudstone can't spend money by accident. Everything else works without it.
+The Ask box is hidden and `/ask` is refused unless you turn it on, so Cloudstone can't spend money by accident. Everything else works without it. Pick a mode with `CLOUDSTONE_ASK` when you start the server; it prints the mode on startup.
 
-To turn it on with a Claude API key (billed per request by Anthropic, separately from any Claude Pro/Max subscription):
+| `CLOUDSTONE_ASK` | Who answers | Cost |
+|------------------|-------------|------|
+| `off` (default) | Nobody; the Ask box is hidden | Nothing |
+| `subscription` | Claude Code (`claude -p`) on this machine, logged in with your Claude Pro/Max plan | Counts against your plan's usage limits; no per-request charge |
+| `api` | The Claude API with `ANTHROPIC_API_KEY` | Billed per request by Anthropic, separately from any subscription |
+
+**Using your Claude plan** (needs [Claude Code](https://code.claude.com) installed and logged in; run `claude` once to check):
+
+```bash
+CLOUDSTONE_ASK=subscription .venv/bin/python app.py
+```
+
+- Each question uses your Claude Code default model (Opus 5.5 at the time of writing) and takes a few seconds.
+- When your plan's limit is reached, questions fail with Claude Code's limit message until it resets. To be sure that never turns into a charge, keep **extra usage** off in your claude.ai settings.
+- Cloudstone removes every `ANTHROPIC_*` and `CLAUDE*` variable before running `claude`, so an API key in your shell can't be used by accident.
+- For your own use only: the server listens on localhost, and your plan shouldn't be shared with other people.
+
+**Using an API key:**
 
 ```bash
 CLOUDSTONE_ASK=api ANTHROPIC_API_KEY=sk-ant-... .venv/bin/python app.py
 ```
 
-Each question is one request to `claude-opus-5-5` and sends Claude your question, the names and types of every table you can see, and 3 sample rows of each. The server prints the Ask mode on startup.
+Each question is one request to `claude-opus-5-5`.
+
+In both modes Claude receives your question, the names and types of every table you can see, and 3 sample rows of each.
 
 ## Run
 

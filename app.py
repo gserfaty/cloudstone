@@ -3,7 +3,7 @@
 Run:   python app.py            -> http://127.0.0.1:8000
 Check: python app.py check
 """
-import csv, hashlib, hmac, json, os, re, secrets, shutil, sqlite3, sys, tempfile, time
+import csv, hashlib, hmac, json, os, re, secrets, shutil, sqlite3, subprocess, sys, tempfile, time
 from http.cookies import SimpleCookie
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
@@ -102,7 +102,10 @@ ASK_SYSTEM = """You turn a question about the user's data into one DuckDB SQL qu
 explanation: one short sentence, for a non-technical reader, saying what the query returns."""
 
 _claude = None
-ASK_MODES = ("off", "api")  # off by default so nothing can be billed unless you opt in
+# off: hidden, nothing is ever sent (default). subscription: run Claude Code (`claude -p`) logged in
+# with your Claude plan, so questions use its usage limits. api: Anthropic API key, billed per request.
+ASK_MODES = ("off", "subscription", "api")
+NO_KEY = "Claude API key missing or invalid: set ANTHROPIC_API_KEY and restart the server"
 
 
 def ask_mode():
@@ -110,7 +113,6 @@ def ask_mode():
     if mode not in ASK_MODES:
         raise SystemExit(f"CLOUDSTONE_ASK must be one of {', '.join(ASK_MODES)}, not {mode!r}")
     return mode
-NO_KEY = "Claude API key missing or invalid: set ANTHROPIC_API_KEY and restart the server"
 
 
 def describe(db):
@@ -124,28 +126,44 @@ def describe(db):
     return "\n\n".join(parts)
 
 
-def create_message(client, question, db):
-    return client.beta.messages.create(
-        model=MODEL,
-        max_tokens=16000,
-        betas=["server-side-fallback-2026-07-01"],
-        fallbacks="default",  # if Opus declines, Anthropic retries on its recommended fallback model
-        output_config={"effort": "medium", "format": {"type": "json_schema", "schema": ASK_SCHEMA}},
-        system=ASK_SYSTEM,
-        messages=[{"role": "user", "content": f"<schema>\n{describe(db)}\n</schema>\n\nQuestion: {question}"}],
-    )
+def via_claude_code(prompt, run=subprocess.run):
+    """Ask through the local Claude Code CLI, which uses the Claude plan you're logged in with."""
+    # Drop every Anthropic/Claude variable so it can only use your own Claude Code login, never an API key.
+    env = {k: v for k, v in os.environ.items() if not k.startswith(("ANTHROPIC_", "CLAUDE"))}
+    cmd = ["claude", "-p", "--output-format", "json", "--json-schema", json.dumps(ASK_SCHEMA),
+           "--system-prompt", ASK_SYSTEM,
+           "--tools", "", "--strict-mcp-config",  # no tools: it only writes text
+           "--setting-sources", "project", "--no-session-persistence"]  # no plugins/hooks, no saved session
+    try:
+        with tempfile.TemporaryDirectory() as empty:  # empty working dir: no CLAUDE.md or project files
+            p = run(cmd, input=prompt, cwd=empty, env=env, capture_output=True, text=True, timeout=180)
+    except FileNotFoundError:
+        raise ValueError("Claude Code isn't installed or isn't on PATH; install it and run `claude` once to log in")
+    except subprocess.TimeoutExpired:
+        raise ValueError("Claude Code took longer than 3 minutes; try again")
+    try:
+        out = json.loads(p.stdout)
+    except json.JSONDecodeError:
+        raise ValueError(f"Claude Code failed: {(p.stderr or p.stdout).strip()[:300]}")
+    if out.get("is_error") or not isinstance(out.get("structured_output"), dict):
+        raise ValueError(f"Claude Code: {str(out.get('result') or out.get('subtype'))[:300]}")
+    return out["structured_output"]
 
 
-def ask(db, question, client=None):
-    """Ask Claude for SQL answering `question`, run it (changes rolled back), return sql + result."""
+def via_api(prompt, client):
     global _claude
-    question = question.strip()
-    if not question:
-        raise ValueError("type a question first")
     if client is None:
         client = _claude = _claude or anthropic.Anthropic()
     try:
-        resp = create_message(client, question, db)
+        resp = client.beta.messages.create(
+            model=MODEL,
+            max_tokens=16000,
+            betas=["server-side-fallback-2026-07-01"],
+            fallbacks="default",  # if Opus declines, Anthropic retries on its recommended fallback model
+            output_config={"effort": "medium", "format": {"type": "json_schema", "schema": ASK_SCHEMA}},
+            system=ASK_SYSTEM,
+            messages=[{"role": "user", "content": prompt}],
+        )
     except TypeError as e:  # the SDK raises this when no credentials are configured
         if "authentication" not in str(e):
             raise
@@ -154,7 +172,16 @@ def ask(db, question, client=None):
         raise ValueError("Claude declined to answer that question")
     if resp.stop_reason == "max_tokens":
         raise ValueError("Claude's answer was cut off; try a simpler question")
-    out = json.loads(next(b.text for b in resp.content if b.type == "text"))
+    return json.loads(next(b.text for b in resp.content if b.type == "text"))
+
+
+def ask(db, question, client=None, run=subprocess.run):
+    """Ask Claude for SQL answering `question`, run it (changes rolled back), return sql + result."""
+    question = question.strip()
+    if not question:
+        raise ValueError("type a question first")
+    prompt = f"<schema>\n{describe(db)}\n</schema>\n\nQuestion: {question}"
+    out = via_claude_code(prompt, run) if ask_mode() == "subscription" else via_api(prompt, client)
     result = {"sql": out["sql"], "explanation": out["explanation"], "columns": [], "rows": [], "truncated": False}
     if out["sql"].strip():
         db.execute("BEGIN TRANSACTION")  # the prompt says read-only; the rollback makes sure
@@ -376,7 +403,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send(200, query(db, data["sql"]))
             if url.path == "/ask":
                 if ask_mode() == "off":
-                    return self.send(403, {"error": "Ask is turned off; start the server with CLOUDSTONE_ASK=api"})
+                    return self.send(403, {"error": "Ask is turned off; start the server with CLOUDSTONE_ASK=subscription (uses your Claude plan) or CLOUDSTONE_ASK=api"})
                 return self.send(200, ask(db, str(data.get("question", ""))))
             if not me:
                 return self.send(401, {"error": "log in to do that"})
@@ -513,6 +540,30 @@ def check():
         def no_key(**kw):
             raise TypeError("Could not resolve authentication method.")
         raises(ValueError, ask, anon, "x", NS(beta=NS(messages=NS(create=no_key))))
+
+        # subscription mode: runs Claude Code with a clean environment and no tools
+        calls = []
+
+        def fake_run(cmd, **kw):
+            calls.append((cmd, kw))
+            return NS(stdout=json.dumps({"is_error": False, "structured_output":
+                      {"sql": "SELECT count(*) FROM demo.sales", "explanation": "Counts orders."}}), stderr="")
+        os.environ.update(CLOUDSTONE_ASK="subscription", ANTHROPIC_API_KEY="sk-ant-test-only")
+        try:
+            r = ask(anon, "how many orders?", run=fake_run)
+        finally:
+            del os.environ["ANTHROPIC_API_KEY"]
+        cmd, kw = calls[0]
+        assert r["rows"] == [(120,)] and cmd[:2] == ["claude", "-p"]
+        assert cmd[cmd.index("--tools") + 1] == "" and "TABLE demo.sales" in kw["input"]
+        assert not any(k.startswith(("ANTHROPIC_", "CLAUDE")) for k in kw["env"]) and kw["cwd"] != str(HERE)
+        limit = json.dumps({"is_error": True, "result": "Claude usage limit reached"})
+        raises(ValueError, ask, anon, "x", None, lambda *a, **k: NS(stdout=limit, stderr=""))
+        raises(ValueError, ask, anon, "x", None, lambda *a, **k: NS(stdout="", stderr="Not logged in"))
+
+        def missing(*a, **k):
+            raise FileNotFoundError
+        raises(ValueError, ask, anon, "x", None, missing)
 
         os.environ.pop("CLOUDSTONE_ASK", None)
         assert ask_mode() == "off"

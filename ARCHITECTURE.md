@@ -15,7 +15,7 @@ browser (index.html) ──fetch + session cookie──▶ app.py (http.server)
 |------|------|
 | `app.py` | Stdlib `HTTPServer` on `127.0.0.1:8000`. Serves the page, accounts, uploads, queries. Also holds the self-check (`python app.py check`). |
 | `index.html` | Whole UI: plain HTML/CSS/JS, no build step. Chart.js loaded from cdnjs. |
-| Claude API | Called from `ask()` through the `anthropic` SDK to turn questions into SQL. Credentials from `ANTHROPIC_API_KEY`. |
+| Claude | Turns questions into SQL in `ask()`: through the local Claude Code CLI on your Claude plan (`subscription` mode) or the `anthropic` SDK with an API key (`api` mode). |
 | `demo/` | Demo files, one per supported format. Rebuilt into `data/demo.duckdb` on every start. |
 | `data/` | All runtime state, git-ignored. Created on first run. |
 
@@ -62,18 +62,16 @@ Every request looks up the `cs_session` cookie. Without a valid session it uses 
 
 ## Plain-English questions
 
-Off unless `CLOUDSTONE_ASK=api` is set (`ask_mode()`; any other value stops the server at startup). Off means the Ask box is hidden and `/ask` returns 403 without contacting Claude.
+`ask_mode()` reads `CLOUDSTONE_ASK`: `off` (default), `subscription` or `api`; any other value stops the server at startup. Off means the Ask box is hidden and `/ask` returns 403 without contacting Claude.
 
 1. `describe()` lists every table the request's connection can see (demo plus the user's own), with column names, DuckDB types (nested `STRUCT`/`LIST` types included) and 3 sample rows, truncated to 1,500 characters per table.
-2. `create_message()` sends that schema and the question to `claude-opus-5-5`:
-   - `output_config.format` is a JSON schema `{sql, explanation}`, so the reply is always parseable JSON.
-   - `output_config.effort = "medium"`: translating a question into one query doesn't need deeper reasoning.
-   - `fallbacks: "default"` (beta `server-side-fallback-2026-07-01`): if Opus's safety classifiers decline, the API retries on Anthropic's recommended fallback model within the same call.
-   - The system prompt asks for one read-only DuckDB query, explains nested-field and `unnest` syntax, and allows an empty `sql` when the data can't answer.
-3. `ask()` runs the SQL on the same connection inside `BEGIN TRANSACTION … ROLLBACK`, so even a bad `DELETE` changes nothing. A refusal or a cut-off reply becomes a 400; a failing query returns its SQL plus `error` so the user can fix it.
+2. The schema and question go to Claude with the same system prompt (one read-only DuckDB query, nested-field and `unnest` syntax, empty `sql` when the data can't answer) and the same JSON schema `{sql, explanation}`:
+   - **`subscription` → `via_claude_code()`** runs `claude -p` with the prompt on stdin and `--output-format json --json-schema … --system-prompt …`, plus `--tools ""` (no tools), `--strict-mcp-config`, `--setting-sources project` and an empty temp working dir (no plugins, hooks, MCP servers or CLAUDE.md), and `--no-session-persistence`. Every `ANTHROPIC_*` / `CLAUDE*` environment variable is removed, so Claude Code can only use its own login, the user's Claude plan. The answer is read from `structured_output`; `is_error` (not logged in, usage limit reached), a missing `claude` binary and a 3-minute timeout become 400s with Claude Code's message.
+   - **`api` → `via_api()`** calls `claude-opus-5-5` through the `anthropic` SDK with `output_config.format` (the JSON schema), `effort: "medium"`, and `fallbacks: "default"` (beta `server-side-fallback-2026-07-01`: if Opus's safety classifiers decline, the API retries on Anthropic's recommended fallback model). Refusals and cut-off replies become 400s.
+3. `ask()` runs the SQL on the same connection inside `BEGIN TRANSACTION … ROLLBACK`, so even a bad `DELETE` changes nothing. A failing query returns its SQL plus `error` so the user can fix it.
 4. The page shows the explanation, puts the SQL in the SQL box, and renders the result and chart like any other query.
 
-The self-check passes a stand-in client to `ask()`, so it tests the prompt contents, rollback, errors and refusals without calling the API.
+The self-check passes stand-ins for the SDK client and for `subprocess.run`, so it tests both modes (prompt contents, the cleaned environment, no tools, rollback, errors, refusals, usage-limit and not-logged-in failures) without contacting Claude.
 
 ## Accounts
 
