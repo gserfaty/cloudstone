@@ -40,8 +40,11 @@ def xlsx_to_csv(src, dst):
 def load(db, filename, data, tmp_root=None):
     """Load file bytes into a table in db's main schema. tmp_root must be readable by db's sandbox."""
     ext = Path(filename).suffix.lower()
-    readers = {".csv": "read_csv_auto", ".json": "read_json_auto", ".ndjson": "read_json_auto",
-               ".jsonl": "read_json_auto", ".xlsx": "read_csv_auto"}
+    lines = ("(SELECT unnest(range(1, len(l) + 1)) AS line_no, unnest(l) AS line FROM "
+             "(SELECT regexp_split_to_array(rtrim(content, chr(13) || chr(10)), '\\r?\\n') AS l FROM read_text(?)))")
+    readers = {".csv": "read_csv_auto(?)", ".json": "read_json_auto(?)", ".ndjson": "read_json_auto(?)",
+               ".jsonl": "read_json_auto(?)", ".xlsx": "read_csv_auto(?)", ".parquet": "read_parquet(?)",
+               ".log": lines}  # one row per line: (line_no, line)
     if ext not in readers:
         raise ValueError(f"unsupported file type: {ext or filename}")
     with tempfile.TemporaryDirectory(dir=tmp_root) as tmp:
@@ -50,7 +53,7 @@ def load(db, filename, data, tmp_root=None):
         if ext == ".xlsx":
             xlsx_to_csv(path, path := os.path.join(tmp, "upload.csv"))
         name = table_name(filename)
-        db.execute(f'CREATE OR REPLACE TABLE main."{name}" AS SELECT * FROM {readers[ext]}(?)', [path])
+        db.execute(f'CREATE OR REPLACE TABLE main."{name}" AS SELECT * FROM {readers[ext]}', [path])
     return name
 
 
@@ -476,7 +479,12 @@ def check():
         auth, anon = Handler.auth, Handler.anon
 
         # demo data, read-only and sandboxed for anonymous visitors
-        assert tables(anon) == ["demo.employees", "demo.events", "demo.products", "demo.sales"]
+        assert tables(anon) == ["demo.customers", "demo.employees", "demo.events", "demo.products",
+                                "demo.sales", "demo.shipments", "demo.web_server"]
+        cols = dict(c[:2] for c in anon.execute("DESCRIBE demo.customers").fetchall())
+        assert cols["id"] == cols["tags"] == "JSON" and cols["email"] == "VARCHAR"  # mixed shapes stay queryable
+        assert query(anon, "SELECT count(*) FROM demo.shipments JOIN demo.sales USING (order_id)")["rows"] == [(120,)]
+        assert query(anon, "SELECT count(*) FROM demo.web_server WHERE line LIKE '%ERROR%'")["rows"][0][0] > 0
         assert query(anon, "SELECT count(*) FROM demo.sales s JOIN demo.employees e ON s.rep_id = e.employee_id "
                            "JOIN demo.products p USING (sku)")["rows"] == [(120,)]
         assert profile(anon, "demo.events")["rows"]
@@ -499,7 +507,13 @@ def check():
         # per-user data: saved, isolated, sandboxed
         a, b = user_db(ana), user_db(bo)
         load(a, "mine.csv", b"v\n1\n2\n", DATA / "uploads" / str(ana))
-        assert tables(a)[-1] == "mine" and "mine" not in tables(b)
+        load(a, "app.log", b"10:00 INFO up\r\n10:01 ERROR down\n", DATA / "uploads" / str(ana))  # sandboxed reads
+        assert query(a, "SELECT line_no, line FROM app")["rows"] == [(1, "10:00 INFO up"), (2, "10:01 ERROR down")]
+        with tempfile.TemporaryDirectory() as t:
+            duckdb.execute(f"COPY (SELECT 7 AS n, [1, 2] AS l) TO '{sq(Path(t) / 'p.parquet')}' (FORMAT parquet)")
+            load(a, "nums.parquet", (Path(t) / "p.parquet").read_bytes(), DATA / "uploads" / str(ana))
+        assert query(a, "SELECT n, len(l) FROM nums")["rows"] == [(7, 2)]
+        assert "mine" in tables(a) and "mine" not in tables(b)
         assert query(a, "SELECT * FROM demo.sales LIMIT 1")["rows"]
         raises(duckdb.Error, query, a, "DROP TABLE demo.sales")
         raises(duckdb.Error, query, b, f"ATTACH '{sq(DATA / 'users' / f'u{ana}.duckdb')}' AS x")

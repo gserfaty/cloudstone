@@ -1,0 +1,444 @@
+2026-09-14T08:00:36Z INFO  http method=GET path=/shop status=200 ms=47 user=4
+2026-09-14T08:00:42Z INFO  http method=GET path=/product/CS-100 status=200 ms=160 user=29
+2026-09-14T08:01:25Z INFO  http method=GET path=/api/checkout status=304 ms=58 user=23
+2026-09-14T08:02:55Z INFO  http method=GET path=/ status=200 ms=30 user=5
+2026-09-14T08:03:53Z INFO  http method=GET path=/api/checkout status=200 ms=48 user=31
+2026-09-14T08:04:03Z WARN  cache miss rate 46% on products pool
+2026-09-14T08:05:07Z INFO  http method=GET path=/cart status=200 ms=47 user=6
+2026-09-14T08:05:19Z INFO  http method=GET path=/product/CS-100 status=200 ms=18 user=30
+2026-09-14T08:06:29Z INFO  http method=GET path=/api/search status=200 ms=34 user=15
+2026-09-14T08:07:59Z INFO  http method=GET path=/api/search status=200 ms=238 user=24
+2026-09-14T08:08:38Z INFO  http method=POST path=/cart status=304 ms=20 user=29
+2026-09-14T08:09:42Z WARN  cache miss rate 40% on sessions pool
+2026-09-14T08:11:08Z INFO  http method=GET path=/api/checkout status=304 ms=20 user=15
+2026-09-14T08:12:23Z ERROR payment provider timeout after 11s (order 1018)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T08:12:41Z INFO  http method=GET path=/api/search status=200 ms=54 user=27
+2026-09-14T08:13:30Z INFO  http method=POST path=/product/CS-500 status=200 ms=76 user=29
+2026-09-14T08:14:12Z INFO  http method=GET path=/ status=200 ms=15 user=37
+2026-09-14T08:14:58Z INFO  http method=GET path=/api/search status=200 ms=42 user=2
+2026-09-14T08:15:33Z INFO  http method=GET path=/shop status=200 ms=37 user=13
+2026-09-14T08:15:59Z WARN  cache miss rate 36% on products pool
+2026-09-14T08:16:01Z INFO  http method=GET path=/cart status=200 ms=47 user=35
+2026-09-14T08:17:31Z ERROR payment provider timeout after 21s (order 1079)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T08:17:52Z INFO  http method=POST path=/api/search status=200 ms=47 user=25
+2026-09-14T08:18:09Z INFO  http method=POST path=/shop status=200 ms=224 user=33
+2026-09-14T08:18:53Z INFO  http method=GET path=/api/checkout status=200 ms=418 user=17
+2026-09-14T08:18:56Z INFO  http method=GET path=/ status=200 ms=12 user=32
+2026-09-14T08:19:00Z INFO  http method=GET path=/api/search status=200 ms=16 user=31
+2026-09-14T08:19:20Z DEBUG worker-4 heartbeat ok
+2026-09-14T08:20:24Z INFO  http method=POST path=/api/checkout status=200 ms=15 user=36
+2026-09-14T08:21:46Z INFO  http method=GET path=/cart status=200 ms=96 user=40
+2026-09-14T08:22:13Z INFO  http method=GET path=/shop status=200 ms=127 user=27
+2026-09-14T08:23:22Z INFO  http method=POST path=/ status=404 ms=38 user=26
+2026-09-14T08:24:32Z WARN  cache miss rate 56% on products pool
+2026-09-14T08:25:35Z INFO  http method=GET path=/shop status=200 ms=9 user=18
+2026-09-14T08:26:07Z INFO  http method=GET path=/shop status=404 ms=3 user=34
+2026-09-14T08:26:48Z INFO  http method=GET path=/product/CS-500 status=200 ms=288 user=3
+2026-09-14T08:27:13Z INFO  http method=POST path=/ status=200 ms=48 user=32
+2026-09-14T08:27:27Z INFO  http method=GET path=/cart status=200 ms=11 user=34
+2026-09-14T08:28:23Z INFO  http method=POST path=/api/checkout status=200 ms=425 user=35
+2026-09-14T08:29:45Z INFO  http method=GET path=/shop status=304 ms=114 user=23
+2026-09-14T08:30:09Z INFO  http method=GET path=/product/CS-100 status=200 ms=64 user=7
+2026-09-14T08:30:27Z WARN  cache miss rate 28% on search pool
+2026-09-14T08:30:39Z INFO  http method=POST path=/ status=200 ms=7 user=9
+2026-09-14T08:31:05Z INFO  http method=GET path=/api/checkout status=200 ms=52 user=8
+2026-09-14T08:32:10Z INFO  http method=GET path=/product/CS-100 status=200 ms=33 user=31
+2026-09-14T08:32:24Z INFO  http method=GET path=/api/search status=200 ms=38 user=13
+2026-09-14T08:32:48Z INFO  http method=GET path=/shop status=200 ms=26 user=28
+2026-09-14T08:33:54Z INFO  http method=GET path=/shop status=200 ms=38 user=12
+2026-09-14T08:34:47Z INFO  http method=GET path=/api/checkout status=200 ms=3 user=21
+2026-09-14T08:34:58Z WARN  cache miss rate 60% on sessions pool
+2026-09-14T08:36:11Z INFO  http method=GET path=/cart status=200 ms=39 user=8
+2026-09-14T08:36:32Z WARN  cache miss rate 45% on products pool
+2026-09-14T08:37:15Z WARN  cache miss rate 43% on sessions pool
+2026-09-14T08:37:39Z INFO  http method=POST path=/api/checkout status=500 ms=24 user=4
+2026-09-14T08:38:09Z INFO  http method=GET path=/api/checkout status=200 ms=23 user=25
+2026-09-14T08:39:15Z DEBUG worker-2 heartbeat ok
+2026-09-14T08:40:45Z INFO  http method=GET path=/product/CS-500 status=200 ms=60 user=33
+2026-09-14T08:40:52Z INFO  http method=POST path=/api/checkout status=304 ms=427 user=35
+2026-09-14T08:41:58Z INFO  http method=POST path=/cart status=200 ms=89 user=3
+2026-09-14T08:42:48Z ERROR payment provider timeout after 10s (order 1050)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T08:43:49Z DEBUG worker-4 heartbeat ok
+2026-09-14T08:44:59Z INFO  http method=GET path=/ status=200 ms=27 user=39
+2026-09-14T08:45:39Z INFO  http method=POST path=/product/CS-100 status=304 ms=32 user=19
+2026-09-14T08:45:43Z INFO  http method=POST path=/shop status=200 ms=45 user=25
+2026-09-14T08:45:50Z WARN  cache miss rate 45% on products pool
+2026-09-14T08:47:05Z DEBUG worker-3 heartbeat ok
+2026-09-14T08:47:15Z INFO  http method=GET path=/shop status=404 ms=27 user=3
+2026-09-14T08:48:22Z INFO  http method=GET path=/api/search status=404 ms=58 user=39
+2026-09-14T08:48:37Z INFO  http method=POST path=/product/CS-500 status=200 ms=30 user=10
+2026-09-14T08:48:53Z INFO  http method=POST path=/shop status=200 ms=50 user=27
+2026-09-14T08:49:40Z INFO  http method=GET path=/cart status=200 ms=54 user=16
+2026-09-14T08:50:42Z INFO  http method=GET path=/product/CS-100 status=200 ms=93 user=40
+2026-09-14T08:52:10Z INFO  http method=GET path=/api/checkout status=200 ms=46 user=33
+2026-09-14T08:53:34Z ERROR payment provider timeout after 26s (order 1006)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T08:54:55Z INFO  http method=GET path=/product/CS-100 status=304 ms=9 user=36
+2026-09-14T08:55:26Z INFO  http method=GET path=/product/CS-100 status=200 ms=32 user=9
+2026-09-14T08:55:36Z WARN  cache miss rate 48% on search pool
+2026-09-14T08:56:04Z INFO  http method=POST path=/api/checkout status=200 ms=5 user=21
+2026-09-14T08:56:42Z INFO  http method=GET path=/api/checkout status=200 ms=57 user=21
+2026-09-14T08:56:53Z INFO  http method=GET path=/product/CS-500 status=200 ms=39 user=1
+2026-09-14T08:57:03Z INFO  http method=GET path=/api/checkout status=200 ms=52 user=19
+2026-09-14T08:57:22Z INFO  http method=POST path=/api/checkout status=200 ms=454 user=39
+2026-09-14T08:58:50Z ERROR payment provider timeout after 19s (order 1068)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T08:59:30Z INFO  http method=GET path=/shop status=304 ms=4 user=6
+2026-09-14T09:00:17Z WARN  cache miss rate 21% on sessions pool
+2026-09-14T09:01:44Z INFO  http method=GET path=/product/CS-500 status=200 ms=156 user=35
+2026-09-14T09:02:04Z WARN  cache miss rate 56% on products pool
+2026-09-14T09:02:27Z INFO  http method=POST path=/product/CS-500 status=200 ms=68 user=4
+2026-09-14T09:03:37Z INFO  http method=GET path=/product/CS-100 status=200 ms=44 user=18
+2026-09-14T09:03:51Z WARN  cache miss rate 25% on products pool
+2026-09-14T09:05:13Z INFO  http method=GET path=/ status=200 ms=86 user=32
+2026-09-14T09:06:20Z INFO  http method=POST path=/product/CS-500 status=404 ms=26 user=9
+2026-09-14T09:07:24Z INFO  http method=GET path=/api/search status=304 ms=93 user=23
+2026-09-14T09:07:25Z WARN  cache miss rate 25% on sessions pool
+2026-09-14T09:08:35Z INFO  http method=POST path=/cart status=200 ms=70 user=25
+2026-09-14T09:10:03Z INFO  http method=GET path=/shop status=200 ms=23 user=31
+2026-09-14T09:10:43Z INFO  http method=GET path=/product/CS-100 status=200 ms=81 user=30
+2026-09-14T09:10:46Z INFO  http method=POST path=/api/search status=200 ms=19 user=31
+2026-09-14T09:12:03Z INFO  http method=GET path=/product/CS-500 status=200 ms=18 user=36
+2026-09-14T09:13:14Z INFO  http method=POST path=/product/CS-100 status=404 ms=31 user=36
+2026-09-14T09:13:26Z INFO  http method=GET path=/shop status=200 ms=27 user=34
+2026-09-14T09:14:33Z INFO  http method=POST path=/api/search status=200 ms=31 user=27
+2026-09-14T09:15:51Z WARN  cache miss rate 46% on products pool
+2026-09-14T09:16:33Z INFO  http method=POST path=/api/search status=200 ms=54 user=18
+2026-09-14T09:17:40Z INFO  http method=GET path=/shop status=200 ms=37 user=9
+2026-09-14T09:17:51Z INFO  http method=GET path=/cart status=200 ms=46 user=6
+2026-09-14T09:19:07Z INFO  http method=POST path=/cart status=200 ms=9 user=6
+2026-09-14T09:20:04Z INFO  http method=GET path=/cart status=404 ms=26 user=21
+2026-09-14T09:20:44Z INFO  http method=GET path=/cart status=200 ms=20 user=5
+2026-09-14T09:22:12Z INFO  http method=POST path=/api/checkout status=200 ms=25 user=29
+2026-09-14T09:22:14Z WARN  cache miss rate 50% on products pool
+2026-09-14T09:22:52Z INFO  http method=GET path=/product/CS-500 status=304 ms=178 user=19
+2026-09-14T09:24:13Z INFO  http method=GET path=/cart status=200 ms=72 user=13
+2026-09-14T09:25:02Z INFO  http method=POST path=/product/CS-100 status=200 ms=23 user=22
+2026-09-14T09:26:00Z WARN  cache miss rate 25% on products pool
+2026-09-14T09:26:19Z INFO  http method=GET path=/shop status=200 ms=76 user=3
+2026-09-14T09:27:19Z INFO  http method=GET path=/ status=200 ms=107 user=28
+2026-09-14T09:28:25Z INFO  http method=GET path=/shop status=200 ms=256 user=27
+2026-09-14T09:29:45Z INFO  http method=GET path=/product/CS-500 status=200 ms=41 user=39
+2026-09-14T09:30:53Z INFO  http method=POST path=/product/CS-100 status=200 ms=17 user=25
+2026-09-14T09:31:20Z INFO  http method=GET path=/api/search status=200 ms=24 user=35
+2026-09-14T09:31:59Z INFO  http method=GET path=/product/CS-100 status=200 ms=45 user=34
+2026-09-14T09:32:25Z INFO  http method=GET path=/ status=200 ms=41 user=31
+2026-09-14T09:33:39Z INFO  http method=POST path=/product/CS-100 status=200 ms=23 user=9
+2026-09-14T09:34:10Z ERROR payment provider timeout after 22s (order 1070)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T09:35:22Z INFO  http method=GET path=/product/CS-100 status=304 ms=5 user=39
+2026-09-14T09:35:41Z INFO  http method=GET path=/api/search status=200 ms=15 user=12
+2026-09-14T09:36:58Z INFO  http method=POST path=/ status=200 ms=29 user=9
+2026-09-14T09:37:38Z INFO  http method=GET path=/api/search status=200 ms=56 user=11
+2026-09-14T09:38:04Z INFO  http method=GET path=/ status=200 ms=14 user=22
+2026-09-14T09:39:11Z INFO  http method=GET path=/shop status=200 ms=38 user=10
+2026-09-14T09:40:03Z ERROR payment provider timeout after 24s (order 1014)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T09:41:04Z INFO  http method=GET path=/cart status=200 ms=121 user=32
+2026-09-14T09:42:04Z WARN  cache miss rate 46% on sessions pool
+2026-09-14T09:42:20Z INFO  http method=GET path=/cart status=200 ms=20 user=21
+2026-09-14T09:42:27Z INFO  http method=POST path=/cart status=200 ms=56 user=5
+2026-09-14T09:42:59Z INFO  http method=GET path=/product/CS-500 status=200 ms=114 user=35
+2026-09-14T09:43:39Z INFO  http method=GET path=/shop status=200 ms=22 user=15
+2026-09-14T09:45:03Z INFO  http method=POST path=/cart status=304 ms=34 user=30
+2026-09-14T09:45:04Z INFO  http method=POST path=/api/checkout status=304 ms=422 user=26
+2026-09-14T09:45:23Z INFO  http method=GET path=/cart status=200 ms=19 user=20
+2026-09-14T09:46:05Z INFO  http method=GET path=/api/search status=200 ms=114 user=4
+2026-09-14T09:46:31Z INFO  http method=POST path=/api/search status=200 ms=22 user=36
+2026-09-14T09:46:57Z INFO  http method=GET path=/shop status=304 ms=51 user=9
+2026-09-14T09:47:40Z INFO  http method=GET path=/api/search status=200 ms=30 user=8
+2026-09-14T09:49:09Z INFO  http method=GET path=/shop status=200 ms=60 user=24
+2026-09-14T09:50:34Z INFO  http method=GET path=/ status=200 ms=38 user=15
+2026-09-14T09:51:10Z INFO  http method=POST path=/api/checkout status=200 ms=27 user=38
+2026-09-14T09:51:47Z INFO  http method=GET path=/product/CS-500 status=200 ms=52 user=16
+2026-09-14T09:52:10Z INFO  http method=GET path=/cart status=200 ms=245 user=32
+2026-09-14T09:52:18Z INFO  http method=GET path=/cart status=200 ms=20 user=33
+2026-09-14T09:53:40Z INFO  http method=GET path=/cart status=200 ms=67 user=8
+2026-09-14T09:54:58Z INFO  http method=GET path=/api/checkout status=200 ms=23 user=17
+2026-09-14T09:56:01Z INFO  http method=POST path=/api/search status=200 ms=41 user=4
+2026-09-14T09:57:15Z INFO  http method=GET path=/shop status=200 ms=17 user=33
+2026-09-14T09:58:12Z INFO  http method=POST path=/api/search status=200 ms=121 user=16
+2026-09-14T09:59:32Z INFO  http method=POST path=/product/CS-100 status=200 ms=23 user=34
+2026-09-14T10:00:06Z INFO  http method=POST path=/product/CS-500 status=200 ms=18 user=39
+2026-09-14T10:01:05Z INFO  http method=GET path=/product/CS-500 status=200 ms=28 user=9
+2026-09-14T10:02:08Z INFO  http method=GET path=/cart status=200 ms=26 user=27
+2026-09-14T10:03:16Z INFO  http method=GET path=/product/CS-500 status=404 ms=38 user=40
+2026-09-14T10:03:46Z INFO  http method=GET path=/ status=200 ms=36 user=24
+2026-09-14T10:04:26Z INFO  http method=GET path=/cart status=200 ms=20 user=22
+2026-09-14T10:05:39Z INFO  http method=GET path=/api/search status=200 ms=70 user=14
+2026-09-14T10:06:33Z INFO  http method=GET path=/shop status=200 ms=31 user=31
+2026-09-14T10:07:31Z INFO  http method=GET path=/api/checkout status=200 ms=598 user=4
+2026-09-14T10:09:00Z INFO  http method=POST path=/product/CS-100 status=200 ms=46 user=26
+2026-09-14T10:10:13Z ERROR payment provider timeout after 27s (order 1028)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T10:10:48Z INFO  http method=GET path=/ status=200 ms=14 user=2
+2026-09-14T10:11:30Z WARN  cache miss rate 48% on products pool
+2026-09-14T10:12:19Z INFO  http method=POST path=/api/search status=200 ms=159 user=16
+2026-09-14T10:13:22Z INFO  http method=GET path=/shop status=200 ms=33 user=28
+2026-09-14T10:14:24Z INFO  http method=GET path=/shop status=200 ms=34 user=25
+2026-09-14T10:14:43Z WARN  cache miss rate 37% on search pool
+2026-09-14T10:15:41Z INFO  http method=GET path=/product/CS-500 status=200 ms=34 user=23
+2026-09-14T10:17:00Z INFO  http method=POST path=/ status=200 ms=32 user=20
+2026-09-14T10:18:25Z INFO  http method=GET path=/api/search status=200 ms=9 user=16
+2026-09-14T10:19:46Z INFO  http method=GET path=/api/search status=200 ms=28 user=22
+2026-09-14T10:20:23Z INFO  http method=POST path=/product/CS-100 status=200 ms=5 user=16
+2026-09-14T10:21:30Z INFO  http method=GET path=/product/CS-100 status=304 ms=31 user=2
+2026-09-14T10:22:21Z INFO  http method=POST path=/ status=200 ms=72 user=20
+2026-09-14T10:23:22Z INFO  http method=POST path=/product/CS-100 status=200 ms=22 user=12
+2026-09-14T10:24:45Z INFO  http method=POST path=/cart status=200 ms=3 user=14
+2026-09-14T10:24:55Z INFO  http method=GET path=/cart status=200 ms=38 user=30
+2026-09-14T10:25:53Z INFO  http method=GET path=/product/CS-500 status=200 ms=33 user=10
+2026-09-14T10:27:11Z INFO  http method=POST path=/shop status=200 ms=21 user=26
+2026-09-14T10:27:12Z INFO  http method=GET path=/product/CS-500 status=200 ms=182 user=23
+2026-09-14T10:27:26Z WARN  cache miss rate 40% on search pool
+2026-09-14T10:27:53Z INFO  http method=POST path=/api/checkout status=200 ms=418 user=32
+2026-09-14T10:29:06Z INFO  http method=GET path=/product/CS-500 status=200 ms=10 user=16
+2026-09-14T10:29:53Z INFO  http method=POST path=/shop status=200 ms=5 user=31
+2026-09-14T10:29:59Z INFO  http method=GET path=/api/search status=200 ms=26 user=33
+2026-09-14T10:31:28Z INFO  http method=GET path=/api/checkout status=200 ms=44 user=37
+2026-09-14T10:31:45Z INFO  http method=GET path=/product/CS-500 status=200 ms=41 user=11
+2026-09-14T10:32:02Z INFO  http method=GET path=/cart status=200 ms=44 user=31
+2026-09-14T10:33:17Z INFO  http method=GET path=/api/search status=200 ms=51 user=25
+2026-09-14T10:34:44Z DEBUG worker-1 heartbeat ok
+2026-09-14T10:35:05Z INFO  http method=POST path=/ status=200 ms=62 user=8
+2026-09-14T10:35:57Z INFO  http method=GET path=/ status=200 ms=17 user=26
+2026-09-14T10:37:17Z INFO  http method=POST path=/shop status=200 ms=97 user=19
+2026-09-14T10:37:36Z INFO  http method=GET path=/api/search status=200 ms=16 user=2
+2026-09-14T10:38:11Z INFO  http method=GET path=/shop status=200 ms=19 user=31
+2026-09-14T10:38:37Z INFO  http method=GET path=/product/CS-100 status=200 ms=36 user=6
+2026-09-14T10:38:38Z INFO  http method=GET path=/product/CS-500 status=200 ms=103 user=36
+2026-09-14T10:39:29Z INFO  http method=GET path=/shop status=200 ms=40 user=13
+2026-09-14T10:40:07Z WARN  cache miss rate 48% on search pool
+2026-09-14T10:40:14Z INFO  http method=GET path=/ status=200 ms=124 user=23
+2026-09-14T10:40:18Z INFO  http method=GET path=/product/CS-100 status=304 ms=10 user=24
+2026-09-14T10:40:20Z INFO  http method=POST path=/product/CS-100 status=200 ms=56 user=7
+2026-09-14T10:41:22Z INFO  http method=GET path=/api/checkout status=200 ms=9 user=15
+2026-09-14T10:42:04Z INFO  http method=POST path=/product/CS-100 status=500 ms=33 user=29
+2026-09-14T10:42:50Z INFO  http method=GET path=/ status=200 ms=75 user=14
+2026-09-14T10:43:14Z INFO  http method=GET path=/api/checkout status=200 ms=415 user=10
+2026-09-14T10:44:02Z INFO  http method=GET path=/product/CS-500 status=200 ms=11 user=21
+2026-09-14T10:45:11Z WARN  cache miss rate 33% on products pool
+2026-09-14T10:45:34Z INFO  http method=GET path=/api/search status=200 ms=44 user=15
+2026-09-14T10:46:38Z INFO  http method=GET path=/api/checkout status=304 ms=12 user=34
+2026-09-14T10:46:40Z INFO  http method=POST path=/api/checkout status=200 ms=22 user=8
+2026-09-14T10:46:56Z WARN  cache miss rate 49% on sessions pool
+2026-09-14T10:48:22Z INFO  http method=POST path=/api/search status=200 ms=26 user=3
+2026-09-14T10:49:28Z ERROR payment provider timeout after 21s (order 1081)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T10:50:26Z INFO  http method=GET path=/cart status=200 ms=19 user=40
+2026-09-14T10:51:07Z INFO  http method=GET path=/product/CS-500 status=304 ms=101 user=32
+2026-09-14T10:51:22Z INFO  http method=GET path=/api/search status=200 ms=19 user=17
+2026-09-14T10:51:31Z INFO  http method=GET path=/ status=200 ms=48 user=14
+2026-09-14T10:52:40Z INFO  http method=GET path=/product/CS-500 status=200 ms=18 user=7
+2026-09-14T10:53:52Z INFO  http method=GET path=/api/search status=200 ms=32 user=36
+2026-09-14T10:54:01Z INFO  http method=GET path=/shop status=200 ms=55 user=15
+2026-09-14T10:54:38Z INFO  http method=GET path=/shop status=200 ms=38 user=32
+2026-09-14T10:54:48Z INFO  http method=GET path=/api/checkout status=200 ms=11 user=36
+2026-09-14T10:56:14Z DEBUG worker-4 heartbeat ok
+2026-09-14T10:56:16Z WARN  cache miss rate 40% on search pool
+2026-09-14T10:56:52Z INFO  http method=POST path=/shop status=200 ms=45 user=38
+2026-09-14T10:57:52Z INFO  http method=GET path=/product/CS-100 status=200 ms=41 user=14
+2026-09-14T10:58:39Z WARN  cache miss rate 46% on products pool
+2026-09-14T10:58:58Z INFO  http method=GET path=/product/CS-100 status=200 ms=18 user=9
+2026-09-14T11:00:03Z INFO  http method=POST path=/ status=200 ms=16 user=8
+2026-09-14T11:00:40Z INFO  http method=GET path=/product/CS-100 status=200 ms=43 user=27
+2026-09-14T11:01:57Z INFO  http method=GET path=/api/checkout status=200 ms=411 user=19
+2026-09-14T11:03:22Z INFO  http method=GET path=/api/checkout status=200 ms=38 user=25
+2026-09-14T11:04:16Z INFO  http method=GET path=/ status=200 ms=43 user=6
+2026-09-14T11:05:03Z INFO  http method=GET path=/ status=200 ms=83 user=10
+2026-09-14T11:06:04Z INFO  http method=POST path=/shop status=200 ms=30 user=4
+2026-09-14T11:06:33Z DEBUG worker-4 heartbeat ok
+2026-09-14T11:07:29Z WARN  cache miss rate 54% on search pool
+2026-09-14T11:07:44Z DEBUG worker-1 heartbeat ok
+2026-09-14T11:08:44Z INFO  http method=GET path=/api/search status=500 ms=43 user=32
+2026-09-14T11:09:32Z WARN  cache miss rate 52% on sessions pool
+2026-09-14T11:09:45Z INFO  http method=POST path=/ status=304 ms=116 user=31
+2026-09-14T11:10:01Z INFO  http method=POST path=/shop status=200 ms=12 user=8
+2026-09-14T11:10:14Z INFO  http method=POST path=/cart status=200 ms=36 user=6
+2026-09-14T11:11:20Z INFO  http method=GET path=/product/CS-100 status=200 ms=25 user=4
+2026-09-14T11:11:48Z INFO  http method=GET path=/shop status=304 ms=38 user=33
+2026-09-14T11:12:08Z INFO  http method=POST path=/cart status=200 ms=35 user=8
+2026-09-14T11:13:01Z WARN  cache miss rate 34% on products pool
+2026-09-14T11:13:16Z INFO  http method=GET path=/api/checkout status=200 ms=26 user=20
+2026-09-14T11:14:26Z INFO  http method=GET path=/api/search status=200 ms=61 user=17
+2026-09-14T11:15:35Z INFO  http method=POST path=/product/CS-500 status=200 ms=20 user=9
+2026-09-14T11:16:48Z DEBUG worker-1 heartbeat ok
+2026-09-14T11:17:39Z INFO  http method=GET path=/product/CS-100 status=200 ms=51 user=31
+2026-09-14T11:18:29Z INFO  http method=POST path=/product/CS-500 status=200 ms=25 user=4
+2026-09-14T11:18:50Z INFO  http method=POST path=/cart status=200 ms=8 user=24
+2026-09-14T11:18:55Z INFO  http method=POST path=/product/CS-500 status=200 ms=120 user=1
+2026-09-14T11:19:43Z INFO  http method=GET path=/ status=200 ms=89 user=20
+2026-09-14T11:20:10Z INFO  http method=POST path=/cart status=200 ms=7 user=18
+2026-09-14T11:21:05Z INFO  http method=GET path=/product/CS-100 status=200 ms=27 user=26
+2026-09-14T11:21:34Z WARN  cache miss rate 41% on products pool
+2026-09-14T11:22:15Z INFO  http method=GET path=/shop status=200 ms=100 user=4
+2026-09-14T11:23:06Z INFO  http method=POST path=/cart status=200 ms=15 user=14
+2026-09-14T11:24:21Z INFO  http method=GET path=/api/search status=200 ms=57 user=12
+2026-09-14T11:24:32Z INFO  http method=POST path=/api/search status=200 ms=112 user=5
+2026-09-14T11:24:47Z ERROR payment provider timeout after 16s (order 1086)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T11:25:58Z INFO  http method=GET path=/api/checkout status=200 ms=15 user=7
+2026-09-14T11:26:52Z INFO  http method=GET path=/shop status=304 ms=56 user=27
+2026-09-14T11:26:57Z WARN  cache miss rate 44% on products pool
+2026-09-14T11:28:24Z INFO  http method=GET path=/product/CS-500 status=200 ms=32 user=7
+2026-09-14T11:29:35Z INFO  http method=GET path=/shop status=200 ms=57 user=23
+2026-09-14T11:30:24Z INFO  http method=GET path=/cart status=200 ms=52 user=23
+2026-09-14T11:31:39Z INFO  http method=GET path=/api/checkout status=200 ms=88 user=23
+2026-09-14T11:32:32Z INFO  http method=POST path=/product/CS-100 status=200 ms=21 user=5
+2026-09-14T11:33:44Z INFO  http method=GET path=/product/CS-500 status=200 ms=93 user=12
+2026-09-14T11:35:04Z INFO  http method=GET path=/product/CS-100 status=500 ms=33 user=37
+2026-09-14T11:35:25Z INFO  http method=GET path=/product/CS-100 status=404 ms=32 user=20
+2026-09-14T11:35:38Z INFO  http method=POST path=/shop status=200 ms=20 user=23
+2026-09-14T11:35:54Z INFO  http method=POST path=/shop status=304 ms=101 user=21
+2026-09-14T11:36:41Z INFO  http method=POST path=/api/search status=304 ms=50 user=17
+2026-09-14T11:36:56Z INFO  http method=GET path=/ status=200 ms=45 user=32
+2026-09-14T11:37:06Z INFO  http method=POST path=/product/CS-100 status=200 ms=15 user=9
+2026-09-14T11:38:25Z INFO  http method=POST path=/api/search status=200 ms=66 user=17
+2026-09-14T11:39:05Z INFO  http method=GET path=/api/search status=200 ms=13 user=24
+2026-09-14T11:39:50Z INFO  http method=POST path=/api/checkout status=200 ms=33 user=8
+2026-09-14T11:41:04Z ERROR payment provider timeout after 26s (order 1096)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T11:41:14Z INFO  http method=GET path=/ status=200 ms=9 user=20
+2026-09-14T11:42:00Z WARN  cache miss rate 23% on search pool
+2026-09-14T11:43:26Z INFO  http method=POST path=/ status=304 ms=28 user=35
+2026-09-14T11:43:36Z INFO  http method=GET path=/api/checkout status=200 ms=13 user=7
+2026-09-14T11:44:30Z INFO  http method=POST path=/shop status=200 ms=10 user=6
+2026-09-14T11:44:48Z WARN  cache miss rate 36% on sessions pool
+2026-09-14T11:45:17Z INFO  http method=POST path=/shop status=200 ms=31 user=40
+2026-09-14T11:45:58Z ERROR payment provider timeout after 7s (order 1099)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T11:47:05Z INFO  http method=GET path=/ status=200 ms=15 user=27
+2026-09-14T11:47:10Z INFO  http method=POST path=/shop status=200 ms=56 user=6
+2026-09-14T11:47:11Z INFO  http method=GET path=/api/search status=200 ms=17 user=22
+2026-09-14T11:47:40Z INFO  http method=GET path=/ status=200 ms=68 user=34
+2026-09-14T11:48:23Z INFO  http method=GET path=/product/CS-100 status=304 ms=30 user=13
+2026-09-14T11:48:43Z INFO  http method=GET path=/product/CS-500 status=200 ms=28 user=40
+2026-09-14T11:49:17Z INFO  http method=GET path=/cart status=200 ms=18 user=14
+2026-09-14T11:50:44Z INFO  http method=GET path=/shop status=200 ms=35 user=29
+2026-09-14T11:51:12Z INFO  http method=GET path=/cart status=200 ms=96 user=25
+2026-09-14T11:51:30Z INFO  http method=GET path=/api/checkout status=200 ms=59 user=36
+2026-09-14T11:52:46Z ERROR payment provider timeout after 7s (order 1061)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T11:52:48Z INFO  http method=GET path=/ status=304 ms=27 user=5
+2026-09-14T11:53:15Z INFO  http method=GET path=/product/CS-500 status=404 ms=5 user=16
+2026-09-14T11:53:33Z INFO  http method=GET path=/shop status=200 ms=102 user=18
+2026-09-14T11:53:52Z ERROR payment provider timeout after 7s (order 1024)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T11:54:37Z INFO  http method=POST path=/ status=200 ms=23 user=34
+2026-09-14T11:55:47Z WARN  cache miss rate 48% on search pool
+2026-09-14T11:56:21Z ERROR payment provider timeout after 7s (order 1084)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T11:56:50Z INFO  http method=POST path=/product/CS-100 status=404 ms=44 user=37
+2026-09-14T11:57:04Z INFO  http method=GET path=/api/search status=200 ms=126 user=30
+2026-09-14T11:57:09Z INFO  http method=GET path=/product/CS-500 status=200 ms=60 user=3
+2026-09-14T11:57:32Z INFO  http method=POST path=/api/search status=200 ms=4 user=5
+2026-09-14T11:58:32Z INFO  http method=GET path=/product/CS-100 status=200 ms=12 user=40
+2026-09-14T11:59:44Z INFO  http method=GET path=/product/CS-500 status=200 ms=8 user=38
+2026-09-14T12:00:59Z INFO  http method=GET path=/product/CS-500 status=200 ms=36 user=15
+2026-09-14T12:02:26Z ERROR payment provider timeout after 26s (order 1021)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T12:03:26Z INFO  http method=POST path=/product/CS-100 status=200 ms=18 user=22
+2026-09-14T12:04:03Z INFO  http method=POST path=/api/checkout status=200 ms=49 user=25
+2026-09-14T12:05:31Z INFO  http method=POST path=/product/CS-500 status=200 ms=25 user=30
+2026-09-14T12:05:39Z INFO  http method=GET path=/product/CS-500 status=200 ms=40 user=18
+2026-09-14T12:06:48Z INFO  http method=GET path=/ status=200 ms=24 user=3
+2026-09-14T12:07:21Z INFO  http method=GET path=/api/checkout status=404 ms=33 user=31
+2026-09-14T12:07:41Z INFO  http method=POST path=/api/search status=304 ms=52 user=14
+2026-09-14T12:09:10Z WARN  cache miss rate 39% on search pool
+2026-09-14T12:09:27Z INFO  http method=GET path=/api/search status=200 ms=51 user=8
+2026-09-14T12:10:28Z INFO  http method=GET path=/shop status=200 ms=29 user=5
+2026-09-14T12:11:54Z INFO  http method=GET path=/product/CS-100 status=200 ms=24 user=40
+2026-09-14T12:13:18Z INFO  http method=GET path=/api/checkout status=200 ms=49 user=37
+2026-09-14T12:13:52Z ERROR payment provider timeout after 25s (order 1119)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T12:14:55Z INFO  http method=GET path=/api/checkout status=200 ms=426 user=15
+2026-09-14T12:16:19Z INFO  http method=GET path=/ status=200 ms=57 user=12
+2026-09-14T12:16:23Z INFO  http method=GET path=/api/checkout status=200 ms=50 user=19
+2026-09-14T12:17:32Z ERROR payment provider timeout after 24s (order 1039)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T12:18:32Z INFO  http method=GET path=/product/CS-100 status=500 ms=16 user=3
+2026-09-14T12:18:45Z WARN  cache miss rate 54% on products pool
+2026-09-14T12:19:46Z INFO  http method=GET path=/cart status=200 ms=21 user=28
+2026-09-14T12:20:28Z INFO  http method=POST path=/product/CS-100 status=200 ms=12 user=35
+2026-09-14T12:21:22Z INFO  http method=GET path=/shop status=200 ms=12 user=36
+2026-09-14T12:22:45Z ERROR payment provider timeout after 21s (order 1116)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T12:23:18Z INFO  http method=GET path=/product/CS-500 status=200 ms=5 user=12
+2026-09-14T12:24:29Z DEBUG worker-3 heartbeat ok
+2026-09-14T12:25:04Z INFO  http method=GET path=/api/checkout status=200 ms=35 user=28
+2026-09-14T12:26:08Z INFO  http method=GET path=/api/checkout status=304 ms=404 user=3
+2026-09-14T12:26:20Z INFO  http method=GET path=/shop status=200 ms=14 user=5
+2026-09-14T12:27:11Z INFO  http method=GET path=/cart status=200 ms=84 user=8
+2026-09-14T12:27:54Z INFO  http method=POST path=/shop status=200 ms=172 user=26
+2026-09-14T12:28:19Z INFO  http method=POST path=/api/search status=200 ms=15 user=28
+2026-09-14T12:28:46Z INFO  http method=POST path=/product/CS-100 status=200 ms=128 user=31
+2026-09-14T12:30:07Z WARN  cache miss rate 49% on search pool
+2026-09-14T12:30:56Z INFO  http method=GET path=/cart status=200 ms=21 user=15
+2026-09-14T12:32:14Z ERROR payment provider timeout after 25s (order 1086)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T12:33:13Z INFO  http method=POST path=/api/checkout status=200 ms=416 user=22
+2026-09-14T12:34:26Z INFO  http method=GET path=/ status=200 ms=67 user=40
+2026-09-14T12:35:15Z INFO  http method=GET path=/product/CS-500 status=200 ms=60 user=14
+2026-09-14T12:36:39Z INFO  http method=GET path=/cart status=200 ms=23 user=36
+2026-09-14T12:37:32Z INFO  http method=GET path=/ status=404 ms=13 user=37
+2026-09-14T12:38:16Z INFO  http method=GET path=/product/CS-500 status=200 ms=73 user=10
+2026-09-14T12:38:29Z INFO  http method=GET path=/product/CS-500 status=200 ms=29 user=19
+2026-09-14T12:39:15Z INFO  http method=POST path=/ status=200 ms=14 user=24
+2026-09-14T12:39:43Z INFO  http method=POST path=/product/CS-100 status=200 ms=10 user=24
+2026-09-14T12:40:34Z INFO  http method=POST path=/shop status=200 ms=95 user=16
+2026-09-14T12:41:01Z INFO  http method=GET path=/ status=200 ms=156 user=17
+2026-09-14T12:41:04Z INFO  http method=POST path=/api/checkout status=200 ms=446 user=24
+2026-09-14T12:42:34Z INFO  http method=GET path=/api/search status=200 ms=64 user=2
+2026-09-14T12:43:31Z ERROR payment provider timeout after 30s (order 1073)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T12:44:08Z INFO  http method=GET path=/product/CS-100 status=200 ms=20 user=22
+2026-09-14T12:45:05Z WARN  cache miss rate 31% on products pool
+2026-09-14T12:46:21Z INFO  http method=GET path=/shop status=200 ms=30 user=15
+2026-09-14T12:47:23Z INFO  http method=POST path=/shop status=304 ms=32 user=5
+2026-09-14T12:48:51Z INFO  http method=GET path=/cart status=200 ms=12 user=39
+2026-09-14T12:50:00Z WARN  cache miss rate 24% on products pool
+2026-09-14T12:50:54Z INFO  http method=POST path=/api/checkout status=200 ms=447 user=21
+2026-09-14T12:51:01Z INFO  http method=GET path=/product/CS-100 status=200 ms=75 user=20
+2026-09-14T12:51:55Z INFO  http method=POST path=/product/CS-100 status=200 ms=19 user=33
+2026-09-14T12:52:20Z INFO  http method=GET path=/api/search status=200 ms=25 user=24
+2026-09-14T12:53:25Z INFO  http method=GET path=/product/CS-500 status=200 ms=36 user=19
+2026-09-14T12:53:28Z INFO  http method=POST path=/product/CS-500 status=200 ms=41 user=30
+2026-09-14T12:54:57Z INFO  http method=POST path=/product/CS-500 status=200 ms=10 user=13
+2026-09-14T12:55:07Z INFO  http method=GET path=/cart status=200 ms=136 user=3
+2026-09-14T12:55:45Z INFO  http method=GET path=/ status=304 ms=34 user=8
+2026-09-14T12:56:43Z INFO  http method=POST path=/product/CS-500 status=200 ms=43 user=12
+2026-09-14T12:56:52Z INFO  http method=POST path=/shop status=200 ms=44 user=22
+2026-09-14T12:58:06Z ERROR payment provider timeout after 24s (order 1003)
+    at PaymentClient.charge (payments/client.py:88)
+    at checkout (api/checkout.py:41)
+2026-09-14T12:58:08Z INFO  http method=GET path=/api/checkout status=200 ms=544 user=36
+2026-09-14T12:59:15Z INFO  http method=GET path=/api/checkout status=200 ms=19 user=4
+2026-09-14T13:00:00Z INFO  http method=POST path=/api/search status=200 ms=136 user=11
+2026-09-14T13:01:01Z INFO  http method=GET path=/product/CS-100 status=200 ms=53 user=3
+2026-09-14T13:02:14Z INFO  http method=GET path=/api/search status=200 ms=47 user=32
+2026-09-14T13:03:38Z DEBUG worker-2 heartbeat ok
+2026-09-14T13:04:54Z INFO  http method=GET path=/shop status=200 ms=42 user=25

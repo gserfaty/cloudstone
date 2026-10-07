@@ -1,0 +1,356 @@
+[
+ {
+  "id": "1",
+  "source": "shop",
+  "name": "Ana Sato",
+  "contact": {
+   "email": "ana1@example.com",
+   "phone": "+1 555 0562"
+  },
+  "tags": null,
+  "lifetime_value": "3,427.43",
+  "orders": [
+   {
+    "order_id": 1024,
+    "total": 242.93
+   }
+  ]
+ },
+ {
+  "id": 2,
+  "source": "legacy",
+  "full_name": "BO SATO",
+  "EmailAddress": "BO2@EXAMPLE.COM",
+  "address": "24 Main St, Pune",
+  "notes": [
+   {
+    "at": "2025-02-15",
+    "text": "moved city"
+   }
+  ],
+  "lifetime_value": null
+ },
+ {
+  "id": 3,
+  "source": "legacy",
+  "full_name": "CARA BERG",
+  "EmailAddress": "CARA3@EXAMPLE.COM",
+  "address": "6 Main St, Pune",
+  "notes": [
+   {
+    "at": "2025-10-13",
+    "text": "prefers email"
+   }
+  ]
+ },
+ {
+  "id": 4,
+  "source": "crm",
+  "name": "Dev Kim",
+  "email": "dev4@example.com",
+  "tags": [
+   "vip",
+   "b2b"
+  ],
+  "lifetime_value": 299.5,
+  "address": {
+   "city": "Pune",
+   "country": "IN"
+  }
+ },
+ {
+  "id": 5,
+  "source": "crm",
+  "name": "Eli Ruiz",
+  "email": "eli5@example.com",
+  "tags": [
+   "vip",
+   "newsletter"
+  ],
+  "lifetime_value": 1338.86,
+  "address": {
+   "city": "Lima",
+   "country": "PE"
+  }
+ },
+ {
+  "id": 6,
+  "source": "legacy",
+  "full_name": "FAY KIM",
+  "EmailAddress": "FAY6@EXAMPLE.COM",
+  "address": "30 Main St, Lima",
+  "notes": [
+   {
+    "at": "2025-11-10",
+    "text": "prefers email"
+   }
+  ],
+  "lifetime_value": null
+ },
+ {
+  "id": 7,
+  "source": "legacy",
+  "full_name": "GUS CHEN",
+  "EmailAddress": "GUS7@EXAMPLE.COM",
+  "address": "36 Main St, Osaka",
+  "notes": [
+   {
+    "at": "2025-07-18",
+    "text": "called about refund"
+   }
+  ]
+ },
+ {
+  "id": 8,
+  "source": "legacy",
+  "full_name": "HANA OKORO",
+  "EmailAddress": "HANA8@EXAMPLE.COM",
+  "address": "37 Main St, Lima",
+  "notes": [
+   {
+    "at": "2025-01-03",
+    "text": "called about refund"
+   }
+  ],
+  "lifetime_value": null
+ },
+ {
+  "id": 9,
+  "source": "crm",
+  "name": "Ivo Novak",
+  "email": "ivo9@example.com",
+  "tags": [],
+  "lifetime_value": 3396.87,
+  "address": {
+   "city": "Osaka",
+   "country": "JP"
+  }
+ },
+ {
+  "id": 10,
+  "source": "crm",
+  "name": "Jun Ruiz",
+  "email": "jun10@example.com",
+  "tags": [],
+  "lifetime_value": 1906.45,
+  "address": {
+   "city": "Lima",
+   "country": "PE"
+  }
+ },
+ {
+  "id": "11",
+  "source": "shop",
+  "name": "Kai Lund",
+  "contact": {
+   "email": "kai11@example.com",
+   "phone": "+1 555 0174"
+  },
+  "tags": null,
+  "lifetime_value": "2,536.35",
+  "orders": [
+   {
+    "order_id": 1044,
+    "total": 34.36
+   },
+   {
+    "order_id": 1043,
+    "total": 13.41
+   }
+  ]
+ },
+ {
+  "id": 12,
+  "source": "crm",
+  "name": "Lea Lind",
+  "email": "lea12@example.com",
+  "tags": [],
+  "lifetime_value": 2842.71,
+  "address": {
+   "city": "Oslo",
+   "country": "NO"
+  }
+ },
+ {
+  "id": "13",
+  "source": "shop",
+  "name": "Mo Ruiz",
+  "contact": {
+   "email": "mo13@example.com",
+   "phone": "+1 555 0916"
+  },
+  "tags": "vip",
+  "lifetime_value": "751.83",
+  "orders": [
+   {
+    "order_id": 1058,
+    "total": 157.08
+   }
+  ]
+ },
+ {
+  "id": "14",
+  "source": "shop",
+  "name": "Nia Lund",
+  "contact": {
+   "email": "nia14@example.com",
+   "phone": "+1 555 0759"
+  },
+  "tags": "vip",
+  "lifetime_value": "510.21",
+  "orders": [
+   {
+    "order_id": 1028,
+    "total": 9.14
+   },
+   {
+    "order_id": 1111,
+    "total": 291.54
+   },
+   {
+    "order_id": 1103,
+    "total": 181.49
+   }
+  ]
+ },
+ {
+  "id": 15,
+  "source": "crm",
+  "name": "Oto Ruiz",
+  "email": "oto15@example.com",
+  "tags": [
+   "vip"
+  ],
+  "lifetime_value": 216.33,
+  "address": {
+   "city": "Lima",
+   "country": "PE"
+  }
+ },
+ {
+  "id": "16",
+  "source": "shop",
+  "name": "Pia Diop",
+  "contact": {
+   "email": "pia16@example.com",
+   "phone": "+1 555 0364"
+  },
+  "tags": "newsletter",
+  "lifetime_value": "3,102.12",
+  "orders": [
+   {
+    "order_id": 1107,
+    "total": 95.23
+   },
+   {
+    "order_id": 1010,
+    "total": 30.62
+   }
+  ]
+ },
+ {
+  "id": 17,
+  "source": "legacy",
+  "full_name": "QUIN PATEL",
+  "EmailAddress": "QUIN17@EXAMPLE.COM",
+  "address": "32 Main St, Austin",
+  "notes": [
+   {
+    "at": "2025-01-20",
+    "text": "moved city"
+   }
+  ],
+  "lifetime_value": null
+ },
+ {
+  "id": 18,
+  "source": "legacy",
+  "full_name": "RAE SATO",
+  "EmailAddress": "RAE18@EXAMPLE.COM",
+  "address": "62 Main St, Lima",
+  "notes": [
+   {
+    "at": "2025-10-05",
+    "text": "prefers email"
+   }
+  ],
+  "lifetime_value": null
+ },
+ {
+  "id": 19,
+  "source": "crm",
+  "name": "Sol Diop",
+  "email": "sol19@example.com",
+  "tags": [
+   "newsletter",
+   "b2b"
+  ],
+  "lifetime_value": 799.71,
+  "address": {
+   "city": "Paris",
+   "country": "FR"
+  }
+ },
+ {
+  "id": 20,
+  "source": "legacy",
+  "full_name": "TAO LUND",
+  "EmailAddress": "TAO20@EXAMPLE.COM",
+  "address": "26 Main St, Pune",
+  "notes": [
+   {
+    "at": "2025-11-13",
+    "text": "prefers email"
+   }
+  ]
+ },
+ {
+  "id": 21,
+  "source": "crm",
+  "name": "Uma Lind",
+  "email": "uma21@example.com",
+  "tags": [],
+  "lifetime_value": 202.85,
+  "address": {
+   "city": "Oslo",
+   "country": "NO"
+  }
+ },
+ {
+  "id": 22,
+  "source": "legacy",
+  "full_name": "VIC NOVAK",
+  "EmailAddress": "VIC22@EXAMPLE.COM",
+  "address": "91 Main St, Lima",
+  "notes": [
+   {
+    "at": "2025-07-09",
+    "text": "prefers email"
+   }
+  ]
+ },
+ {
+  "id": "23",
+  "source": "shop",
+  "name": "Wes Kim",
+  "contact": {
+   "email": "wes23@example.com",
+   "phone": "+1 555 0632"
+  },
+  "tags": "newsletter",
+  "lifetime_value": "3,720.48",
+  "orders": []
+ },
+ {
+  "id": "24",
+  "source": "shop",
+  "name": "Xia Diop",
+  "contact": {
+   "email": "xia24@example.com",
+   "phone": "+1 555 0672"
+  },
+  "tags": null,
+  "lifetime_value": "3,416.98",
+  "orders": []
+ }
+]

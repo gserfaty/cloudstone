@@ -12,9 +12,12 @@ A local data workbench: upload structured and semi-structured files, then profil
   | `demo.employees` | `demo/employees.xlsx` | Spreadsheet: 8 staff (joins to sales via `rep_id`) |
   | `demo.products` | `demo/products.json` | JSON array: nested `specs` object, `tags` list, `variants` list of objects |
   | `demo.events` | `demo/events.ndjson` | NDJSON: 200 web events, nested `user`/`context`, optional `query` and `items` fields |
+  | `demo.customers` | `demo/customers.json` | Messy JSON: 24 customers merged from 3 systems with different keys, ids as numbers or strings, money as numbers or text, tags as a list or a string, address as an object or a sentence. Fields that vary become `JSON` columns, queried with `->>` |
+  | `demo.web_server` | `demo/web_server.log` | Raw server log: 444 lines of request, warning, error and stack-trace lines, one row per line, parsed with `regexp_extract` |
+  | `demo.shipments` | `demo/shipments.parquet` | Parquet: one shipment per order (joins to sales via `order_id`), timestamps, decimals and a list of checkpoint objects |
 - **Accounts** — sign up, log in, log out, change password, delete account. Each user's uploads are saved in their own database and survive restarts.
-- **Upload** (logged in) CSV, JSON, NDJSON/JSONL and XLSX (several at once). Each file becomes a table named after the file under **Your tables**; re-uploading replaces it.
-- **Structured + nested data** — column types are inferred, and nested JSON is queryable directly (`SELECT context.page FROM demo.events`).
+- **Upload** (logged in) CSV, JSON, NDJSON/JSONL, XLSX, Parquet and `.log` files (several at once). A `.log` file becomes one row per line (`line_no`, `line`). Each file becomes a table named after the file under **Your tables**; re-uploading replaces it.
+- **Structured, nested and messy data** — column types are inferred, nested JSON is queryable directly (`SELECT context.page FROM demo.events`), and JSON fields whose type varies between records become `JSON` columns (`SELECT tags->>'$[0]' FROM demo.customers`).
 - **Auto profile** — per column: type, null %, approx distinct count, min/max, mean, std, quartiles.
 - **Ask in plain English** (off by default) — type a question ("Which sales rep sold the most speakers?"); Claude writes the SQL, it runs, and you see the results, the SQL and a one-line explanation. Edit the SQL and press Run to refine. Works on demo data and your own tables.
 - **SQL box** — any DuckDB SQL over the demo tables and your own, results capped at 1,000 rows, with timing.

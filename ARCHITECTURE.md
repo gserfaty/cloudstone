@@ -55,9 +55,11 @@ Every request looks up the `cs_session` cookie. Without a valid session it uses 
 1. The browser POSTs the raw file (no multipart) with its name in the query string. Requires a session.
 2. `load()` writes the bytes to a temp dir inside `data/uploads/<id>/` (the only directory that user's sandbox can read), picks a reader by extension:
    - `.csv` → `read_csv_auto`
-   - `.json` / `.ndjson` / `.jsonl` → `read_json_auto` (nested objects become `STRUCT`, arrays become `LIST`)
+   - `.json` / `.ndjson` / `.jsonl` → `read_json_auto` (nested objects become `STRUCT`, arrays become `LIST`; a field whose type differs between records becomes `JSON`)
    - `.xlsx` → openpyxl converts the first sheet to CSV, then `read_csv_auto`
-3. `CREATE OR REPLACE TABLE main."<name>" AS SELECT * FROM reader(path)`, then the temp dir is removed. The name comes from `table_name()`: lowercase, non-word characters become `_`, and names starting with a digit get a `t_` prefix.
+   - `.parquet` → `read_parquet`
+   - `.log` → `read_text`, split on `\r?\n` into rows `(line_no, line)`; trailing newlines are dropped, blank lines inside are kept
+3. `CREATE OR REPLACE TABLE main."<name>" AS SELECT * FROM <reader>`, then the temp dir is removed. The name comes from `table_name()`: lowercase, non-word characters become `_`, and names starting with a digit get a `t_` prefix.
 4. The response includes the profile, so the UI renders it without another request.
 
 ## Plain-English questions

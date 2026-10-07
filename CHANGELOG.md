@@ -5,6 +5,8 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 ## [Unreleased]
 
 ### Added
+- Demo data for messier formats: `customers.json` (records from 3 systems with mismatched keys and types), `web_server.log` (raw log lines) and `shipments.parquet` (joins to sales), plus four example queries showing JSON cleanup, regex log parsing and a Parquet join.
+- Upload support for Parquet (`.parquet`) and log files (`.log`, one row per line).
 - `CLOUDSTONE_ASK=subscription`: plain-English questions run through the local Claude Code CLI (`claude -p`), using your Claude Pro/Max plan's usage limits instead of a paid API key. Runs with no tools, no plugins or hooks, and all Anthropic/Claude environment variables removed.
 - Ask questions in plain English: Claude (`claude-opus-5-5`, via the `anthropic` SDK) writes DuckDB SQL from your question and the tables you can see; the page shows the result, the SQL and a one-line explanation. Generated SQL runs in a rolled-back transaction.
 - `anthropic` added to `requirements.txt`; set `ANTHROPIC_API_KEY` to use plain-English questions.
