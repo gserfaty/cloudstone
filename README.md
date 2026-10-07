@@ -22,7 +22,9 @@ A local data workbench: upload structured and semi-structured files, then profil
 - **Ask in plain English** (off by default) — type a question ("Which sales rep sold the most speakers?"); Claude writes the SQL, it runs, and you see the results, the SQL and a one-line explanation. Edit the SQL and press Run to refine. Works on demo data and your own tables.
 - **SQL box** — any DuckDB SQL over the demo tables and your own, results capped at 1,000 rows, with timing.
 - **Charts** — bar, line or scatter from the last query result; pick the X and Y columns.
-- Light/dark mode, works at phone width.
+- **Snowsight-style workbench UI** — object explorer (expand a table to see its columns and types; click a column to insert it into the SQL), a line-numbered worksheet editor, Results / Chart / Profile tabs, CSV download, drag-and-drop upload, and log in / sign up / account settings in dialogs.
+- Keyboard: `/` jumps to the question box (or the editor when Ask is off), ⌘↵ / Ctrl↵ runs, Tab indents in the editor.
+- Light theme, works at phone width, keyboard- and screen-reader-friendly.
 
 ## Setup
 
@@ -69,7 +71,7 @@ In both modes Claude receives your question, the names and types of every table 
 .venv/bin/python app.py
 ```
 
-Open http://127.0.0.1:8000. The page opens on `demo.sales`; click any table to see its profile and first 100 rows. Sign up in the sidebar to upload your own files.
+Open http://127.0.0.1:8000. The page opens on `demo.sales`; click any table in the explorer to see its first 100 rows and its profile. Sign up (top right) to upload your own files.
 
 All runtime data lives in `data/` (git-ignored): accounts in `data/auth.sqlite3`, each user's tables in `data/users/u<id>.duckdb`. Delete `data/` to reset everything.
 

@@ -14,7 +14,7 @@ browser (index.html) ──fetch + session cookie──▶ app.py (http.server)
 | File | Role |
 |------|------|
 | `app.py` | Stdlib `HTTPServer` on `127.0.0.1:8000`. Serves the page, accounts, uploads, queries. Also holds the self-check (`python app.py check`). |
-| `index.html` | Whole UI: plain HTML/CSS/JS, no build step. Chart.js loaded from cdnjs. |
+| `index.html` | Whole UI: plain HTML/CSS/JS, no build step. Chart.js from cdnjs, Inter and JetBrains Mono from Google Fonts (falls back to system fonts offline). Light theme only; colors are CSS variables on `:root`. |
 | Claude | Turns questions into SQL in `ask()`: through the local Claude Code CLI on your Claude plan (`subscription` mode) or the `anthropic` SDK with an API key (`api` mode). |
 | `demo/` | Demo files, one per supported format. Rebuilt into `data/demo.duckdb` on every start. |
 | `data/` | All runtime state, git-ignored. Created on first run. |

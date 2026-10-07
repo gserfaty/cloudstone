@@ -4,111 +4,492 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cloudstone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  :root { --bg:#fafafa; --fg:#1d1d1f; --muted:#6e6e73; --line:#e3e3e6; --card:#fff; --accent:#2563eb; --err:#c0392b; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg:#111214; --fg:#e8e8ea; --muted:#9a9aa0; --line:#2a2b2f; --card:#1a1b1e; --accent:#60a5fa; --err:#ff6b5b; }
+  :root {
+    color-scheme: light;
+    --bg: #f5f7fa; --surface: #ffffff; --surface-2: #f3f5f9; --surface-3: #e8ecf2;
+    --border: #e1e6ee; --border-strong: #cdd4df;
+    --text: #1b2433; --text-2: #4a5568; --text-3: #667085;
+    --accent: #1a6ce7; --accent-hover: #155ac4; --accent-text: #1559c0; --accent-soft: #eaf2fe;
+    --brand: #29b5e8; --navy: #102a43;
+    --danger: #c4320a; --danger-soft: #fdeee9; --success: #12805c; --success-soft: #e8f6f0;
+    --series-1: #2a78d6;
+    --shadow: 0 1px 2px rgb(16 42 67 / .05), 0 1px 3px rgb(16 42 67 / .06);
+    --shadow-lg: 0 16px 40px rgb(16 42 67 / .18);
   }
-  * { box-sizing:border-box; }
-  body { margin:0; font:14px/1.45 system-ui,sans-serif; background:var(--bg); color:var(--fg); display:grid; grid-template-columns:220px 1fr; min-height:100vh; }
-  aside { border-right:1px solid var(--line); padding:16px; }
-  main { padding:16px; display:grid; gap:16px; align-content:start; min-width:0; }
-  h1 { font-size:15px; margin:0 0 12px; }
-  h2 { font-size:13px; margin:0 0 8px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
-  section { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px; min-width:0; }
-  ul { list-style:none; padding:0; margin:12px 0 0; }
-  li button { all:unset; cursor:pointer; display:block; width:100%; padding:4px 6px; border-radius:4px; }
-  li button:hover, li button:focus-visible { background:var(--line); }
-  textarea { width:100%; min-height:90px; font:13px ui-monospace,monospace; background:var(--bg); color:var(--fg); border:1px solid var(--line); border-radius:6px; padding:8px; }
-  button.primary { background:var(--accent); color:#fff; border:0; border-radius:6px; padding:6px 14px; cursor:pointer; }
-  select { background:var(--bg); color:var(--fg); border:1px solid var(--line); border-radius:4px; padding:3px; }
-  .scroll { overflow:auto; max-height:420px; }
-  table { border-collapse:collapse; font-size:12.5px; }
-  th, td { border-bottom:1px solid var(--line); padding:4px 10px; text-align:left; white-space:nowrap; max-width:360px; overflow:hidden; text-overflow:ellipsis; }
-  th { position:sticky; top:0; background:var(--card); }
-  h2.side { margin:20px 0 0; }
-  li .sub { display:block; color:var(--muted); font-size:11.5px; }
-  .muted { color:var(--muted); font-size:12px; }
-  .err { color:var(--err); white-space:pre-wrap; }
-  input[type=text], input[type=password] { width:100%; margin-top:6px; padding:6px 8px; background:var(--bg); color:var(--fg); border:1px solid var(--line); border-radius:6px; font:inherit; }
-  button.plain { background:none; color:var(--fg); border:1px solid var(--line); border-radius:6px; padding:6px 12px; cursor:pointer; }
-  button.link { all:unset; cursor:pointer; color:var(--accent); }
-  details { margin-top:8px; } summary { cursor:pointer; color:var(--muted); font-size:12px; }
-  form + form { margin-top:12px; }
-  [hidden] { display:none !important; }
-  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px; }
-  @media (max-width:700px) { body { grid-template-columns:1fr; } aside { border-right:0; border-bottom:1px solid var(--line); } }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: grid; grid-template-rows: auto 1fr;
+  }
+  code, kbd, textarea.code, .mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  ::selection { background: var(--accent-soft); }
+
+  /* ---------- top bar ---------- */
+  .topbar {
+    display: flex; align-items: center; gap: 12px; padding: 0 20px; height: 52px;
+    background: var(--navy); color: #fff; position: sticky; top: 0; z-index: 10;
+  }
+  .topbar .btn.ghost { color: #dbe7f3; }
+  .topbar .btn.ghost:hover:not(:disabled) { background: rgb(255 255 255 / .1); color: #fff; }
+  .topbar .btn.primary { background: var(--brand); border-color: var(--brand); color: var(--navy); }
+  .topbar .btn.primary:hover:not(:disabled) { background: #4cc3ee; border-color: #4cc3ee; }
+  .topbar :focus-visible { outline-color: var(--brand); }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; letter-spacing: -.01em; }
+  .brand svg { width: 26px; height: 26px; }
+  .brand small { font-weight: 400; color: #9fb3c8; font-size: 12.5px; padding-left: 10px; border-left: 1px solid rgb(255 255 255 / .2); }
+  .spacer { flex: 1; }
+  .who { display: flex; align-items: center; gap: 8px; }
+  .avatar {
+    width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--brand); color: var(--navy); font-weight: 600; font-size: 12px; text-transform: uppercase;
+  }
+
+  /* ---------- buttons & inputs ---------- */
+  button { font: inherit; color: inherit; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 12px;
+    border-radius: 8px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text);
+    font-weight: 500; font-size: 13px; cursor: pointer; white-space: nowrap;
+    transition: background .12s, border-color .12s, color .12s;
+  }
+  .btn:hover:not(:disabled) { background: var(--surface-2); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn.ghost { border-color: transparent; background: transparent; }
+  .btn.ghost:hover:not(:disabled) { background: var(--surface-2); }
+  .btn.danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 40%, var(--border)); }
+  .btn.danger:hover:not(:disabled) { background: var(--danger-soft); }
+  .btn.icon { width: 32px; padding: 0; }
+  .btn svg { width: 16px; height: 16px; flex: none; }
+  .btn.loading { pointer-events: none; }
+  .btn.loading svg { display: none; }
+  .btn.loading::before {
+    content: ""; width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  kbd {
+    font-size: 11px; padding: 1px 5px; border-radius: 4px; border: 1px solid var(--border-strong);
+    border-bottom-width: 2px; color: var(--text-3); background: var(--surface);
+  }
+  .btn.primary kbd { color: #fff; background: rgb(255 255 255 / .15); border-color: rgb(255 255 255 / .3); }
+  input[type=text], input[type=password], input[type=search], select, textarea {
+    font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong);
+    border-radius: 8px; transition: border-color .12s, box-shadow .12s;
+  }
+  input[type=text], input[type=password], input[type=search] { height: 36px; padding: 0 10px; width: 100%; }
+  select { height: 30px; padding: 0 8px; font-size: 13px; }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  ::placeholder { color: var(--text-3); }
+  label.field { display: grid; gap: 6px; font-size: 13px; font-weight: 500; color: var(--text-2); }
+
+  /* ---------- layout ---------- */
+  .app { display: grid; grid-template-columns: 272px minmax(0, 1fr); min-height: 0; }
+  .sidebar {
+    border-right: 1px solid var(--border); background: var(--surface); padding: 16px;
+    overflow-y: auto; display: grid; gap: 18px; align-content: start;
+    height: calc(100vh - 52px); position: sticky; top: 52px;
+  }
+  main { padding: 20px; display: grid; gap: 16px; align-content: start; min-width: 0; max-width: 1400px; width: 100%; margin: 0 auto; }
+
+  .label {
+    font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3);
+    margin: 0 0 6px; display: flex; align-items: center; gap: 6px;
+  }
+  .count { font-weight: 500; color: var(--text-3); background: var(--surface-2); border-radius: 999px; padding: 0 6px; letter-spacing: 0; }
+
+  /* upload drop zone */
+  .drop {
+    display: grid; justify-items: center; gap: 4px; text-align: center; padding: 16px 12px; cursor: pointer;
+    border: 1.5px dashed var(--border-strong); border-radius: 10px; background: var(--surface-2); color: var(--text-2);
+    transition: border-color .12s, background .12s;
+  }
+  .drop:hover, .drop.over { border-color: var(--accent); background: var(--accent-soft); }
+  .drop svg { width: 22px; height: 22px; color: var(--accent-text); }
+  .drop strong { font-weight: 600; font-size: 13px; color: var(--text); }
+  .drop span { font-size: 12px; color: var(--text-3); }
+  .drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+
+  /* table & example lists */
+  .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+  .list button {
+    all: unset; box-sizing: border-box; width: 100%; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: 6px; font-size: 13px; color: var(--text);
+  }
+  .list button:hover { background: var(--surface-2); }
+  .list button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .list button[aria-current="true"] { background: var(--accent-soft); color: var(--accent-text); font-weight: 500; }
+  .list .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .list .name .schema { color: var(--text-3); }
+  .list button[aria-current="true"] .schema { color: inherit; opacity: .7; }
+  .badge {
+    flex: none; font-size: 10px; font-weight: 600; letter-spacing: .03em; padding: 1px 6px; border-radius: 4px;
+    background: var(--surface-3); color: var(--text-2);
+  }
+  .list.examples button { flex-direction: column; align-items: flex-start; gap: 1px; }
+  .list.examples .sub { font-size: 11.5px; color: var(--text-3); }
+  .empty-note { font-size: 12.5px; color: var(--text-3); padding: 4px 8px; }
+  details.group > summary { list-style: none; cursor: pointer; }
+  details.group > summary::-webkit-details-marker { display: none; }
+  details.group > summary .chev { transition: transform .15s; width: 12px; height: 12px; }
+  details.group[open] > summary .chev { transform: rotate(90deg); }
+
+  /* object explorer */
+  .explorer { display: grid; gap: 8px; }
+  .explorer .label { margin: 0; }
+  details.db > summary {
+    list-style: none; cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 5px 4px; border-radius: 6px;
+    font-size: 13px; font-weight: 600; color: var(--text);
+  }
+  details.db > summary::-webkit-details-marker { display: none; }
+  details.db > summary:hover { background: var(--surface-2); }
+  details.db > summary .count { margin-left: auto; }
+  details.db > summary .chev { width: 12px; height: 12px; color: var(--text-3); transition: transform .15s; }
+  details.db[open] > summary .chev { transform: rotate(90deg); }
+  .dbi { width: 15px; height: 15px; color: var(--brand); }
+  .list.tree { margin-left: 10px; padding-left: 6px; border-left: 1px solid var(--border); }
+  .trow { display: flex; align-items: center; }
+  .list .exp {
+    flex: none; width: 20px; height: 26px; padding: 0; justify-content: center; color: var(--text-3); border-radius: 4px;
+  }
+  .list .exp svg { width: 11px; height: 11px; transition: transform .15s; }
+  .list .exp[aria-expanded="true"] svg { transform: rotate(90deg); }
+  .cols { list-style: none; margin: 0 0 4px 19px; padding: 0 0 0 8px; border-left: 1px solid var(--border); }
+  .list .cols button { padding: 3px 8px; font-size: 12.5px; color: var(--text-2); }
+  .cols .col { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cols .type { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 10.5px; color: var(--text-3); }
+
+  /* ---------- cards ---------- */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); min-width: 0; }
+  .card-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .card-head h2 { margin: 0; font-size: 14px; font-weight: 600; }
+  .card-body { padding: 16px; }
+  .hint { font-size: 12.5px; color: var(--text-3); }
+
+  /* ask */
+  .ask { display: flex; gap: 8px; align-items: center; }
+  .ask .inputwrap { position: relative; flex: 1; }
+  .ask .inputwrap svg { position: absolute; left: 11px; top: 50%; translate: 0 -50%; width: 16px; height: 16px; color: var(--accent-text); pointer-events: none; }
+  .ask input { padding-left: 34px; height: 40px; font-size: 14px; }
+  .ask .btn { height: 40px; padding: 0 16px; }
+  .explain {
+    margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: var(--accent-soft); color: var(--text);
+    font-size: 13px; display: flex; gap: 8px;
+  }
+  .explain.err { background: var(--danger-soft); color: var(--danger); }
+  .suggestions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .chip {
+    all: unset; cursor: pointer; font-size: 12.5px; padding: 3px 10px; border-radius: 999px;
+    border: 1px solid var(--border); color: var(--text-2); background: var(--surface);
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent-text); }
+  .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* editor */
+  .editor {
+    display: flex; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); overflow: hidden;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .editor:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .gutter {
+    margin: 0; padding: 12px 10px 12px 12px; min-width: 44px; text-align: right; user-select: none; overflow: hidden;
+    font: 13px/1.6 "JetBrains Mono", ui-monospace, monospace; color: #98a2b3; background: var(--surface-2);
+    border-right: 1px solid var(--border);
+  }
+  textarea.code {
+    display: block; flex: 1; min-width: 0; min-height: 150px; resize: vertical; padding: 12px 14px; font-size: 13px; line-height: 1.6;
+    border: 0; border-radius: 0; background: transparent; tab-size: 2; white-space: pre; overflow: auto;
+  }
+  textarea.code:focus { box-shadow: none; }
+  .toolbar { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .status { font-size: 12.5px; color: var(--text-3); display: flex; align-items: center; gap: 6px; }
+  .status.ok::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
+  .status.err { color: var(--danger); white-space: pre-wrap; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; }
+
+  /* tabs */
+  .tabs { display: flex; gap: 2px; }
+  .tab {
+    all: unset; cursor: pointer; padding: 6px 12px; border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--text-2);
+  }
+  .tab:hover { background: var(--surface-2); color: var(--text); }
+  .tab[aria-selected="true"] { background: var(--surface-3); color: var(--text); }
+  .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* data tables */
+  .grid-wrap { overflow: auto; max-height: 520px; }
+  table.data { border-collapse: separate; border-spacing: 0; font-size: 13px; width: max-content; min-width: 100%; }
+  table.data th, table.data td {
+    padding: 7px 14px; text-align: left; white-space: nowrap; max-width: 380px; overflow: hidden; text-overflow: ellipsis;
+    border-bottom: 1px solid var(--border);
+  }
+  table.data th {
+    position: sticky; top: 0; z-index: 1; background: var(--surface); font-weight: 600; font-size: 12px; color: var(--text-2);
+    box-shadow: inset 0 -1px 0 var(--border-strong);
+  }
+  table.data tbody tr:hover td { background: var(--surface-2); }
+  table.data .idx { color: var(--text-3); font-size: 11.5px; text-align: right; padding-right: 8px; position: sticky; left: 0; background: var(--surface); }
+  table.data th.idx { z-index: 2; }
+  table.data .num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.data .null { color: var(--text-3); font-style: italic; }
+  table.data .obj { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; color: var(--text-2); }
+  .empty {
+    display: grid; justify-items: center; gap: 6px; padding: 44px 16px; text-align: center; color: var(--text-3); font-size: 13px;
+  }
+  .empty svg { width: 28px; height: 28px; opacity: .6; }
+  .empty strong { color: var(--text-2); font-weight: 600; }
+
+  .chart-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; font-size: 13px; color: var(--text-2); }
+  .chart-controls label { display: flex; gap: 6px; align-items: center; }
+  .chart-box { position: relative; height: 360px; }
+
+  /* ---------- dialogs ---------- */
+  dialog {
+    border: 1px solid var(--border); border-radius: 14px; padding: 0; width: min(420px, calc(100vw - 32px));
+    background: var(--surface); color: var(--text); box-shadow: var(--shadow-lg);
+  }
+  dialog::backdrop { background: rgb(18 18 17 / .45); backdrop-filter: blur(2px); }
+  .dlg-head { display: flex; align-items: center; padding: 16px 20px 0; }
+  .dlg-head h2 { margin: 0; font-size: 16px; font-weight: 600; flex: 1; }
+  .dlg-body { padding: 16px 20px 20px; display: grid; gap: 14px; }
+  .segmented { display: grid; grid-template-columns: 1fr 1fr; background: var(--surface-2); border-radius: 9px; padding: 3px; }
+  .segmented button { all: unset; text-align: center; padding: 6px; border-radius: 7px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-2); }
+  .segmented button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+  .segmented button:focus-visible { outline: 2px solid var(--accent); }
+  .pw { position: relative; }
+  .pw input { padding-right: 56px; }
+  .pw button { position: absolute; right: 4px; top: 50%; translate: 0 -50%; height: 28px; font-size: 12px; }
+  .form-err { color: var(--danger); font-size: 13px; background: var(--danger-soft); padding: 8px 10px; border-radius: 8px; }
+  .form-ok { color: var(--success); font-size: 13px; background: var(--success-soft); padding: 8px 10px; border-radius: 8px; }
+  .section-title { font-size: 13px; font-weight: 600; margin: 4px 0 -4px; }
+  .danger-zone { border-top: 1px solid var(--border); padding-top: 14px; display: grid; gap: 10px; }
+  .danger-zone p { margin: 0; font-size: 12.5px; color: var(--text-3); }
+
+  /* ---------- toasts ---------- */
+  .toasts { position: fixed; right: 16px; bottom: 16px; display: grid; gap: 8px; z-index: 50; width: min(360px, calc(100vw - 32px)); }
+  .toast {
+    background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--success); border-radius: 10px;
+    padding: 10px 14px; font-size: 13px; box-shadow: var(--shadow-lg); animation: rise .18s ease-out;
+  }
+  .toast.err { border-left-color: var(--danger); }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  @media (max-width: 860px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+    main { padding: 16px; }
+    .brand small, .who .name { display: none; }
+    .topbar { padding: 10px 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before { animation-duration: .001ms !important; transition: none !important; }
+  }
 </style>
 </head>
 <body>
-<aside>
-  <h1>Cloudstone</h1>
-  <form id="authform" hidden>
-    <input id="username" type="text" autocomplete="username" placeholder="Username" aria-label="Username" required>
-    <input id="password" type="password" autocomplete="current-password" placeholder="Password (8+ characters)" aria-label="Password" required>
-    <div class="row"><button class="primary" value="login">Log in</button><button class="plain" value="signup">Sign up</button></div>
-    <div id="authmsg" class="muted"></div>
-  </form>
-  <div id="signedin" hidden>
-    <span class="muted">Signed in as</span> <b id="who"></b> · <button class="link" id="logout">Log out</button>
-    <details>
-      <summary>Account</summary>
-      <form id="pwform">
-        <input id="oldpw" type="password" autocomplete="current-password" placeholder="Current password" aria-label="Current password" required>
-        <input id="newpw" type="password" autocomplete="new-password" placeholder="New password" aria-label="New password" required>
-        <div class="row"><button class="plain">Change password</button></div>
-      </form>
-      <form id="delform">
-        <input id="delpw" type="password" autocomplete="current-password" placeholder="Password" aria-label="Password to delete account" required>
-        <div class="row"><button class="plain">Delete account and data</button></div>
-      </form>
-      <div id="acctmsg" class="muted"></div>
-    </details>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0 4 4m-4-4L8 7"/><path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5Z"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M20 17v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2"/></symbol>
+  <symbol id="i-table" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/></symbol>
+  <symbol id="i-db" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.8"/><path d="M4.5 5.5v13c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8v-13M4.5 12c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+</svg>
+
+<header class="topbar">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <rect width="32" height="32" rx="8" fill="var(--brand)"/>
+      <path d="M9.5 21.5h13a4 4 0 0 0 .6-7.95A5.5 5.5 0 0 0 12.6 12a4.75 4.75 0 0 0-3.1 9.5Z" fill="#fff" opacity=".95"/>
+      <path d="M11 24.5h10" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+    </svg>
+    Cloudstone <small>data workbench</small>
   </div>
-  <h2 class="side">Upload</h2>
-  <label class="muted"><span id="uphint"></span><br>
-    <input id="file" type="file" accept=".csv,.json,.ndjson,.jsonl,.xlsx,.parquet,.log" multiple disabled>
-  </label>
-  <div id="upmsg" class="muted"></div>
-  <h2 class="side">Demo data</h2>
-  <ul id="demo"></ul>
-  <h2 class="side">Your tables</h2>
-  <ul id="tables"></ul>
-  <h2 class="side">Example queries</h2>
-  <ul id="examples"></ul>
-</aside>
-<main>
-  <section>
-    <h2 id="proftitle">Profile</h2>
-    <div id="profile" class="scroll muted">Upload a file or pick a table.</div>
-  </section>
-  <section>
-    <h2>Query</h2>
-    <form id="askform" class="row" style="margin:0 0 10px">
-      <input id="question" type="text" style="flex:1; margin:0" aria-label="Question in plain English"
-        placeholder="Ask in plain English, e.g. Which sales rep sold the most speakers?">
-      <button class="primary">Ask</button>
-    </form>
-    <div id="askmsg" class="muted" style="margin-bottom:8px"></div>
-    <textarea id="sql" spellcheck="false" placeholder="SELECT * FROM demo.sales LIMIT 100&#10;-- nested JSON: SELECT context.device, count(*) FROM demo.events GROUP BY 1"></textarea>
-    <div class="row"><button class="primary" id="run">Run</button><span class="muted">Ctrl/⌘+Enter</span></div>
-    <div id="qmsg" class="muted"></div>
-    <div id="result" class="scroll"></div>
-  </section>
-  <section>
-    <h2>Chart</h2>
-    <div class="row">
-      <select id="ctype"><option>bar</option><option>line</option><option>scatter</option></select>
-      X <select id="cx"></select> Y <select id="cy"></select>
+  <div class="spacer"></div>
+  <div id="loggedout" class="who">
+    <button class="btn ghost" data-auth="login">Log in</button>
+    <button class="btn primary" data-auth="signup">Sign up</button>
+  </div>
+  <div id="loggedin" class="who" hidden>
+    <button class="btn ghost" id="accountbtn" aria-haspopup="dialog">
+      <span class="avatar" id="avatar" aria-hidden="true"></span><span class="name" id="who"></span>
+    </button>
+    <button class="btn ghost" id="logout">Log out</button>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar" aria-label="Data">
+    <div>
+      <label class="drop" id="drop">
+        <svg><use href="#i-upload"/></svg>
+        <strong id="droptitle">Upload data</strong>
+        <span id="drophint">CSV, JSON, NDJSON, XLSX, Parquet, .log</span>
+        <input id="file" type="file" accept=".csv,.json,.ndjson,.jsonl,.xlsx,.parquet,.log" multiple>
+      </label>
     </div>
-    <canvas id="chart" height="110"></canvas>
-  </section>
-</main>
+
+    <section class="explorer" aria-label="Object explorer">
+      <h3 class="label">Databases</h3>
+      <input type="search" id="filter" placeholder="Search objects…" aria-label="Search tables">
+      <details class="db" open>
+        <summary><svg class="chev"><use href="#i-chev"/></svg><svg class="dbi"><use href="#i-db"/></svg>my_data<span class="count" id="minecount">0</span></summary>
+        <ul class="list tree" id="tables"></ul>
+      </details>
+      <details class="db" open>
+        <summary><svg class="chev"><use href="#i-chev"/></svg><svg class="dbi"><use href="#i-db"/></svg>demo<span class="count" id="democount">0</span></summary>
+        <ul class="list tree" id="demo"></ul>
+      </details>
+    </section>
+
+    <details class="group" open>
+      <summary class="label"><svg class="chev"><use href="#i-chev"/></svg> Example queries</summary>
+      <ul class="list examples" id="examples"></ul>
+    </details>
+  </aside>
+
+  <main>
+    <section class="card" id="askcard" hidden>
+      <div class="card-body">
+        <form class="ask" id="askform">
+          <div class="inputwrap">
+            <svg><use href="#i-spark"/></svg>
+            <input id="question" type="text" autocomplete="off" aria-label="Ask a question about your data in plain English"
+                   placeholder="Ask about your data in plain English…">
+          </div>
+          <button class="btn primary" id="askbtn"><svg><use href="#i-spark"/></svg>Ask</button>
+        </form>
+        <div class="suggestions" id="suggestions"></div>
+        <div class="explain" id="explain" role="status" hidden></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Worksheet</h2>
+        <span class="hint" id="askoff" hidden>Plain-English questions are off. Start the server with <code>CLOUDSTONE_ASK=subscription</code> to turn them on.</span>
+      </div>
+      <div class="card-body">
+        <label class="sr-only" for="sql">SQL query</label>
+        <div class="editor">
+          <pre class="gutter" id="gutter" aria-hidden="true">1</pre>
+          <textarea id="sql" class="code" spellcheck="false" autocapitalize="off" autocorrect="off" wrap="off"
+                    placeholder="SELECT * FROM demo.sales LIMIT 100"></textarea>
+        </div>
+        <div class="toolbar">
+          <button class="btn primary" id="run"><svg><use href="#i-play"/></svg>Run <kbd>⌘↵</kbd></button>
+          <div class="status" id="qmsg" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="tabs" role="tablist" aria-label="Output">
+          <button class="tab" role="tab" id="tab-result" aria-controls="panel-result" aria-selected="true">Results</button>
+          <button class="tab" role="tab" id="tab-chart" aria-controls="panel-chart" aria-selected="false" tabindex="-1">Chart</button>
+          <button class="tab" role="tab" id="tab-profile" aria-controls="panel-profile" aria-selected="false" tabindex="-1">Profile</button>
+        </div>
+        <div class="spacer"></div>
+        <span class="hint" id="outmeta"></span>
+        <button class="btn" id="csv" disabled><svg><use href="#i-download"/></svg>CSV</button>
+      </div>
+      <div id="panel-result" role="tabpanel" aria-labelledby="tab-result" class="grid-wrap" tabindex="0"></div>
+      <div id="panel-chart" role="tabpanel" aria-labelledby="tab-chart" class="card-body" hidden>
+        <div class="chart-controls">
+          <label>Type <select id="ctype"><option value="bar">Bar</option><option value="line">Line</option><option value="scatter">Scatter</option></select></label>
+          <label>X <select id="cx"></select></label>
+          <label>Y <select id="cy"></select></label>
+        </div>
+        <div class="chart-box"><canvas id="chart" role="img" aria-label="Chart of the query result"></canvas></div>
+        <div class="empty" id="chartempty" hidden></div>
+      </div>
+      <div id="panel-profile" role="tabpanel" aria-labelledby="tab-profile" class="grid-wrap" tabindex="0" hidden></div>
+    </section>
+  </main>
+</div>
+
+<dialog id="authdlg" aria-labelledby="authtitle">
+  <form method="dialog" class="dlg-head">
+    <h2 id="authtitle">Welcome to Cloudstone</h2>
+    <button class="btn ghost icon" aria-label="Close"><svg><use href="#i-x"/></svg></button>
+  </form>
+  <form class="dlg-body" id="authform" novalidate>
+    <div class="segmented" role="tablist" aria-label="Account action">
+      <button type="button" role="tab" data-mode="login" aria-selected="true">Log in</button>
+      <button type="button" role="tab" data-mode="signup" aria-selected="false">Sign up</button>
+    </div>
+    <label class="field">Username
+      <input id="username" type="text" autocomplete="username" required minlength="3" maxlength="32" spellcheck="false">
+    </label>
+    <label class="field">Password
+      <span class="pw">
+        <input id="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128">
+        <button type="button" class="btn ghost" data-reveal="password">Show</button>
+      </span>
+    </label>
+    <div class="hint" id="authhint" hidden>3-32 letters, digits, “.”, “_” or “-”. Password 8+ characters.</div>
+    <div class="form-err" id="autherr" role="alert" hidden></div>
+    <button class="btn primary" id="authsubmit" style="height:38px">Log in</button>
+  </form>
+</dialog>
+
+<dialog id="acctdlg" aria-labelledby="accttitle">
+  <form method="dialog" class="dlg-head">
+    <h2 id="accttitle">Account</h2>
+    <button class="btn ghost icon" aria-label="Close"><svg><use href="#i-x"/></svg></button>
+  </form>
+  <div class="dlg-body">
+    <form id="pwform" style="display:grid; gap:12px">
+      <div class="section-title">Change password</div>
+      <label class="field">Current password
+        <input id="oldpw" type="password" autocomplete="current-password" required>
+      </label>
+      <label class="field">New password
+        <input id="newpw" type="password" autocomplete="new-password" required minlength="8">
+      </label>
+      <div id="pwmsg" role="status" hidden></div>
+      <button class="btn">Change password</button>
+    </form>
+    <form id="delform" class="danger-zone">
+      <div class="section-title" style="color:var(--danger)">Delete account</div>
+      <p>Permanently deletes your account and every table you've uploaded. This can't be undone.</p>
+      <label class="field">Password
+        <input id="delpw" type="password" autocomplete="current-password" required>
+      </label>
+      <div class="form-err" id="delerr" role="alert" hidden></div>
+      <button class="btn danger">Delete account and data</button>
+    </form>
+  </div>
+</dialog>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
 <script>
 const $ = id => document.getElementById(id);
-let last = null, chart = null, user = null;
+const el = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids); return e; };
+const icon = name => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.innerHTML = `<use href="#i-${name}"/>`; return s; };
 const ident = name => name.split('.').map(p => `"${p}"`).join('.');
+let last = null, chart = null, user = null, current = null, tableNames = [];
+
+const DEMO_TYPES = {sales: 'CSV', employees: 'XLSX', products: 'JSON', events: 'NDJSON', customers: 'JSON', web_server: 'LOG', shipments: 'PARQUET'};
+const SUGGESTIONS = ['Which sales rep sold the most speakers?', 'Average delivery days per carrier', 'Which customers came from the legacy system?', 'Error lines per hour in the server log'];
 
 const EXAMPLES = [
   ['Revenue by region', 'CSV', `SELECT region, round(sum(quantity * unit_price), 2) AS revenue
@@ -151,174 +532,408 @@ FROM demo.shipments sh JOIN demo.sales s USING (order_id)
 GROUP BY 1 ORDER BY avg_days DESC`],
 ];
 
-function listItem(label, sub, onclick) {
-  const li = document.createElement('li'), b = document.createElement('button');
-  b.textContent = label;
-  if (sub) b.appendChild(Object.assign(document.createElement('span'), {className: 'sub', textContent: sub}));
-  b.onclick = onclick;
-  li.appendChild(b);
-  return li;
-}
-
+// ---------- helpers ----------
 async function api(path, opts) {
   const r = await fetch(path, opts);
-  const j = await r.json();
+  const j = await r.json().catch(() => ({error: `Server error (${r.status})`}));
   if (!r.ok) throw new Error(j.error);
   return j;
 }
+const post = (path, data) => api(path, {method: 'POST', body: JSON.stringify(data)});
 
-function renderTable(el, {columns, rows}) {
-  const t = document.createElement('table');
+function toast(text, isErr) {
+  const t = el('div', {className: 'toast' + (isErr ? ' err' : ''), textContent: text});
+  if (isErr) t.setAttribute('role', 'alert');
+  $('toasts').append(t);
+  setTimeout(() => t.remove(), isErr ? 7000 : 3500);
+}
+
+async function busy(btn, fn) {
+  btn.classList.add('loading'); btn.disabled = true; btn.setAttribute('aria-busy', 'true');
+  try { return await fn(); } finally { btn.classList.remove('loading'); btn.disabled = false; btn.removeAttribute('aria-busy'); }
+}
+
+function show(node, text, cls) { node.hidden = !text; node.className = cls || node.className; node.textContent = text || ''; }
+
+const isNumeric = v => typeof v === 'number' || (typeof v === 'string' && v.trim() !== '' && !isNaN(v));
+
+// ---------- tables ----------
+function renderGrid(container, {columns, rows}, emptyText) {
+  if (!columns.length) {
+    container.replaceChildren(el('div', {className: 'empty'}, icon('table'), el('strong', {textContent: 'No rows to show'}), el('span', {textContent: emptyText || 'The statement ran but returned no result set.'})));
+    return;
+  }
+  const numCol = columns.map((_, i) => rows.some(r => r[i] !== null) && rows.every(r => r[i] === null || isNumeric(r[i])));
+  const t = el('table', {className: 'data'});
   const head = t.createTHead().insertRow();
-  columns.forEach(c => head.appendChild(document.createElement('th')).textContent = c);
+  head.append(el('th', {className: 'idx', textContent: '#'}));
+  columns.forEach((c, i) => head.append(el('th', {className: numCol[i] ? 'num' : '', textContent: c, title: c})));
   const body = t.createTBody();
-  rows.forEach(r => {
+  rows.forEach((r, n) => {
     const tr = body.insertRow();
-    r.forEach(v => {
+    tr.append(el('td', {className: 'idx', textContent: n + 1}));
+    r.forEach((v, i) => {
       const td = tr.insertCell();
-      td.textContent = v === null ? '∅' : typeof v === 'object' ? JSON.stringify(v) : v;
+      if (v === null) { td.className = 'null'; td.textContent = 'null'; }
+      else if (typeof v === 'object') { td.className = 'obj'; td.textContent = JSON.stringify(v); }
+      else { td.className = numCol[i] ? 'num' : ''; td.textContent = v; }
       td.title = td.textContent;
     });
   });
-  el.replaceChildren(t);
-  el.classList.remove('muted');
+  if (!rows.length) {
+    const tr = body.insertRow();
+    tr.append(el('td', {colSpan: columns.length + 1, className: 'null', textContent: 'No rows matched.', style: 'text-align:center; padding:24px'}));
+  }
+  container.replaceChildren(t);
+}
+
+const colCache = new Map(), expanded = new Set();
+const shortType = t => t.replace(/\(.*\)/, '');
+const colRef = c => /^[A-Za-z_]\w*$/.test(c) ? c : `"${c.replace(/"/g, '""')}"`;
+
+async function columnsOf(name) {
+  if (!colCache.has(name)) colCache.set(name, api('/profile?table=' + encodeURIComponent(name)).then(p => p.rows.map(r => [r[0], r[1]])));
+  try { return await colCache.get(name); } catch (err) { colCache.delete(name); throw err; }
+}
+
+function tableButton(name) {
+  const [schema, base] = name.includes('.') ? name.split('.') : ['', name];
+  const open = el('button', {onclick: () => openTable(name)}, el('span', {className: 'name', title: `${name} · click to preview`, textContent: base}));
+  const type = schema === 'demo' && DEMO_TYPES[base];
+  if (type) open.append(el('span', {className: 'badge', textContent: type}));
+  open.dataset.table = name;
+  if (name === current) open.setAttribute('aria-current', 'true');
+  const exp = el('button', {className: 'exp', title: 'Show columns'}, icon('chev'));
+  exp.setAttribute('aria-label', `Show columns of ${name}`);
+  exp.setAttribute('aria-expanded', 'false');
+  const cols = el('ul', {className: 'cols', hidden: true});
+  const toggle = async on => {
+    exp.setAttribute('aria-expanded', on); cols.hidden = !on;
+    on ? expanded.add(name) : expanded.delete(name);
+    if (!on || cols.childElementCount) return;
+    cols.replaceChildren(el('li', {className: 'empty-note', textContent: 'Loading…'}));
+    try {
+      cols.replaceChildren(...(await columnsOf(name)).map(([c, t]) => el('li', {}, el('button', {
+        title: `${c} ${t} · click to insert`, onclick: () => insertSql(colRef(c)),
+      }, el('span', {className: 'col', textContent: c}), el('span', {className: 'type', textContent: shortType(t)})))));
+    } catch (err) { cols.replaceChildren(el('li', {className: 'empty-note', textContent: err.message})); }
+  };
+  exp.onclick = () => toggle(exp.getAttribute('aria-expanded') !== 'true');
+  if (expanded.has(name)) toggle(true);
+  return el('li', {}, el('div', {className: 'trow'}, exp, open), cols);
+}
+
+function renderTableLists() {
+  const q = $('filter').value.trim().toLowerCase();
+  const match = n => !q || n.toLowerCase().includes(q);
+  const demo = tableNames.filter(n => n.startsWith('demo.'));
+  const mine = tableNames.filter(n => !n.startsWith('demo.'));
+  $('democount').textContent = demo.length;
+  $('minecount').textContent = mine.length;
+  const shownDemo = demo.filter(match), shownMine = mine.filter(match);
+  $('demo').replaceChildren(...(shownDemo.length ? shownDemo.map(tableButton) : [el('li', {className: 'empty-note', textContent: 'No matches.'})]));
+  $('tables').replaceChildren(...(shownMine.length ? shownMine.map(tableButton)
+    : [el('li', {className: 'empty-note', textContent: q && mine.length ? 'No matches.' : user ? 'Nothing yet. Drop a file above to add one.' : 'Log in to upload and keep your own tables.'})]));
 }
 
 async function loadTables() {
-  const names = await api('/tables');
-  const item = n => listItem(n, '', () => showProfile(n));
-  $('demo').replaceChildren(...names.filter(n => n.startsWith('demo.')).map(item));
-  const mine = names.filter(n => !n.startsWith('demo.'));
-  $('tables').replaceChildren(...(mine.length ? mine.map(item)
-    : [Object.assign(document.createElement('li'), {className: 'muted', textContent: user ? 'None yet. Upload a file.' : 'Log in to save your own tables.'})]));
+  tableNames = await api('/tables');
+  for (const k of colCache.keys()) if (!k.startsWith('demo.')) colCache.delete(k);
+  renderTableLists();
 }
 
-function say(el, text, isErr) {
-  el.className = isErr ? 'err' : 'muted';
-  el.textContent = text;
+function markCurrent(name) {
+  current = name;
+  for (const b of document.querySelectorAll('.list button[data-table]'))
+    b.dataset.table === name ? b.setAttribute('aria-current', 'true') : b.removeAttribute('aria-current');
 }
 
-function setUser(u) {
-  user = u;
-  $('authform').hidden = !!u;
-  $('signedin').hidden = !u;
-  $('who').textContent = u || '';
-  $('file').disabled = !u;
-  $('uphint').textContent = u ? 'CSV, JSON, NDJSON, XLSX, Parquet or .log. Saved to your account.' : 'Log in to upload and save your own data.';
-  for (const f of document.querySelectorAll('form')) f.reset();
-  return loadTables();
-}
-
-const post = (path, data) => api(path, {method: 'POST', body: JSON.stringify(data)});
-
-$('authform').onsubmit = async e => {
-  e.preventDefault();
-  try {
-    const j = await post('/' + e.submitter.value, {username: $('username').value, password: $('password').value});
-    say($('authmsg'), '');
-    await setUser(j.user);
-  } catch (err) { say($('authmsg'), err.message, true); }
-};
-
-$('logout').onclick = async () => setUser((await post('/logout', {})).user);
-
-$('pwform').onsubmit = async e => {
-  e.preventDefault();
-  try {
-    await post('/password', {old: $('oldpw').value, new: $('newpw').value});
-    e.target.reset();
-    say($('acctmsg'), 'Password changed. Other sessions were logged out.');
-  } catch (err) { say($('acctmsg'), err.message, true); }
-};
-
-$('delform').onsubmit = async e => {
-  e.preventDefault();
-  if (!confirm(`Delete account "${user}" and all its tables? This can't be undone.`)) return;
-  try {
-    await setUser((await post('/account/delete', {password: $('delpw').value})).user);
-    say($('upmsg'), 'Account deleted.');
-  } catch (err) { say($('acctmsg'), err.message, true); }
-};
-
-async function showProfile(name, prof) {
-  $('proftitle').textContent = `Profile · ${name}`;
-  renderTable($('profile'), prof || await api('/profile?table=' + encodeURIComponent(name)));
-  $('sql').value = `SELECT * FROM ${ident(name)} LIMIT 100`;
+async function openTable(name, prof) {
+  markCurrent(name);
+  $('tab-profile').textContent = `Profile · ${name}`;
+  setSql(`SELECT * FROM ${ident(name)} LIMIT 100`);
+  const p = prof ? Promise.resolve(prof) : api('/profile?table=' + encodeURIComponent(name));
   run();
+  try { renderGrid($('panel-profile'), await p); } catch (err) { $('panel-profile').replaceChildren(el('div', {className: 'empty', textContent: err.message})); }
 }
 
-$('file').onchange = async e => {
-  for (const f of e.target.files) {
-    $('upmsg').textContent = `Loading ${f.name}…`;
-    try {
-      const j = await api('/upload?name=' + encodeURIComponent(f.name), {method: 'POST', body: f});
-      $('upmsg').textContent = `Loaded ${f.name} → ${j.table}`;
-      await loadTables();
-      await showProfile(j.table, j.profile);
-    } catch (err) {
-      $('upmsg').innerHTML = '';
-      $('upmsg').appendChild(Object.assign(document.createElement('div'), {className: 'err', textContent: err.message}));
-    }
-  }
-  e.target.value = '';
-};
+// ---------- editor ----------
+function syncGutter() {
+  const n = $('sql').value.split('\n').length;
+  $('gutter').textContent = Array.from({length: n}, (_, i) => i + 1).join('\n');
+  $('gutter').scrollTop = $('sql').scrollTop;
+}
+function setSql(v) { $('sql').value = v; syncGutter(); }
+function insertSql(text) {
+  const t = $('sql');
+  t.focus();
+  t.setRangeText(text, t.selectionStart, t.selectionEnd, 'end');
+  syncGutter();
+}
+$('sql').addEventListener('input', syncGutter);
+$('sql').addEventListener('scroll', () => { $('gutter').scrollTop = $('sql').scrollTop; });
 
+// ---------- query & results ----------
 async function run() {
-  $('qmsg').className = 'muted';
-  $('qmsg').textContent = 'Running…';
+  const sql = $('sql').value.trim();
+  if (!sql) { $('sql').focus(); return; }
   const t0 = performance.now();
-  try {
-    showResult(await api('/query', {method: 'POST', body: JSON.stringify({sql: $('sql').value})}), t0);
-    loadTables();
-  } catch (err) {
-    say($('qmsg'), err.message, true);
-  }
+  show($('qmsg'), 'Running…', 'status');
+  await busy($('run'), async () => {
+    try {
+      showResult(await post('/query', {sql}), t0);
+      loadTables();
+    } catch (err) {
+      show($('qmsg'), err.message, 'status err');
+    }
+  });
 }
 
 function showResult(r, t0) {
   last = r;
-  say($('qmsg'), `${r.rows.length}${r.truncated ? '+ (showing first 1000)' : ''} rows · ${Math.round(performance.now() - t0)} ms`);
-  renderTable($('result'), r);
-  for (const s of [$('cx'), $('cy')]) s.replaceChildren(...r.columns.map((c, i) => new Option(c, i)));
-  if (r.columns.length > 1) $('cy').value = 1;
-  drawChart();
+  const n = r.rows.length;
+  show($('qmsg'), `${n.toLocaleString()}${r.truncated ? '+' : ''} row${n === 1 ? '' : 's'} · ${Math.round(performance.now() - t0)} ms${r.truncated ? ' · showing the first 1,000' : ''}`, 'status ok');
+  $('outmeta').textContent = r.columns.length ? `${r.columns.length} column${r.columns.length === 1 ? '' : 's'}` : '';
+  $('csv').disabled = !r.columns.length;
+  renderGrid($('panel-result'), r);
+  setupChart(r);
 }
 
-$('askform').onsubmit = async e => {
-  e.preventDefault();
-  const btn = e.target.querySelector('button');
-  btn.disabled = true;
-  say($('askmsg'), 'Asking Claude…');
-  const t0 = performance.now();
-  try {
-    const j = await post('/ask', {question: $('question').value});
-    $('sql').value = j.sql;
-    say($('askmsg'), j.explanation + (j.sql ? ' The SQL is below; edit it and press Run to refine.' : ''));
-    if (j.error) say($('qmsg'), j.error, true);
-    else if (j.sql) showResult(j, t0);
-  } catch (err) {
-    say($('askmsg'), err.message, true);
-  } finally {
-    btn.disabled = false;
-  }
-};
+function downloadCsv() {
+  if (!last?.columns.length) return;
+  const cell = v => {
+    if (v === null) return '';
+    let s = typeof v === 'object' ? JSON.stringify(v) : String(v);
+    if (typeof v === 'string' && /^[=+\-@]/.test(s)) s = "'" + s;  // keep spreadsheets from running it as a formula
+    return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const csv = [last.columns, ...last.rows].map(r => r.map(cell).join(',')).join('\r\n');
+  const a = el('a', {href: URL.createObjectURL(new Blob([csv], {type: 'text/csv'})), download: (current || 'query').replace(/\W+/g, '_') + '.csv'});
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+// ---------- chart ----------
+function setupChart(r) {
+  const nums = r.columns.map((_, i) => i).filter(i => r.rows.some(row => row[i] !== null) && r.rows.every(row => row[i] === null || isNumeric(row[i])));
+  const opts = r.columns.map((c, i) => new Option(c, i));
+  $('cx').replaceChildren(...opts.map(o => o.cloneNode(true)));
+  $('cy').replaceChildren(...opts.filter(o => nums.includes(+o.value)));
+  const x = Math.max(0, r.columns.findIndex((_, i) => !nums.includes(i)));
+  const y = nums.find(i => i !== x) ?? nums[0];
+  $('cx').value = x;
+  if (y !== undefined) $('cy').value = y;
+  const looksTemporal = /date|month|day|week|year|hour|time|^ts$/i.test(r.columns[x] || '') || r.rows.slice(0, 5).every(row => /^\d{4}-\d{2}/.test(row[x] ?? ''));
+  $('ctype').value = looksTemporal && r.rows.length > 2 ? 'line' : 'bar';
+  if (!$('panel-chart').hidden) drawChart();
+}
 
 function drawChart() {
-  chart?.destroy();
-  if (!last?.rows.length) return;
+  chart?.destroy(); chart = null;
+  const r = last, empty = $('chartempty'), box = document.querySelector('.chart-box');
+  const why = !r ? 'Run a query to chart its result.' : !r.rows.length ? 'The result has no rows.' : $('cy').options.length ? '' : 'The result has no numeric column to plot.';
+  empty.hidden = !why; box.hidden = !!why;
+  if (why) { empty.replaceChildren(el('strong', {textContent: 'Nothing to chart'}), el('span', {textContent: why})); return; }
+  const css = getComputedStyle(document.documentElement), v = n => css.getPropertyValue(n).trim();
   const x = +$('cx').value, y = +$('cy').value, type = $('ctype').value;
-  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-  const data = type === 'scatter'
-    ? {datasets: [{label: last.columns[y], data: last.rows.map(r => ({x: +r[x], y: +r[y]})), backgroundColor: accent}]}
-    : {labels: last.rows.map(r => r[x]), datasets: [{label: last.columns[y], data: last.rows.map(r => +r[y]), backgroundColor: accent, borderColor: accent}]};
-  chart = new Chart($('chart'), {type, data, options: {plugins: {legend: {display: false}}}});
+  const color = v('--series-1'), grid = v('--border'), ink = v('--text-3'), surface = v('--surface');
+  const font = {family: 'Inter, ui-sans-serif, system-ui, sans-serif', size: 12};
+  const label = c => typeof c === 'object' && c !== null ? JSON.stringify(c) : c ?? 'null';
+  const dataset = type === 'scatter'
+    ? {data: r.rows.map(row => ({x: +row[x], y: +row[y]})), backgroundColor: color, borderColor: surface, borderWidth: 2, pointRadius: 5, pointHoverRadius: 6}
+    : type === 'line'
+      ? {data: r.rows.map(row => +row[y]), borderColor: color, backgroundColor: color, borderWidth: 2, pointRadius: 4, pointHoverRadius: 5, pointBorderColor: surface, pointBorderWidth: 2, tension: 0}
+      : {data: r.rows.map(row => +row[y]), backgroundColor: color, borderRadius: 4, borderSkipped: 'start', maxBarThickness: 56};
+  chart = new Chart($('chart'), {
+    type,
+    data: {labels: type === 'scatter' ? undefined : r.rows.map(row => label(row[x])), datasets: [{label: r.columns[y], ...dataset}]},
+    options: {
+      maintainAspectRatio: false, animation: {duration: matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 300},
+      interaction: {mode: type === 'scatter' ? 'nearest' : 'index', intersect: false},
+      plugins: {
+        legend: {display: false},
+        title: {display: true, text: `${r.columns[y]} by ${r.columns[x]}`, align: 'start', color: v('--text-2'), font: {...font, size: 13, weight: '600'}, padding: {bottom: 12}},
+        tooltip: {backgroundColor: v('--surface'), titleColor: v('--text'), bodyColor: v('--text-2'), borderColor: v('--border-strong'), borderWidth: 1, padding: 10, cornerRadius: 8, titleFont: font, bodyFont: font, displayColors: false},
+      },
+      scales: {
+        x: {type: type === 'scatter' ? 'linear' : 'category', grid: {display: type === 'scatter', color: grid}, border: {color: grid}, ticks: {color: ink, font, maxRotation: 0, autoSkip: true}, title: {display: true, text: r.columns[x], color: ink, font}},
+        y: {beginAtZero: type === 'bar', grid: {color: grid}, border: {display: false}, ticks: {color: ink, font}, title: {display: true, text: r.columns[y], color: ink, font}},
+      },
+    },
+  });
+  $('chart').setAttribute('aria-label', `${type} chart of ${r.columns[y]} by ${r.columns[x]}; the Results tab has the same data as a table`);
 }
 
+// ---------- tabs ----------
+const TABS = ['result', 'chart', 'profile'];
+function selectTab(name, focus) {
+  for (const t of TABS) {
+    const on = t === name, tab = $('tab-' + t);
+    tab.setAttribute('aria-selected', on); tab.tabIndex = on ? 0 : -1;
+    $('panel-' + t).hidden = !on;
+    if (on && focus) tab.focus();
+  }
+  $('csv').hidden = name === 'profile';
+  $('outmeta').hidden = name === 'profile';
+  if (name === 'chart') drawChart();
+}
+for (const t of TABS) $('tab-' + t).onclick = () => selectTab(t);
+document.querySelector('.tabs').onkeydown = e => {
+  const i = TABS.findIndex(t => $('tab-' + t).getAttribute('aria-selected') === 'true');
+  if (e.key === 'ArrowRight') selectTab(TABS[(i + 1) % TABS.length], true);
+  if (e.key === 'ArrowLeft') selectTab(TABS[(i + TABS.length - 1) % TABS.length], true);
+};
+
+// ---------- ask ----------
+async function ask(question) {
+  if (!question.trim()) { $('question').focus(); return; }
+  const t0 = performance.now();
+  show($('explain'), 'Claude is writing a query…', 'explain');
+  await busy($('askbtn'), async () => {
+    try {
+      const j = await post('/ask', {question});
+      setSql(j.sql);
+      show($('explain'), j.explanation, 'explain');
+      if (j.error) { show($('qmsg'), j.error, 'status err'); }
+      else if (j.sql) { showResult(j, t0); selectTab('result'); }
+    } catch (err) {
+      show($('explain'), err.message, 'explain err');
+    }
+  });
+}
+$('askform').onsubmit = e => { e.preventDefault(); ask($('question').value); };
+$('suggestions').replaceChildren(...SUGGESTIONS.map(s => el('button', {className: 'chip', type: 'button', textContent: s, onclick: () => { $('question').value = s; ask(s); }})));
+
+// ---------- upload ----------
+async function upload(files) {
+  if (!user) { openAuth('signup'); return; }
+  for (const f of files) {
+    const t = el('div', {className: 'toast', textContent: `Uploading ${f.name}…`});
+    $('toasts').append(t);
+    try {
+      const j = await api('/upload?name=' + encodeURIComponent(f.name), {method: 'POST', body: f});
+      t.remove();
+      toast(`Loaded ${f.name} as ${j.table}`);
+      await loadTables();
+      await openTable(j.table, j.profile);
+    } catch (err) {
+      t.remove();
+      toast(`${f.name}: ${err.message}`, true);
+    }
+  }
+}
+$('file').onchange = e => { upload([...e.target.files]); e.target.value = ''; };
+$('drop').onclick = e => { if (!user) { e.preventDefault(); openAuth('signup'); } };
+for (const ev of ['dragenter', 'dragover']) $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.add('over'); });
+for (const ev of ['dragleave', 'drop']) $('drop').addEventListener(ev, () => $('drop').classList.remove('over'));
+$('drop').addEventListener('drop', e => { e.preventDefault(); upload([...e.dataTransfer.files]); });
+
+// ---------- accounts ----------
+let authMode = 'login';
+function setAuthMode(mode) {
+  authMode = mode;
+  for (const b of document.querySelectorAll('.segmented button')) b.setAttribute('aria-selected', b.dataset.mode === mode);
+  $('authtitle').textContent = mode === 'login' ? 'Welcome back' : 'Create your account';
+  $('authsubmit').textContent = mode === 'login' ? 'Log in' : 'Create account';
+  $('password').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
+  $('authhint').hidden = mode === 'login';
+  $('autherr').hidden = true;
+}
+function openAuth(mode) {
+  setAuthMode(mode);
+  $('authform').reset();
+  $('authdlg').showModal();
+  $('username').focus();
+}
+for (const b of document.querySelectorAll('[data-auth]')) b.onclick = () => openAuth(b.dataset.auth);
+for (const b of document.querySelectorAll('.segmented button')) b.onclick = () => setAuthMode(b.dataset.mode);
+for (const b of document.querySelectorAll('[data-reveal]')) b.onclick = () => {
+  const i = $(b.dataset.reveal), hidden = i.type === 'password';
+  i.type = hidden ? 'text' : 'password'; b.textContent = hidden ? 'Hide' : 'Show';
+  b.setAttribute('aria-label', hidden ? 'Hide password' : 'Show password');
+};
+
+$('authform').onsubmit = async e => {
+  e.preventDefault();
+  await busy($('authsubmit'), async () => {
+    try {
+      const j = await post('/' + authMode, {username: $('username').value.trim(), password: $('password').value});
+      $('authdlg').close();
+      await setUser(j.user);
+      toast(authMode === 'login' ? `Welcome back, ${j.user}` : `Account created. Welcome, ${j.user}!`);
+    } catch (err) { show($('autherr'), err.message, 'form-err'); }
+  });
+};
+
+$('logout').onclick = async () => { await setUser((await post('/logout', {})).user); toast('Logged out'); };
+$('accountbtn').onclick = () => { $('pwform').reset(); $('delform').reset(); $('pwmsg').hidden = $('delerr').hidden = true; $('acctdlg').showModal(); };
+
+$('pwform').onsubmit = async e => {
+  e.preventDefault();
+  await busy(e.submitter || e.target.querySelector('button'), async () => {
+    try {
+      await post('/password', {old: $('oldpw').value, new: $('newpw').value});
+      e.target.reset();
+      show($('pwmsg'), 'Password changed. Your other sessions were logged out.', 'form-ok');
+    } catch (err) { show($('pwmsg'), err.message, 'form-err'); }
+  });
+};
+
+$('delform').onsubmit = async e => {
+  e.preventDefault();
+  if (!confirm(`Delete the account "${user}" and all of its tables? This can't be undone.`)) return;
+  await busy(e.submitter || e.target.querySelector('button'), async () => {
+    try {
+      await post('/account/delete', {password: $('delpw').value});
+      $('acctdlg').close();
+      await setUser(null);
+      toast('Account and data deleted');
+    } catch (err) { show($('delerr'), err.message, 'form-err'); }
+  });
+};
+
+function setUser(u) {
+  user = u;
+  $('loggedout').hidden = !!u;
+  $('loggedin').hidden = !u;
+  $('who').textContent = u || '';
+  $('avatar').textContent = (u || '?')[0];
+  $('droptitle').textContent = u ? 'Upload data' : 'Log in to upload';
+  $('drophint').textContent = u ? 'Drop files or click · CSV, JSON, NDJSON, XLSX, Parquet, .log' : 'Your uploads are saved to your account';
+  $('file').disabled = !u;
+  if (current && !current.startsWith('demo.') && !u) current = null;
+  return loadTables();
+}
+
+// ---------- keyboard ----------
 $('run').onclick = run;
-$('sql').onkeydown = e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) run(); };
+$('csv').onclick = downloadCsv;
+$('filter').oninput = renderTableLists;
+$('sql').onkeydown = e => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); }
+  if (e.key === 'Tab' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {  // indent instead of leaving the editor
+    e.preventDefault(); insertSql('  ');
+  }
+};
+document.addEventListener('keydown', e => {
+  const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  if (e.key === '/' && !typing && !document.querySelector('dialog[open]')) {
+    e.preventDefault();
+    ($('askcard').hidden ? $('sql') : $('question')).focus();
+  }
+});
 for (const id of ['ctype', 'cx', 'cy']) $(id).onchange = drawChart;
-$('examples').replaceChildren(...EXAMPLES.map(([label, sub, sql]) => listItem(label, sub, () => { $('sql').value = sql; run(); })));
-api('/me').then(j => { $('askform').hidden = $('askmsg').hidden = !j.ask; return setUser(j.user); }).then(() => showProfile('demo.sales'));
+if (!/Mac|iPhone|iPad/.test(navigator.platform)) document.querySelector('#run kbd').textContent = 'Ctrl ↵';
+
+// ---------- start ----------
+$('examples').replaceChildren(...EXAMPLES.map(([label, sub, sql]) => el('li', {}, el('button', {
+  onclick: () => { markCurrent(null); setSql(sql); run(); selectTab('result'); },
+}, el('span', {textContent: label}), el('span', {className: 'sub', textContent: sub})))));
+api('/me').then(j => {
+  $('askcard').hidden = !j.ask;
+  $('askoff').hidden = j.ask;
+  return setUser(j.user);
+}).then(() => openTable('demo.sales')).catch(err => toast(err.message, true));
 </script>
 </body>
 </html>
