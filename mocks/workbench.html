@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloudstone Workbench mock</title>
+<!-- Throwaway styled mock. Tokens from DESIGN.md (Verdigris Ledger), pending lock. Static: no JS. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap">
+<style>
+:root {
+  --neutral-1: #fcfdfc;
+  --neutral-2: #f8f9f8;
+  --neutral-3: #eef1f0;
+  --neutral-4: #e4e9e7;
+  --neutral-5: #d9e0dd;
+  --neutral-6: #ccd4d1;
+  --neutral-7: #bdc6c1;
+  --neutral-8: #a3aea8;
+  --neutral-9: #adbbb5;
+  --neutral-10: #9ba8a2;
+  --neutral-11: #5e6562;
+  --neutral-12: #2b2f2d;
+  --accent-1: #fafefc;
+  --accent-2: #f4fbf7;
+  --accent-3: #e6f5ee;
+  --accent-4: #d9eee4;
+  --accent-5: #c9e6d8;
+  --accent-6: #b7dccb;
+  --accent-7: #a2cfbb;
+  --accent-8: #82b9a1;
+  --accent-9: #84c8ab;
+  --accent-10: #74b499;
+  --accent-11: #486c5d;
+  --accent-12: #20322a;
+  --accent-on-solid: #05100b;
+  --accent-bg-subtle: var(--accent-3);
+  --accent-solid: var(--accent-9);
+  --accent-solid-hover: var(--accent-10);
+  --accent-text: var(--accent-11);
+  --error-3: #ffebe9;
+  --error-9: #e1524f;
+  --error-11: #974843;
+  --success-3: #e0f8e0;
+  --success-9: #5ad664;
+  --success-11: #337437;
+  --warning-3: #f9f0dd;
+  --warning-9: #dbb155;
+  --warning-11: #76602f;
+  --info-3: #e3f3ff;
+  --info-9: #5baee5;
+  --info-11: #3d6886;
+  --background: var(--neutral-1);
+  --surface: var(--neutral-2);
+  --surface-hover: var(--neutral-3);
+  --surface-active: var(--neutral-4);
+  --rule: var(--neutral-5);
+  --border-subtle: var(--neutral-6);
+  --border: var(--neutral-7);
+  --border-strong: var(--neutral-8);
+  --border-control: color-mix(in oklab, var(--neutral-11) 45%, var(--neutral-8));
+  --text: var(--neutral-12);
+  --text-secondary: var(--neutral-11);
+  --text-muted: var(--neutral-11);
+  --accent-selected: var(--accent-4);
+  --accent-edge: var(--accent-11);
+  --focus: var(--accent-11);
+  --data-1: #2a78d6;
+
+  /* type */
+  --font-ui: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --text-12: 12px; --lh-12: 16px;
+  --text-13: 13px; --lh-13: 20px;
+  --text-14: 14px; --lh-14: 20px;
+  --text-16: 16px; --lh-16: 24px;
+  --text-20: 20px; --lh-20: 28px;
+  --tracking-label: .08em; --tracking-wordmark: .16em;
+
+  /* space (4 px grid) */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-6: 24px; --space-8: 32px; --space-12: 48px;
+  --row-h: 32px; /* grid rows */
+
+  /* shape + depth */
+  --radius-control: 2px; --radius-float: 4px; /* grid cells and region frames: 0 */
+  --hairline: 1px solid var(--border);
+  --shadow-float: 0 1px 2px color-mix(in oklab, var(--neutral-12) 8%, transparent),
+                  0 8px 24px color-mix(in oklab, var(--neutral-12) 14%, transparent);
+  --focus-ring: 2px solid var(--focus); --focus-offset: 2px;
+
+  /* motion */
+  --dur-1: 100ms; --dur-2: 150ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+
+*{box-sizing:border-box;margin:0}
+body{background:var(--background);color:var(--text);font:400 var(--text-14)/var(--lh-14) var(--font-ui);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0}
+:focus-visible{outline:var(--focus-ring);outline-offset:var(--focus-offset)}
+.mono{font-family:var(--font-mono)}
+a{color:var(--accent-text);text-decoration:underline}
+
+/* top bar */
+header.top{height:40px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 var(--space-4);border-bottom:var(--hairline)}
+.wordmark{font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:var(--tracking-wordmark)}
+.acct{display:flex;gap:var(--space-3);align-items:center;font-size:var(--text-13)}
+.avatar{width:24px;height:24px;border-radius:2px;background:var(--accent-selected);display:inline-grid;place-items:center;font-weight:600;font-size:12px;vertical-align:middle;margin-right:6px}
+.btn{height:28px;padding:0 var(--space-3);border:1px solid var(--border-control);border-radius:var(--radius-control);font-weight:500;font-size:var(--text-13);background:var(--background)}
+.btn:hover{background:var(--surface-hover)}
+.btn.primary{background:var(--accent-solid);border-color:var(--accent-edge);color:var(--accent-on-solid)}
+.btn.primary:hover{background:var(--accent-solid-hover)}
+.btn.lg{height:32px;padding:0 var(--space-4)}
+
+.app{flex:1;min-height:0;display:grid;grid-template-columns:280px 1fr}
+aside.side{background:var(--surface);border-right:var(--hairline);padding:var(--space-4) var(--space-3);overflow:auto;display:flex;flex-direction:column;gap:var(--space-4)}
+main{padding:var(--space-4) var(--space-6) var(--space-4);display:flex;flex-direction:column;gap:var(--space-6);min-width:0;min-height:0}
+
+/* signature: legend on the rule */
+.region{position:relative;border:var(--hairline);padding:var(--space-4) var(--space-3) var(--space-3)}
+.region>h2{position:absolute;top:-8px;left:12px;padding:0 8px;background:var(--background);font:600 var(--text-12)/var(--lh-12) var(--font-ui);text-transform:uppercase;letter-spacing:var(--tracking-label);color:var(--text-muted);transition:color var(--dur-1)}
+aside .region>h2{background:var(--surface)}
+.region::before{content:"";position:absolute;top:-1px;left:-1px;width:12px;height:1px;background:transparent}
+.region:focus-within>h2{color:var(--accent-text)}
+.region:focus-within::before{background:var(--accent-edge);height:1px}
+.region.pad0{padding:0}
+
+/* upload */
+.drop{border:1px dashed var(--border-control);border-radius:var(--radius-control);padding:var(--space-3);font-size:var(--text-13);line-height:18px}
+.drop b{font-weight:600;display:block}
+.drop span{color:var(--text-muted);font-size:var(--text-12);display:block}
+
+/* view switch */
+.tabs{display:flex;border-bottom:var(--hairline)}
+.tab{padding:6px 12px;font-size:var(--text-13);color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-1px;min-height:32px}
+.tab[aria-selected=true]{color:var(--accent-text);border-bottom-color:var(--accent-edge);font-weight:500}
+.cnt{font-family:var(--font-mono);font-size:11px;margin-left:4px}
+
+/* explorer */
+.search{width:100%;height:28px;border:1px solid var(--border-control);border-radius:var(--radius-control);padding:0 8px;background:var(--background);font-size:var(--text-13)}
+.search::placeholder{color:var(--text-muted)}
+.grp{font:600 var(--text-12)/var(--lh-12) var(--font-ui);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--text-muted);margin:var(--space-3) 0 4px;display:flex;justify-content:space-between}
+ul{list-style:none;padding:0}
+.tbl li{display:flex;align-items:center;justify-content:space-between;height:28px;padding:0 8px;font-size:var(--text-13);border-radius:var(--radius-control)}
+.tbl li:hover{background:var(--surface-hover)}
+.tbl li.sel{background:var(--accent-selected)}
+.tbl li button{flex:1;text-align:left;font-size:var(--text-13)}
+.tbl li::before{content:"▸";color:var(--text-muted);font-size:10px;margin-right:6px}
+.badge{font:400 11px/16px var(--font-mono);color:var(--text-muted);border:1px solid var(--border);border-radius:2px;padding:0 5px}
+.hint{font-size:var(--text-12);color:var(--text-muted);padding:4px 8px}
+.ex li{padding:4px 8px;font-size:var(--text-13)}
+.ex small{display:block;color:var(--text-muted);font-size:var(--text-12)}
+
+/* ask */
+.askrow{display:flex;gap:var(--space-2)}
+.askrow input{flex:1;height:36px;border:1px solid var(--border-control);border-radius:var(--radius-control);padding:0 12px;font-size:var(--text-16);background:var(--background)}
+.askrow input::placeholder{color:var(--text-muted)}
+.mode{font-size:var(--text-12);color:var(--text-muted);margin:6px 0 8px}
+.chips{display:flex;gap:var(--space-2);flex-wrap:wrap}
+.chip{border:1px solid var(--border-control);border-radius:2px;padding:2px 10px;font-size:var(--text-12);line-height:20px}
+.chip:hover{background:var(--surface-hover)}
+
+/* editor */
+.editor{display:flex;border:1px solid var(--border-control);border-radius:var(--radius-control);font:400 var(--text-14)/var(--lh-14) var(--font-mono);background:var(--background)}
+.gut{padding:8px 0;width:36px;text-align:right;padding-right:10px;color:var(--text-muted);border-right:1px solid var(--rule);user-select:none}
+pre{font:inherit;padding:8px 12px;white-space:pre;overflow:auto;flex:1}
+.k{color:var(--accent-text);font-weight:500}.c{color:var(--text-muted)}
+.bar{display:flex;align-items:center;gap:var(--space-3);margin-top:var(--space-2)}
+.status{font:400 var(--text-13)/20px var(--font-mono);color:var(--text-secondary)}
+.status .ok{color:var(--success-11);font-family:var(--font-ui)}
+kbd{font:400 var(--text-12) var(--font-mono);color:var(--text-muted)}
+.esc{margin-left:auto;font-size:var(--text-12);color:var(--text-muted)}
+
+/* results */
+section.results{flex:1;min-height:0;display:flex;flex-direction:column}
+.rhead{display:flex;align-items:center;gap:var(--space-4);background:var(--surface);border-bottom:var(--hairline);padding:0 var(--space-3);height:40px;flex:none}
+.rhead .tab{height:40px;margin-bottom:0}
+.rhead .status{margin-left:auto}
+.notice{flex:none;padding:4px var(--space-3);font-size:var(--text-12);background:var(--info-3);color:var(--info-11);border-bottom:var(--hairline)}
+.notice a{color:var(--info-11)}
+.body{flex:1;min-height:0;display:flex}
+.gridwrap{flex:1;overflow:auto;min-width:0}
+table{border-collapse:separate;border-spacing:0;width:100%;font:400 var(--text-13)/20px var(--font-mono)}
+th,td{height:var(--row-h);padding:0 var(--space-3);border-bottom:1px solid var(--rule);white-space:nowrap;text-align:left}
+thead th{position:sticky;top:0;background:var(--surface);border-bottom:3px double var(--border-strong);font:500 var(--text-13)/16px var(--font-mono);height:36px;z-index:1}
+thead th small{display:block;color:var(--text-muted);font-weight:400;font-size:11px}
+thead th.sorted{background:var(--accent-selected)}
+tbody th{color:var(--text-muted);font-weight:400;width:44px;text-align:right}
+td.n,thead th.n{text-align:right}
+td.sel{background:var(--accent-bg-subtle)}
+tr.cur td,tr.cur th{background:var(--accent-selected)}
+.null{color:var(--text-muted);font-style:italic}
+.panel{width:280px;flex:none;background:var(--surface);border-left:var(--hairline);padding:var(--space-4) var(--space-3);overflow:auto;position:relative;margin-top:0}
+.panel h2{position:absolute;top:-8px}
+.pt{font:600 var(--text-14)/20px var(--font-mono)}
+.pt small{font:400 var(--text-12) var(--font-mono);color:var(--text-muted);margin-left:6px}
+dl{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:var(--text-13);margin:var(--space-3) 0;padding-top:var(--space-3);border-top:1px solid var(--rule)}
+dt{color:var(--text-muted)}dd{font-family:var(--font-mono);text-align:right}
+.hist{display:flex;align-items:flex-end;gap:2px;height:80px;border-bottom:1px solid var(--border)}
+.hist i{flex:1;background:var(--data-1)}
+.axis{display:flex;justify-content:space-between;font:400 11px var(--font-mono);color:var(--text-muted);margin-top:2px}
+.top5{margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--rule);font-size:var(--text-12)}
+.top5 div{display:grid;grid-template-columns:70px 1fr 28px;gap:6px;align-items:center;height:20px;font-family:var(--font-mono)}
+.top5 b{display:block;height:8px;background:var(--data-1)}
+.foot{font-size:var(--text-12);color:var(--text-muted);margin-top:var(--space-3)}
+.closebtn{position:absolute;top:8px;right:8px;font-size:var(--text-12);color:var(--text-muted)}
+
+@media (max-width:1099px){.body{flex-direction:column}.panel{width:auto;border-left:0;border-top:var(--hairline)}}
+@media (max-width:859px){
+  body{height:auto;overflow:auto}
+  .app{display:block}
+  aside.side{border-right:0;border-bottom:var(--hairline)}
+  main{padding:var(--space-4)}
+  .gridwrap{max-height:420px}
+  .askrow{flex-wrap:wrap}.askrow input{flex-basis:100%}
+  .btn,.chip,.tab{min-height:44px}
+  .esc{display:none}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="wordmark">Cloudstone</span>
+  <div class="acct"><button class="btn" style="border-color:transparent"><span class="avatar">G</span>gabriel</button><button class="btn">Log out</button></div>
+</header>
+
+<div class="app">
+<aside class="side">
+  <button class="drop" style="text-align:left;background:none">
+    <b>Drop files to add tables</b>
+    <span>csv, json, ndjson, jsonl, xlsx, parquet, log</span>
+    <span>Saved only to your account, on this computer.</span>
+  </button>
+
+  <nav class="tabs" role="tablist" aria-label="Sidebar view">
+    <button class="tab" role="tab" aria-selected="true">Explorer</button>
+    <button class="tab" role="tab" aria-selected="false">History<span class="cnt">12</span></button>
+  </nav>
+
+  <div>
+    <input class="search" placeholder="Search tables" aria-label="Search tables">
+    <div class="grp"><span>my_data</span><span class="mono">0</span></div>
+    <p class="hint">Nothing yet. Drop a file to add one.</p>
+    <div class="grp"><span>demo</span><span class="mono">7</span></div>
+    <ul class="tbl"><li class=sel><button>sales</button><span class="badge">csv</span></li><li><button>employees</button><span class="badge">xlsx</span></li><li><button>products</button><span class="badge">json</span></li><li><button>events</button><span class="badge">ndjson</span></li><li><button>customers</button><span class="badge">json</span></li><li><button>web_server</button><span class="badge">log</span></li><li><button>shipments</button><span class="badge">parquet</span></li></ul>
+  </div>
+
+  <section class="region ex" aria-labelledby="ex-h">
+    <h2 id="ex-h">Example queries</h2>
+    <ul>
+      <li><a href="#">Revenue by region</a><small>from sales.csv</small></li>
+      <li><a href="#">Headcount by department</a><small>from employees.xlsx</small></li>
+      <li><a href="#">Errors per hour</a><small>from web_server.log</small></li>
+    </ul>
+  </section>
+</aside>
+
+<main>
+  <section class="region" aria-labelledby="ask-h">
+    <h2 id="ask-h">Ask</h2>
+    <div class="askrow"><input placeholder="Ask a question about your data" aria-label="Question"><button class="btn primary lg">Ask</button></div>
+    <p class="mode">Answered with your Claude plan</p>
+    <div class="chips"><button class="chip">Top 5 products by revenue</button><button class="chip">Orders per month</button><button class="chip">Which region is slowest?</button><button class="chip">Null counts per column</button></div>
+  </section>
+
+  <section class="region focus" aria-labelledby="ws-h">
+    <h2 id="ws-h" style="color:var(--accent-text)">Worksheet</h2>
+    <span style="position:absolute;top:-1px;left:-1px;width:12px;height:1px;background:var(--accent-edge)"></span>
+    <div class="editor">
+      <div class="gut" aria-hidden="true">1<br>2<br>3<br>4<br>5</div>
+<pre><span class="k">SELECT</span> region, <span class="k">SUM</span>(amount) <span class="k">AS</span> revenue, <span class="k">COUNT</span>(*) <span class="k">AS</span> orders
+<span class="k">FROM</span> demo.sales
+<span class="k">GROUP BY</span> region, product
+<span class="k">ORDER BY</span> revenue <span class="k">DESC</span>
+<span class="k">LIMIT</span> 20;</pre>
+    </div>
+    <div class="bar">
+      <button class="btn primary lg">Run <kbd style="color:inherit">⌘↵</kbd></button>
+      <span class="status"><span class="ok">✓</span> 20 rows · 84 ms</span>
+      <span class="esc">Esc then Tab leaves the editor</span>
+    </div>
+  </section>
+
+  <section class="region pad0 results" aria-labelledby="rs-h">
+    <h2 id="rs-h">Results</h2>
+    <div class="rhead" role="tablist" style="padding-top:4px">
+      <button class="tab" role="tab" aria-selected="true">Results</button>
+      <button class="tab" role="tab" aria-selected="false">Chart</button>
+      <button class="tab" role="tab" aria-selected="false">Profile · sales</button>
+      <span class="status"><span class="ok">✓</span> 20 rows · 6 columns</span>
+      <button class="btn">CSV</button>
+    </div>
+    <div class="notice">ⓘ Sorted by revenue (descending) · <a href="#">Clear sort</a></div>
+    <div class="body">
+      <div class="gridwrap">
+        <table>
+          <thead><tr>
+            <th scope="col" style="width:44px"></th>
+            <th scope="col">region<small>VARCHAR</small></th>
+            <th scope="col">product<small>VARCHAR</small></th>
+            <th scope="col" class="n">orders<small>BIGINT</small></th>
+            <th scope="col" class="n sorted" aria-sort="descending">revenue ▾<small>DOUBLE</small></th>
+            <th scope="col" class="n">avg_order<small>DOUBLE</small></th>
+          </tr></thead>
+          <tbody><tr><th scope="row">1</th><td>South</td><td>Sprocket</td><td class="n">963</td><td class="n sel">108,783.66</td><td class="n">112.96</td></tr>
+<tr><th scope="row">2</th><td>West</td><td>Gizmo</td><td class="n">836</td><td class="n sel">88,866.29</td><td class="n">106.30</td></tr>
+<tr class="cur"><th scope="row">3</th><td>East</td><td>Gadget</td><td class="n">729</td><td class="n sel">60,629.61</td><td class="n">83.17</td></tr>
+<tr><th scope="row">4</th><td>North</td><td>Gizmo</td><td class="n">585</td><td class="n sel">54,241.79</td><td class="n">92.72</td></tr>
+<tr><th scope="row">5</th><td>Central</td><td>Sprocket</td><td class="n">929</td><td class="n sel">49,628.75</td><td class="n">53.42</td></tr>
+<tr><th scope="row">6</th><td>South</td><td>Gadget</td><td class="n">591</td><td class="n sel">45,782.56</td><td class="n">77.47</td></tr>
+<tr><th scope="row">7</th><td>East</td><td>Widget</td><td class="n">407</td><td class="n sel">43,810.41</td><td class="n"><span class="null">null</span></td></tr>
+<tr><th scope="row">8</th><td>West</td><td>Gadget</td><td class="n">399</td><td class="n sel">43,466.43</td><td class="n">108.94</td></tr>
+<tr><th scope="row">9</th><td>East</td><td>Sprocket</td><td class="n">356</td><td class="n sel">39,509.95</td><td class="n">110.98</td></tr>
+<tr><th scope="row">10</th><td>West</td><td>Sprocket</td><td class="n">446</td><td class="n sel">35,744.52</td><td class="n">80.14</td></tr>
+<tr><th scope="row">11</th><td>Central</td><td>Gizmo</td><td class="n">476</td><td class="n sel">35,314.59</td><td class="n">74.19</td></tr>
+<tr><th scope="row">12</th><td>Central</td><td>Widget</td><td class="n">458</td><td class="n sel">33,376.22</td><td class="n">72.87</td></tr>
+<tr><th scope="row">13</th><td>Central</td><td>Gadget</td><td class="n">348</td><td class="n sel">30,316.46</td><td class="n">87.12</td></tr>
+<tr><th scope="row">14</th><td>East</td><td>Gizmo</td><td class="n">463</td><td class="n sel">29,687.06</td><td class="n">64.12</td></tr>
+<tr><th scope="row">15</th><td>North</td><td>Sprocket</td><td class="n">338</td><td class="n sel">27,025.95</td><td class="n">79.96</td></tr>
+<tr><th scope="row">16</th><td>North</td><td>Gadget</td><td class="n">285</td><td class="n sel">24,980.42</td><td class="n">87.65</td></tr>
+<tr><th scope="row">17</th><td>West</td><td>Widget</td><td class="n">288</td><td class="n sel">24,500.81</td><td class="n">85.07</td></tr>
+<tr><th scope="row">18</th><td>South</td><td>Gizmo</td><td class="n">476</td><td class="n sel">22,790.72</td><td class="n">47.88</td></tr>
+<tr><th scope="row">19</th><td>North</td><td>Widget</td><td class="n">421</td><td class="n sel">20,072.15</td><td class="n">47.68</td></tr>
+<tr><th scope="row">20</th><td>South</td><td>Widget</td><td class="n">248</td><td class="n sel">13,563.08</td><td class="n">54.69</td></tr>
+</tbody>
+        </table>
+      </div>
+      <aside class="panel" aria-labelledby="cp-h">
+        <button class="closebtn" aria-label="Close column details">✕ Esc</button>
+        <h2 id="cp-h" class="sr" style="position:static;font:600 var(--text-12)/16px var(--font-ui);text-transform:uppercase;letter-spacing:var(--tracking-label);color:var(--text-muted);margin-bottom:var(--space-3)">Column details</h2>
+        <div class="pt">revenue<small>DOUBLE</small></div>
+        <dl><dt>Non-null</dt><dd>20</dd><dt>Nulls</dt><dd>0</dd><dt>Distinct</dt><dd>20</dd></dl>
+        <dl><dt>Min</dt><dd>13,563.08</dd><dt>Max</dt><dd>108,783.66</dd><dt>Mean</dt><dd>41,604.57</dd></dl>
+        <div class="hist" role="img" aria-label="Histogram of revenue"><i style="height:15px"></i><i style="height:25px"></i><i style="height:45px"></i><i style="height:70px"></i><i style="height:90px"></i><i style="height:75px"></i><i style="height:55px"></i><i style="height:35px"></i><i style="height:20px"></i><i style="height:10px"></i></div>
+        <div class="axis"><span>14k</span><span>109k</span></div>
+        <div class="top5">
+          <div><span>West</span><b style="width:100%"></b><span>5</span></div>
+          <div><span>North</span><b style="width:80%"></b><span>4</span></div>
+          <div><span>East</span><b style="width:60%"></b><span>4</span></div>
+          <div><span>South</span><b style="width:60%"></b><span>4</span></div>
+        </div>
+        <p class="foot">based on 20 returned rows</p>
+      </aside>
+    </div>
+  </section>
+</main>
+</div>
+</body>
+</html>

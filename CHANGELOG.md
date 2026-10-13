@@ -5,6 +5,7 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 ## [Unreleased]
 
 ### Added
+- `mocks/workbench.html` (+ screenshots): styled mock of the redesigned workbench for the sign-off gate; reviewed on pixels with no Critical or Major findings.
 - `DESIGN.md`: the "Verdigris Ledger" visual identity (Archivo + IBM Plex Mono, verdigris accent) with an AA-checked light token block (design phase 2; pending sign-off on the mock).
 - `JOURNEY.md`: the analyst journey, flows and a full page spec for the workbench screen (design phase 1).
 - Design brief and phased redesign plan under `.design-foundations/` (design-for-ai workflow: research → plan → mock → build).

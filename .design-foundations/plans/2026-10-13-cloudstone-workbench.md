@@ -268,3 +268,8 @@ Summary: `JOURNEY.md` specifies the analyst loop (F1–F5) and the Workbench pag
 - [x] REVIEW: PASS (sonnet). DW-2.7 pending the mock gate. Major: signature swapped from hand 1 (`duotone-images`) to hand 2 (`border-interrupt-headings`); the user decides at the mock gate.
 - [x] Committed
 Summary: `DESIGN.md` "Verdigris Ledger" (Sage/Ruler; Archivo + IBM Plex Mono; verdigris accent hue 165.7, 89.8° from series-1) with an AA-verified light token block. Pending user lock at the mock gate.
+
+### Mock gate
+- [x] MOCK: styled mock `mocks/workbench.html` (+ desktop and narrow PNGs), minimal gate (sonnet)
+- [x] REVIEW: PASS on pixels (sonnet); detector exit 0, 1 advisory (row-number column). Minors: histogram uses the data blue (intended), clipped grid bottom with no scroll hint, narrow tab wrap, small Esc close target.
+- [ ] User sign-off (locks DESIGN.md, DW-2.7)

@@ -1,0 +1,26 @@
+{
+  "detector": "detect.mjs",
+  "version": 1,
+  "attribution": "Rule subset ported from Impeccable (pbakaus/impeccable), Apache-2.0, with modifications — see file header. Catalog: references/visual/ai-tells.md.",
+  "status": "ran",
+  "sources": [
+    "/Users/gabriel/code/cloudstone/mocks/workbench.html"
+  ],
+  "rules": 16,
+  "findings": [
+    {
+      "source": "/Users/gabriel/code/cloudstone/mocks/workbench.html",
+      "rule": "numbered-section-markers",
+      "category": "copy",
+      "severity": "advisory",
+      "evidence": "decorative sequence: 06, 07, 08, 10, 11, 12",
+      "line": null
+    }
+  ],
+  "counts": {
+    "total": 1,
+    "byRule": {
+      "numbered-section-markers": 1
+    }
+  }
+}
