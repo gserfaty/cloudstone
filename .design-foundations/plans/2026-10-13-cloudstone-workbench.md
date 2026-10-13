@@ -5,7 +5,7 @@
 - **Seed:** `.design-foundations/research/2026-10-13-cloudstone-workbench.md` (confirmed for planning)
 - **Date:** 2026-10-13
 - **Status:** in-progress
-- **Current Phase:** 1
+- **Current Phase:** 2
 
 ## Context
 
@@ -254,3 +254,11 @@ DAG: **1 → 2 → [mock gate: user locks DESIGN.md] → {3, 4} → 5**. Gates: 
 - **Standard track:** a single screen, but it combines a new identity and data surfaces, which needs both Discover and Design.
 - **Phases 3 and 4 run in parallel:** both depend only on `JOURNEY.md` and `DESIGN.md`.
 - **Phase 5 added** so the design ends in the live product, not just mocks, as the user asked.
+
+## Execution log
+
+### Phase 1: Journey and page spec (Gate: Standard)
+- [x] BUILD: discovery, design and production complete (sonnet)
+- [x] REVIEW: fail → fail → PASS (3 attempts, haiku; fresh reviewer each time)
+- [x] Committed
+Summary: `JOURNEY.md` specifies the analyst loop (F1–F5) and the Workbench page (R1–R16), with every state, an Esc precedence table, per-account history, undo on worksheet replace, cancel for Run/Ask, and the Ask mode note. 10 minor review findings are left for Phase 3 (words) and Phase 5.

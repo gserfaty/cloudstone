@@ -5,6 +5,7 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 ## [Unreleased]
 
 ### Added
+- `JOURNEY.md`: the analyst journey, flows and a full page spec for the workbench screen (design phase 1).
 - Design brief and phased redesign plan under `.design-foundations/` (design-for-ai workflow: research → plan → mock → build).
 - `.github/CODEOWNERS` naming @gserfaty as required reviewer, and a Contributing section in the README: changes from others go through pull requests reviewed by the owner.
 - Demo data for messier formats: `customers.json` (records from 3 systems with mismatched keys and types), `web_server.log` (raw log lines) and `shipments.parquet` (joins to sales), plus four example queries showing JSON cleanup, regex log parsing and a Parquet join.
