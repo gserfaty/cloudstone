@@ -5,6 +5,7 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 ## [Unreleased]
 
 ### Added
+- `.github/CODEOWNERS` naming @gserfaty as required reviewer, and a Contributing section in the README: changes from others go through pull requests reviewed by the owner.
 - Demo data for messier formats: `customers.json` (records from 3 systems with mismatched keys and types), `web_server.log` (raw log lines) and `shipments.parquet` (joins to sales), plus four example queries showing JSON cleanup, regex log parsing and a Parquet join.
 - Upload support for Parquet (`.parquet`) and log files (`.log`, one row per line).
 - `CLOUDSTONE_ASK=subscription`: plain-English questions run through the local Claude Code CLI (`claude -p`), using your Claude Pro/Max plan's usage limits instead of a paid API key. Runs with no tools, no plugins or hooks, and all Anthropic/Claude environment variables removed.
