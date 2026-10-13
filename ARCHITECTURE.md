@@ -19,7 +19,7 @@ browser (index.html) ──fetch + session cookie──▶ app.py (http.server)
 | `demo/` | Demo files, one per supported format. Rebuilt into `data/demo.duckdb` on every start. |
 | `data/` | All runtime state, git-ignored. Created on first run. |
 | `JOURNEY.md` | Design contract for the UI: the analyst's job, flows and the Workbench page spec (regions, states, keyboard). |
-| `DESIGN.md` | Visual identity ("Verdigris Ledger") and the light-only CSS token block the UI uses. Locked once the user signs off on the mock. |
+| `DESIGN.md` | Visual identity ("Verdigris Ledger") and the light-only CSS token block the UI uses. Locked on 2026-10-13 after the user approved the mock. |
 | `.design-foundations/` | The design-for-ai workflow's research brief, phased plan, per-phase build/review reports and dealer ledger. |
 
 ## HTTP API

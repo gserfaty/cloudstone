@@ -5,7 +5,7 @@
 - **Seed:** `.design-foundations/research/2026-10-13-cloudstone-workbench.md` (confirmed for planning)
 - **Date:** 2026-10-13
 - **Status:** in-progress
-- **Current Phase:** mock gate
+- **Current Phase:** 3
 
 ## Context
 
@@ -272,4 +272,4 @@ Summary: `DESIGN.md` "Verdigris Ledger" (Sage/Ruler; Archivo + IBM Plex Mono; ve
 ### Mock gate
 - [x] MOCK: styled mock `mocks/workbench.html` (+ desktop and narrow PNGs), minimal gate (sonnet)
 - [x] REVIEW: PASS on pixels (sonnet); detector exit 0, 1 advisory (row-number column). Minors: histogram uses the data blue (intended), clipped grid bottom with no scroll hint, narrow tab wrap, small Esc close target.
-- [ ] User sign-off (locks DESIGN.md, DW-2.7)
+- [x] User sign-off: **Approve**, and the signature swap kept. DESIGN.md locked (DW-2.7).

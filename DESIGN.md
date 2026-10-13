@@ -1,10 +1,10 @@
 # Design: Verdigris Ledger
-**Date:** 2026-10-13 · **Status:** converged — pending user lock at mock gate (DW-2.7). Not law until the user signs off on the styled mock; after that, deviations need an edit here first.
+**Date:** 2026-10-13 · **Status:** locked 2026-10-13: the user approved the styled mock (`mocks/workbench.html`) at the sign-off gate (DW-2.7). This is now law: any deviation needs an edit here first.
 **Archetype:** Sage, inflected by Ruler · **Register:** calm product structure · expressive at: the focused region's legend, the run status line, empty states (all low amplitude)
 **Grounding:** 1920s Art Deco metalwork's verdigris patina on stone + the bank ledger's ruling (hairline rows, double rule under the header)
 **DNA:** Art Deco / Luxury (restrained end) + motion from Swiss / International + type voice from Data-Dense Professional · **Dominant axis:** composition (the ruling system)
 **Composition:** Ledger Grid (dealer hand: family `art-deco-luxury` × discipline `ledger-grid`, variance 2, hue 165.61; seed `cloudstone|2026-10-13|1`, i.e. `--reroll 1` after round 0's five hues all collided with a functional color or with series-1). Ledger: `.design-foundations/used-dna.json`.
-**Pins:** none from the user (light-only is a plan constraint, not a dealer axis). One converge-time swap, pending the user at the mock gate: signature `duotone-images` (no imagery in this product) → `border-interrupt-headings` (dealt to round 1, hand 2). Phase 2 discovery: `.design-foundations/build/2026-10-13-cloudstone-workbench-phase-2-discovery.md`.
+**Pins:** none from the user (light-only is a plan constraint, not a dealer axis). One converge-time swap, **approved by the user at the mock gate**: signature `duotone-images` (no imagery in this product) → `border-interrupt-headings` (dealt to round 1, hand 2). Phase 2 discovery: `.design-foundations/build/2026-10-13-cloudstone-workbench-phase-2-discovery.md`.
 
 ## Direction
 

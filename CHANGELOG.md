@@ -24,6 +24,7 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 - README, ARCHITECTURE and CHANGELOG docs, plus a `CLAUDE.md` rule to keep them current with every commit and push.
 
 ### Changed
+- `DESIGN.md` locked: the user approved the Verdigris Ledger direction and its signature detail on the styled mock.
 - Redesigned the UI after Snowflake's Snowsight: navy top bar, light cool-gray theme with a blue accent, an object explorer with expandable columns, a line-numbered worksheet, Results / Chart / Profile tabs, and dialogs for log in, sign up and account settings.
 - Results grid: row numbers, right-aligned numbers, styled nulls and nested JSON, sticky header, CSV download (cells that look like spreadsheet formulas are escaped).
 - Chart picks a label column for X and a numeric column for Y automatically, uses a line chart for dates, and follows single-series chart conventions (no legend, title names the measure, rounded bar ends, hover tooltips).
