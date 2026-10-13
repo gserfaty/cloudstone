@@ -5,7 +5,7 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 ## [Unreleased]
 
 ### Added
-- `JOURNEY.md` `## Data surfaces` draft: grid, column panel, chart and profile specs (design phase 4, in progress; review fixes pending).
+- `JOURNEY.md` `## Data surfaces`: grid, column panel, chart and profile specs with an edge-case matrix; the chart never aggregates client-side and never draws nulls as zero (design phase 4).
 - `JOURNEY.md` `## Microcopy`: 104 strings for every workbench state, empty state, error and dialog (design phase 3).
 - `mocks/workbench.html` (+ screenshots): styled mock of the redesigned workbench for the sign-off gate; reviewed on pixels with no Critical or Major findings.
 - `DESIGN.md`: the "Verdigris Ledger" visual identity (Archivo + IBM Plex Mono, verdigris accent) with an AA-checked light token block (design phase 2; pending sign-off on the mock).

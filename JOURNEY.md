@@ -506,7 +506,8 @@ Specs for the results experience: grid (R11), column details (R12), chart (R13) 
 
 | Kind | Rule | Align | Format |
 |------|------|-------|--------|
-| `null` | every value is null | left | `null` token |
+| `unknown` | the result has **zero rows**, so there are no values to infer from (checked first; it beats the `null` rule below, which would otherwise be vacuously true) | left | header hint "—"; no cells exist |
+| `null` | there is at least one row and every value is null | left | `null` token |
 | `number` | every non-null value is a JS number, or a numeric string with no leading zero (`"02134"` is text; `"0"` and `"0.5"` are numbers). Decimals and huge integers arrive as strings and count | right | tabular figures; en-US thousands separators on floats and on integers >= 10,000 (digit-grouped as text, never through `Number`, so huge integers keep every digit); no separators when the column is named `id`, ends in `_id`, or is `year` (case-insensitive); decimals exactly as returned; non-finite values are text |
 | `date` | every non-null value matches ISO date or timestamp (`2026-10-13`, `2026-10-13 09:30:00`, `...T...Z`) | left | as returned |
 | `bool` | every non-null value is `true` or `false` | left | `true` / `false` |
@@ -564,7 +565,7 @@ The strip's cost is accepted: telling the analyst a sort covers only the returne
 - Sort target: clicking the name, or Enter / Space on the focused header. Sorted state shows a glyph (up or down triangle) beside the name, `aria-sort`, and the `--accent-selected` fill, so it is never color alone.
 - Column-details button: 24 x 24 px at the header's right edge (WCAG 2.5.8), mini-bars glyph in `--text-muted` (never `--data-1`), always visible (no hover reveal; Hick, recognition over recall); accessible name MC-59. Click, or Shift+Enter on the focused header.
 
-**Sort cycle and rules.** Ascending, then descending, then original (restores the order the query returned). One column at a time; sorting another column starts at ascending. A new result clears the sort. Over returned rows only; when capped the strip (R10) says so (MC-50), and while a sort is active it also shows MC-51 with Clear sort. Comparison: numbers by value; dates, text and bool by locale collation of the displayed text (ISO dates sort chronologically; `false` before `true`); json by its compact text; mixed puts numbers (by value) before everything else (by text); **null always sorts last in both directions**; ties keep returned order (stable). Sorting is inert and the sort control is `aria-disabled` when the result has 0 or 1 rows.
+**Sort cycle and rules.** Ascending, then descending, then original (restores the order the query returned). One column at a time; sorting another column starts at ascending. A new result clears the sort. Over returned rows only; when capped the strip (R10) says so (MC-50), and while a sort is active it also shows MC-51 with Clear sort. Comparison: numbers by value; dates, text and bool by locale collation of the displayed text (ISO dates sort chronologically; `false` before `true`); json by its compact text; mixed puts numbers (by value) before everything else (by text); **null always sorts last in both directions**; ties keep returned order (stable). Sorting is inert and the sort control is `aria-disabled` when the result has 0 or 1 rows: a no-op, the sort glyph is dimmed (`--text-muted`, the same treatment as every disabled control) and never shows an active indicator, and `aria-sort` stays unset. With zero rows every column is kind `unknown` (hint "—", left-aligned header).
 
 **Cell focus.** Single tab stop for the whole grid (roving `tabindex`). Header row is row 0 of the focus grid; the row-number column is not a focus stop. The initial stop is the first data cell (the first header cell when there are no rows). Focused cell: inset 2 px `--focus-ring`; its row gets `--accent-selected`; the selected column keeps its tint. Down from a header goes to the first data row; Up from the first data row goes to the header.
 
@@ -574,7 +575,7 @@ The strip's cost is accepted: telling the analyst a sort covers only the returne
 
 **Keys** (added to R11; nothing in it changes): Arrows move; Home/End first/last column; Ctrl+Home/End (⌘↑/⌘↓) first/last cell; PageUp/PageDown move by visible rows minus one; Enter on header sorts; Enter on data opens the popover; Shift+Enter on header opens details; ⌘C copies; Esc follows section 8.
 
-**States** (extends R11's list, same strings): loading keeps the previous grid, dimmed (`opacity` only, `aria-busy`, no pointer events) so the layout does not jump; first load shows MC-55. Error (MC-56) replaces the grid, closes the panel, clears the selection and disables CSV. Zero rows keeps the header (sort inert, details buttons live) and shows one full-width left-aligned row "No rows matched." (MC-52) over three faint `--rule` lines (the empty-state moment). No result set shows MC-53 with no header.
+**States** (extends R11's list, same strings): loading keeps the previous grid, dimmed (`opacity` only, `aria-busy`, no pointer events) so the layout does not jump; first load shows MC-55. Error (MC-56) replaces the grid, closes the panel, clears the selection and disables CSV. Zero rows keeps the header (every column kind `unknown` with hint "—", left-aligned; sort inert; details buttons live and open "No rows to describe") and shows one full-width left-aligned row "No rows matched." (MC-52) over three faint `--rule` lines (the empty-state moment). No result set shows MC-53 with no header.
 
 ### 4. Column details panel (R12)
 
@@ -602,7 +603,7 @@ Footer: MC-62, or MC-63 when capped.
 | all null | counts only, then MC-64; no range, top values or histogram |
 | one distinct value | counts, then MC-65; the range, top values and histogram are omitted because they would only repeat that value |
 | every value distinct (and more than one) | counts and range; the top-values list is replaced by DS-04; the histogram still shows for numbers |
-| zero rows | counts at 0, then DS-05; footer "Based on 0 returned rows." |
+| zero rows (kind `unknown`) | title shows the kind as "—"; no counts or groups, only DS-05 "No rows to describe."; footer "Based on 0 returned rows." |
 | result capped at 1,000 | footer MC-63 instead of MC-62 |
 
 **Keys and focus.** Opens only from the details button or Shift+Enter on a header (never from the sort gesture); focus moves to the panel heading. Opening details for another column while open swaps the content and moves focus to the heading again. Tab moves through the close button and then on to the next region. **Esc closes the panel (precedence layer 3)** wherever focus is in Results; if focus was inside the panel it returns to the originating header cell, if it was in the grid it stays where it is. The panel closes by itself when a rerun no longer has the column (F2) and on error.
@@ -617,9 +618,13 @@ Footer: MC-62, or MC-63 when capped.
 - Changes the user makes to Type, X or Y are kept until the next result or the next change of the selected column.
 - Data is the **view order**: sorting the grid reorders the bars and the line, so "sort, then chart" gives a ranked bar. The caption says when it is sorted.
 
-**Every returned row is plotted; none are dropped to make the chart tidy.** With more than 60 categories the bars thin out and tick labels auto-skip (no rotation, no truncation below 12 characters, full value in the tooltip).
+**Row-to-mark rule: one mark per returned row, always (bar, line and scatter).** The chart never aggregates, groups, sums or deduplicates in the browser. If the X column repeats a value, every row is still plotted and repeated category labels are allowed; the caption then discloses it (DS-13). An all-null X column labels each row with the `null` token. Aggregation is the job of `GROUP BY` in the SQL.
 
-**Caption (HTML, not drawn in the canvas; replaces the in-canvas Chart.js title).** DS-06: "{Y} by {X} · {n} rows plotted"; capped: "{Y} by {X} · first 1,000 rows plotted. The result was capped."; sorted adds " · sorted by {col} ({ascending or descending})". It is the chart's live region (polite) and the canvas's text alternative is MC-73.
+**Null Y.** A row whose Y value is null gets no mark: never a zero-height bar, never a point at zero, and a line breaks at that row rather than bridging it. The caption states the count (DS-14). If every Y value is null, the chart shows the empty state with the reason DS-15 instead of an axis. Rows with a null X are still plotted (labelled `null`).
+
+**No row is dropped to make the chart tidy.** With more than 60 categories the bars thin out and tick labels auto-skip (no rotation, no truncation below 12 characters, full value in the tooltip).
+
+**Caption (HTML, not drawn in the canvas; replaces the in-canvas Chart.js title).** DS-06: "{Y} by {X} · {n} rows plotted"; capped: "{Y} by {X} · first 1,000 rows plotted. The result was capped."; sorted adds " · sorted by {col} ({ascending or descending})"; repeated X adds the line DS-13; null Y adds the line DS-14. "n rows plotted" counts the marks drawn (rows minus null-Y rows). It is the chart's live region (polite) and the canvas's text alternative is MC-73.
 
 **Truthfulness and ink (the data-viz audit).**
 
@@ -648,7 +653,7 @@ Footer: MC-62, or MC-63 when capped.
 
 The accent never encodes data: no accent bar, no highlighted bar for the selected column, no accent line. The selected column is shown in the grid only. The 4.33 and 4.18 ratios were computed from the DESIGN.md hex values.
 
-**Chart states** (extends R13): empty reasons MC-68 to MC-71; Chart.js missing MC-72; after a run error the chart shows MC-68 (the grid and the chart agree that there is no result). While a run is in flight the chart is dimmed like the grid. Selects are native; the canvas is `role="img"`. X, Y or Type changes redraw instantly (no transition beyond 150 ms) and announce the new caption.
+**Chart states** (extends R13): empty reasons MC-68 to MC-71, plus DS-15 when every Y value is null (zero rows: MC-69, whatever the kinds); Chart.js missing MC-72; after a run error the chart shows MC-68 (the grid and the chart agree that there is no result). While a run is in flight the chart is dimmed like the grid. Selects are native; the canvas is `role="img"`. X, Y or Type changes redraw instantly (no transition beyond 150 ms) and announce the new caption.
 
 ### 6. Profile tab (R14)
 
@@ -663,11 +668,11 @@ The whole table, from the server, and it says so: a scope line above the grid, *
 
 | Case | Grid and sort | Column panel | Chart | Header status, notice, CSV |
 |------|---------------|--------------|-------|----------------------------|
-| **All-null column** | Kind `null`, hint "null"; every cell the `null` token; sort is allowed and changes nothing | Counts (0 non-null, N nulls, 0 distinct), then MC-64; nothing else | Not offered as Y or X-default (it is not a `number`); can still be chosen as X (all "null" categories, a single bar) | Unchanged |
-| **Single distinct value** | Normal; sort changes nothing visible | Counts, then MC-65; range, top values and histogram omitted | As Y: bars of equal height, axis includes 0 so equal bars are drawn truthfully; as X: one category | Unchanged |
+| **All-null column** | Kind `null`, hint "null"; every cell the `null` token; sort is allowed and changes nothing | Counts (0 non-null, N nulls, 0 distinct), then MC-64; nothing else | Not a `number`, so never offered as Y. As X: one mark per row, each labelled with the `null` token, and the caption adds DS-13 (the label repeats) | Unchanged |
+| **Single distinct value** | Normal; sort changes nothing visible | Counts, then MC-65; range, top values and histogram omitted | As Y: one equal-height bar per row, axis includes 0 so equal bars are drawn truthfully; as X: one mark per row, all sharing that label, and the caption adds DS-13 | Unchanged |
 | **Mixed numeric and text** | Kind `mixed`, hint "mixed"; left-aligned, no separators on its numbers; sort puts numbers first (by value), then text | DS-03 breakdown, counts, top values, MC-66; no range or histogram | Excluded from Y (needs every non-null value numeric); allowed as X (categories as text) | Unchanged |
 | **1,000-row truncation** | Header says "1,000+ rows" (MC-45); strip MC-50 always shown; sort is over those rows; the row range readout reads up to 1,000 | Footer MC-63 | Caption states the first 1,000 rows were plotted; sorted state is also named | CSV downloads the returned rows, not the full result |
-| **Zero rows** | Header row stays, "No rows matched." (MC-52), sort inert | Opens; counts 0, DS-05, footer "Based on 0 returned rows." | MC-69; controls disabled | Status MC-44; CSV enabled (header-only file); no range readout |
+| **Zero rows** | Every column kind `unknown` (hint "—", left-aligned); header row stays, "No rows matched." (MC-52); sort inert, no indicator change | Opens; shows only DS-05 "No rows to describe." and footer "Based on 0 returned rows." | MC-69; controls disabled | Status MC-44; CSV enabled (header-only file); no range readout |
 
 Also covered: no result set (grid MC-53, panel unavailable because no header exists, chart MC-71, CSV disabled MC-48); error (grid MC-56, panel closes, chart MC-68, CSV disabled); leading-zero numeric strings (text, not numbers); huge integers (digit-grouped without precision loss); null sorting (always last); capped result with an active sort (both notices, one strip, up to two lines).
 
@@ -685,7 +690,7 @@ Same voice: calm, precise, plain; sentence case; "·" is the only status separat
 | DS-02 | R11 · copy on a null cell (toast) | That cell is null, so nothing was copied. | neutral |
 | DS-03 | R12 · mixed column | Mixed: {a} numeric, {b} text. | neutral |
 | DS-04 | R12 · every value distinct | Every value is distinct, so no value repeats. | calm |
-| DS-05 | R12 · zero rows | The result has no rows, so there is nothing to summarize. | calm |
+| DS-05 | R12 · zero rows | No rows to describe. | calm |
 | DS-06 | R13 · caption | {Y} by {X} · {n} rows plotted. Capped: {Y} by {X} · first 1,000 rows plotted. The result was capped. Sorted adds: · sorted by {col} ({ascending or descending}) | neutral |
 | DS-07 | R13 · non-zero baseline | Y axis starts at {min}, not zero. | neutral |
 | DS-08 | R13 · X option | Row number | neutral |
@@ -693,11 +698,14 @@ Same voice: calm, precise, plain; sentence case; "·" is the only status separat
 | DS-10 | R12 · histogram text alternative | Histogram of {col}: {k} bins from {min} to {max}. The fullest bin, {lo} to {hi}, has {count} rows. | neutral |
 | DS-11 | R13 · Scatter disabled (title) | Scatter needs a second numeric column for X. | neutral |
 | DS-12 | R12 · top values overflow | {k} more values | neutral |
+| DS-13 | R13 · caption, repeated X | {X} repeats across rows. Use GROUP BY in SQL for one bar per value. | neutral |
+| DS-14 | R13 · caption, null Y | {k} rows with no {Y} value not plotted. | neutral |
+| DS-15 | R13 · empty, every Y null | Every {Y} value is null, so there is nothing to plot. Pick another column for Y. | calm |
 
 ### 10. Checks
 
 - DW-4.1: the five plan edge cases are each filled across grid, panel, chart and status in the matrix (section 7); no cell is left blank.
-- DW-4.2: bars include zero, one axis, one series, non-zero line baselines labelled, nothing dropped, capped and sorted data disclosed (section 5 audit table).
+- DW-4.2: one mark per row (no client-side aggregation), null Y never drawn as zero, bars include zero, one axis, one series, non-zero line baselines labelled, nothing dropped, capped and sorted data disclosed (section 5 audit table).
 - DW-4.3: only `--data-1` encodes data; contrast values are listed in the ink table; the accent appears on selection and focus in the grid, never in a chart or the panel's bars.
 - Density: 15 full rows at 1440 x 900 with Ask on (arithmetic in section 2, measured on the mock), grid scrolls in its own container with sticky header, and the scroll cues are specified.
 - Open risk: kinds are inferred from at most 1,000 values, so a column whose first 1,000 values look numeric but later values do not is only caught if those values were returned. Adding DuckDB types to the query payload would remove the guess; it needs a backend change and is not specified here.
