@@ -32,6 +32,9 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 - Logged-out visitors can browse and query demo data but not upload.
 - Demo data now lives in a read-only `data/demo.duckdb`, attached to every user's database as `demo`.
 
+### Fixed
+- Removed a stray copy of the design dealer ledger from the repo root; the full ledger is `.design-foundations/used-dna.json`.
+
 ### Removed
 - The single shared `data.duckdb`. Uploads made before accounts aren't migrated; re-upload them after signing up.
 
