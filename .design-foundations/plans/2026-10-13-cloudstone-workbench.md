@@ -279,3 +279,8 @@ Summary: `DESIGN.md` "Verdigris Ledger" (Sage/Ruler; Archivo + IBM Plex Mono; ve
 - [x] REVIEW: SKIPPED. Minimal gate; design execution evidence is the gate.
 - [x] Committed
 Summary: `JOURNEY.md` `## Microcopy` has 104 strings covering every Workbench state, with errors in the what → why → fix form, and the six Phase 1 wording issues are fixed. For Phase 5: replace "Log in to upload" in index.html with "Sign up to upload", use the Microcopy strings instead of raw server text, and use "·" as the only status separator.
+
+### Phase 4: Data surfaces (Gate: Standard), IN PROGRESS
+- [x] BUILD: discovery and spec produced (sonnet); 15-row density budget measured at 1440×900
+- [ ] REVIEW: FAIL, attempt 1 of 3 (haiku). To fix: one row-to-bar rule (per row or explicit aggregate) and rewrite the two §7 chart-as-X rows; null-Y handling with a disclosed count in the caption; the zero-row column kind in §1 and §3.
+Resume here: re-dispatch BUILD with these fixes, then REVIEW, commit, then Phase 5.

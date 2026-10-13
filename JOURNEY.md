@@ -493,3 +493,211 @@ Tone column: **neutral** = status and labels; **direct** = errors, warnings and 
 
 - Every state in the Workbench page-spec matrix (R1 to R16, columns empty, loading, error, logged out, Ask off) has at least one row above, or is marked n/a there. Rows MC-19, MC-23 and ASK-E9 cover the examples, logged-out history and Ask-off hint.
 - Every row with a `Formula` value follows what happened, why, how to fix. Blame words ("you entered", "invalid input", "wrong" as a verdict) do not appear.
+
+## Data surfaces
+
+Specs for the results experience: grid (R11), column details (R12), chart (R13) and profile (R14), plus the vertical budget that makes them fit. This section refines R9 to R14; where it adds a key or a string, the page spec's Esc precedence table and `## Microcopy` still govern, and the new strings (DS-xx) are merged into Microcopy in Phase 5. Tokens are DESIGN.md names only. Principles cited: data-ink and truthful encoding (Tufte 1983; Cairo 2019), marks and channels (Munzner 2014; position on a common scale is the most accurate channel, Cleveland and McGill 1984), Cowan chunks, Hick, Nielsen #1 and #5, WCAG 2.2 AA (1.4.11 graphics, 2.4.11 focus not obscured, 2.5.8 target size).
+
+### 1. Shared model
+
+**Result view.** One list of returned rows (at most 1,000; the server's `truncated` flag is the only source of "capped") and one *view order*: original, or sorted. The grid, the CSV download and the chart all read the view order, so what is on screen is what is charted and exported. CSV carries raw values, not formatted ones.
+
+**Kinds (inferred in the browser).** The query payload has column names only, so each column gets a *kind* from its non-null values. The header shows the kind as its type hint.
+
+| Kind | Rule | Align | Format |
+|------|------|-------|--------|
+| `null` | every value is null | left | `null` token |
+| `number` | every non-null value is a JS number, or a numeric string with no leading zero (`"02134"` is text; `"0"` and `"0.5"` are numbers). Decimals and huge integers arrive as strings and count | right | tabular figures; en-US thousands separators on floats and on integers >= 10,000 (digit-grouped as text, never through `Number`, so huge integers keep every digit); no separators when the column is named `id`, ends in `_id`, or is `year` (case-insensitive); decimals exactly as returned; non-finite values are text |
+| `date` | every non-null value matches ISO date or timestamp (`2026-10-13`, `2026-10-13 09:30:00`, `...T...Z`) | left | as returned |
+| `bool` | every non-null value is `true` or `false` | left | `true` / `false` |
+| `json` | every non-null value is an object or array | left | hint then truncated preview: `[3] [1,2,3]`, `{…} {"city":"Oslo","zip"…`; popover pretty-prints |
+| `text` | everything else that is uniformly text | left | single line, ellipsis, whitespace collapsed |
+| `mixed` | non-null values fall into more than one of the kinds above (for example numbers and text) | left | each value formatted as its own kind but aligned left, no separators on numbers, so nothing is implied to be a number |
+
+Tokens: `null` in `--text-muted`, Plex Mono italic. An empty string shows `""` in the same muted style, so empty and null stay different. Hint text uses the 12/16 label size.
+
+**Selected column.** At most one. Set only by opening Column details for it (details button or Shift+Enter on the header). Sorting, cell focus and arrow keys never change it. Effects: its cells get the `--accent-bg-subtle` tint, the panel shows it, and the Chart X/Y defaults start from it (section 5). Cleared when a new result no longer has a column of that name, on error, or when the panel's column is replaced by another. Closing the panel keeps the selection and its tint; selecting another column moves it.
+
+### 2. Vertical budget and scroll (1440 x 900)
+
+**(a) Density.** The criterion is at least 15 result rows fully visible at 1440 x 900, Ask on, editor at its default height, no notice strip. Row height stays 32 px (DESIGN.md `--row-h`); the 13 px mono text, 20 px line height and 6 px padding do not change. The room comes from the regions around the grid:
+
+| Region | Mock (approved) | Spec | How |
+|--------|-----------------|------|-----|
+| Top bar | 40 | 40 | unchanged |
+| Main padding top / bottom | 16 / 16 | 16 / 12 | legend overhang (8 px) still clears the top bar hairline |
+| Ask (frame 2, pad 12 top / 8 bottom) | 126+ | **82** | one 32 px input row, then one 24 px line holding the 4 chips left and the mode note (MC-29/MC-30) right-aligned; 4 px between |
+| Gap between regions | 24 | **16** | legend sits on the rule, 8 px of clear space remains |
+| Worksheet | 188 | **144** | editor default **3 lines** (60 px text + padding), then the 40 px Run row |
+| Results frame | rest | **574** | 2 frame + 40 header + 532 body |
+| Gap x 2 | 48 | 32 | |
+
+Sum: 40 + 16 + 82 + 16 + 144 + 16 + 574 + 12 = 900. The 532 px body holds the 36 px sticky header (33 px plus the 3 px double rule) and **496 px of rows = 15 full rows plus 16 px of the 16th**. Measured in the browser on the mock with this budget: 15 full rows, 16 px peeking. Variants, same arithmetic:
+
+| State | Rows area | Full rows visible |
+|-------|-----------|-------------------|
+| Baseline (Ask on, no notice) | 496 | 15 (+ half row) |
+| Ask off (the default install) | 594 | 18 |
+| One-line notice strip (24 px: sort active, or truncation at >= 1180 px wide) | 472 | 14 (+ 3/4 row) |
+| Two-line truncation notice (40 px, narrower results) | 456 | 14 |
+| Panel docked | same height as baseline | 15 (the panel takes width, not height) |
+
+The strip's cost is accepted: telling the analyst a sort covers only the returned rows outranks one row (Nielsen #1). A viewer 768 px tall gets about 11 rows.
+
+**Layout rules that make the budget hold.**
+- At >= 860 px wide the page is one viewport tall: `main` is a flex column; Results takes the remaining height (`min-height: 0`) and **the grid scrolls inside its own container**. The page does not scroll vertically at heights where the Results frame stays >= 238 px (78 chrome + 5 rows). Below that, `main` scrolls and the grid keeps its own scroller.
+- Editor: 3 lines by default, fixed (it does not grow while typing, which would move the grid under the cursor), scrolls inside, with a vertical resize handle (up to 12 lines; the choice is remembered per browser). The 15-row criterion is measured at the default.
+- Below 860 px: the page scrolls normally and the grid is capped at 420 px tall (own scroller, own horizontal scroll).
+
+**(b) Scroll affordance and sticky header.**
+- The grid container is the only scroller for the result. The **header row is sticky at the top** (opaque `--surface`, double rule beneath it) and the **row-number column is sticky at the left** (opaque), with the corner cell above both. Nothing scrolls under a transparent header.
+- Three cues that more rows exist, none of them motion: (1) the half-row peek (a row is cut by the container edge); (2) while rows remain below the fold, the container's bottom edge shows a 2 px `--border-strong` rule (hairline when scrolled to the end); (3) a thin always-visible scrollbar (`scrollbar-width: thin`, `scrollbar-gutter: stable`, colored from `--border-control`), so macOS overlay scrollbars do not hide it. No gradient shade (DESIGN.md Never).
+- A range readout in the Results header, left of CSV: **DS-01** "Rows {a} to {b}", 12 px mono, `--text-muted`, `aria-hidden`, updated on scroll (animation-frame throttled), shown only when the result has more rows than fit. It is not a live region.
+- `scroll-padding-top: 36px` and `scroll-padding-left: 44px` on the container, so a focused cell scrolled into view is never hidden behind the sticky header or row-number column (WCAG 2.4.11).
+
+### 3. Grid (R11)
+
+**Geometry.** Rows 32 px; header 36 px; columns size to content with min 64 px and max 320 px (longer content ellipsizes; the full value is in the title and the popover). No zebra striping: one `--rule` hairline per row. Cells have no hover effect. Row-number column (44 px, right-aligned, `--text-muted`) shows the position in the *view order* (it renumbers when sorted).
+
+**Header cell** = one roving-focus stop with two controls:
+- Name (Plex Mono 500 13 px) followed by the kind hint in 12/16 `--text-muted` on the same line, so the header stays 36 px (the mock's second 11 px line is dropped). Numeric headers are right-aligned. Truncates with an ellipsis; `title` carries name and kind.
+- Sort target: clicking the name, or Enter / Space on the focused header. Sorted state shows a glyph (up or down triangle) beside the name, `aria-sort`, and the `--accent-selected` fill, so it is never color alone.
+- Column-details button: 24 x 24 px at the header's right edge (WCAG 2.5.8), mini-bars glyph in `--text-muted` (never `--data-1`), always visible (no hover reveal; Hick, recognition over recall); accessible name MC-59. Click, or Shift+Enter on the focused header.
+
+**Sort cycle and rules.** Ascending, then descending, then original (restores the order the query returned). One column at a time; sorting another column starts at ascending. A new result clears the sort. Over returned rows only; when capped the strip (R10) says so (MC-50), and while a sort is active it also shows MC-51 with Clear sort. Comparison: numbers by value; dates, text and bool by locale collation of the displayed text (ISO dates sort chronologically; `false` before `true`); json by its compact text; mixed puts numbers (by value) before everything else (by text); **null always sorts last in both directions**; ties keep returned order (stable). Sorting is inert and the sort control is `aria-disabled` when the result has 0 or 1 rows.
+
+**Cell focus.** Single tab stop for the whole grid (roving `tabindex`). Header row is row 0 of the focus grid; the row-number column is not a focus stop. The initial stop is the first data cell (the first header cell when there are no rows). Focused cell: inset 2 px `--focus-ring`; its row gets `--accent-selected`; the selected column keeps its tint. Down from a header goes to the first data row; Up from the first data row goes to the header.
+
+**Cell popover.** Enter on a focused data cell opens it; a click focuses the cell and also opens it when the displayed value is clipped (ellipsis, JSON). Content: column name and kind (12/16 muted), then the raw value in Plex Mono 13, wrapped, scrolling past 240 px tall (max 360 px wide); JSON is pretty-printed (2 spaces); a Copy button for pointer users (not in the tab order; the keyboard path is the next bullet). A floating layer (4 px radius, `--shadow-float`, scale-fade 150 ms), non-modal, focus stays on the cell and the cell points to it with `aria-describedby`. Placement below the cell, flipping above near the container's bottom edge. Closes on Esc (Esc precedence layer 1), on any arrow key, on scroll of the grid, or on outside click.
+
+**Copy.** ⌘C / Ctrl+C on a focused data cell copies the raw value (the full string, unformatted; objects as compact JSON); toast MC-57; blocked clipboard: MC-58. On a null cell nothing is copied and the toast is DS-02. On a focused header, it copies the column name (MC-57).
+
+**Keys** (added to R11; nothing in it changes): Arrows move; Home/End first/last column; Ctrl+Home/End (⌘↑/⌘↓) first/last cell; PageUp/PageDown move by visible rows minus one; Enter on header sorts; Enter on data opens the popover; Shift+Enter on header opens details; ⌘C copies; Esc follows section 8.
+
+**States** (extends R11's list, same strings): loading keeps the previous grid, dimmed (`opacity` only, `aria-busy`, no pointer events) so the layout does not jump; first load shows MC-55. Error (MC-56) replaces the grid, closes the panel, clears the selection and disables CSV. Zero rows keeps the header (sort inert, details buttons live) and shows one full-width left-aligned row "No rows matched." (MC-52) over three faint `--rule` lines (the empty-state moment). No result set shows MC-53 with no header.
+
+### 4. Column details panel (R12)
+
+**Placement and size.** >= 1100 px: docked right inside the Results frame, 280 px wide, `--surface`, split from the grid by a vertical hairline (never a second frame), full height of the body, scrolls inside. It takes width from the grid, not height, so the row budget holds. < 1100 px: stacked under the grid, full width, max 220 px tall, own scroll; the grid keeps the rest (at least 5 rows). Entering motion: translate 8 px plus fade, 150 ms.
+
+**Content, four groups (Cowan).**
+1. Title MC-60 (`Column details: {col} · {kind}`), as the panel's heading (focus lands here), and a close button (MC-95 "Close").
+2. Counts: Non-null, Nulls, Distinct (right-aligned mono, separators on the figures).
+3. Range (kinds `number` and `date` only): Min, Max, and Mean for numbers. Mean rounds to 2 decimals when |mean| >= 1, otherwise to 4 significant digits (never shows 0.00 for 0.0042). Min and Max show the cell formatting of the column.
+4. Top values: the five most frequent non-null values (ties by value), each as `value`, a bar and its count; the bar length is count divided by the number of returned rows, starting at zero on a shared baseline, so lengths read as shares. If more distinct values exist, a muted line DS-12 "{k} more values". Numbers only: a histogram below it (rules below).
+Footer: MC-62, or MC-63 when capped.
+
+**Histogram (numbers only).** Equal-width bins between min and max: one bin per value when there are 10 or fewer distinct integers, otherwise 10 bins (last bin includes the max). Bar height is the bin count on a zero baseline; the tallest bin fills the 80 px area; a bin with a nonzero count is at least 1 px tall and an empty bin has no bar (so small counts stay visible and zeros stay zero). Min and Max labels sit at the two ends. `role="img"` with the text alternative DS-10. Bars use `--data-1` only.
+
+**Per-kind and edge behavior.**
+
+| Case | Panel shows |
+|------|-------------|
+| `number` | all four groups and the histogram |
+| `date` | counts, range (min, max), top values; no mean, no histogram |
+| `bool` | counts and top values (`true`, `false`) |
+| `text` | counts and top values; no range (alphabetical min/max is not useful) |
+| `json` | counts and top values (by compact text); MC-66 in place of range and histogram |
+| `mixed` | counts, DS-03 breakdown line under the title, top values; MC-66 in place of range and histogram; no sort or chart implication of a numeric type |
+| all null | counts only, then MC-64; no range, top values or histogram |
+| one distinct value | counts, then MC-65; the range, top values and histogram are omitted because they would only repeat that value |
+| every value distinct (and more than one) | counts and range; the top-values list is replaced by DS-04; the histogram still shows for numbers |
+| zero rows | counts at 0, then DS-05; footer "Based on 0 returned rows." |
+| result capped at 1,000 | footer MC-63 instead of MC-62 |
+
+**Keys and focus.** Opens only from the details button or Shift+Enter on a header (never from the sort gesture); focus moves to the panel heading. Opening details for another column while open swaps the content and moves focus to the heading again. Tab moves through the close button and then on to the next region. **Esc closes the panel (precedence layer 3)** wherever focus is in Results; if focus was inside the panel it returns to the originating header cell, if it was in the grid it stays where it is. The panel closes by itself when a rerun no longer has the column (F2) and on error.
+
+### 5. Chart (R13)
+
+**Defaults inherited from the grid.** Controls: Type (bar, line, scatter), X, Y (MC-67). Y lists only `number` columns; X lists every column plus DS-08 "Row number". On a new result, and again whenever the selected column changes:
+- Selected column is a number: Y = it. X = the first `date` column, else the first other non-number column, else DS-08.
+- Selected column is not a number: X = it; Y = the first `number` column. If none exists, the empty state MC-70.
+- No selection: X = the first non-number column (a `date` one first), Y = the first number column that is not X.
+- Type: line when X is a `date` column and there are 3 or more rows; otherwise bar. Scatter is only chosen by the user, and its X list is restricted to number columns (when no other number column exists the Scatter option is disabled with the title DS-11).
+- Changes the user makes to Type, X or Y are kept until the next result or the next change of the selected column.
+- Data is the **view order**: sorting the grid reorders the bars and the line, so "sort, then chart" gives a ranked bar. The caption says when it is sorted.
+
+**Every returned row is plotted; none are dropped to make the chart tidy.** With more than 60 categories the bars thin out and tick labels auto-skip (no rotation, no truncation below 12 characters, full value in the tooltip).
+
+**Caption (HTML, not drawn in the canvas; replaces the in-canvas Chart.js title).** DS-06: "{Y} by {X} · {n} rows plotted"; capped: "{Y} by {X} · first 1,000 rows plotted. The result was capped."; sorted adds " · sorted by {col} ({ascending or descending})". It is the chart's live region (polite) and the canvas's text alternative is MC-73.
+
+**Truthfulness and ink (the data-viz audit).**
+
+| Check (source) | Spec |
+|----------------|------|
+| Bars start at zero (truncated-axis lie, Cairo 2019) | Bar Y axis always includes 0: min = min(0, data min), max = max(0, data max). No `grace`, no log scale. Bars are flat-topped (radius 0); length is the value. With negatives, bars grow from the zero line, which is drawn |
+| One axis (dual-axis lie, Cairo 2019) | Exactly one Y axis and one X axis, one series, no right-hand axis, no secondary series, no legend (nothing to disambiguate) |
+| Non-zero baseline on lines is labelled (Cairo's exception) | Line and scatter may auto-range; when the Y axis minimum is above 0 the chart shows DS-07 "Y axis starts at {min}, not zero." directly under the caption |
+| No cherry-picked range | X shows the whole returned result; no zoom, no pan, no clipping of outliers |
+| Line only when the order is meaningful (chart-type table) | Line is the default only for date X; otherwise bar. A line over category X is allowed by the user's choice and is not styled to imply time |
+| Data-ink (Tufte 1983) | Horizontal gridlines only (scatter: both), 1 px `--rule`; no borders on the plot, no fills, no shadows, no 3D, no point glow; animation <= 150 ms and 0 under reduced motion |
+| Labels and units | Both axes titled with the column names; tick figures use the grid's separators and are never abbreviated (no "1.2M"); tooltip shows X and Y with the same formatting |
+| Position on a common scale (Cleveland and McGill 1984) | Bars and points are positions on one scale; no area or angle encodings, no pies |
+| Truncation and sort disclosed | Capped and sorted states appear in the caption (above) |
+
+**Ink and contrast (DW-4.3).**
+
+| Element | Token | Check |
+|---------|-------|-------|
+| Bars, line, scatter points | `--data-1` (#2a78d6) only | 4.33:1 on `--background`, the chart's surface (>= 3:1, WCAG 1.4.11) |
+| Histogram and top-value bars in the panel | `--data-1` | 4.18:1 on `--surface` |
+| Tick labels, axis titles, caption | `--text-muted` | 5.86:1 on `--background` (>= 4.5:1) |
+| Axis baseline and tick marks | `--border-control` | 3.39:1 on `--background` (>= 3:1) |
+| Gridlines | `--rule` | decorative; the values are in the tooltip and the grid |
+| Scatter point ring | 1 px `--background` | separates overlapping points without alpha |
+
+The accent never encodes data: no accent bar, no highlighted bar for the selected column, no accent line. The selected column is shown in the grid only. The 4.33 and 4.18 ratios were computed from the DESIGN.md hex values.
+
+**Chart states** (extends R13): empty reasons MC-68 to MC-71; Chart.js missing MC-72; after a run error the chart shows MC-68 (the grid and the chart agree that there is no result). While a run is in flight the chart is dimmed like the grid. Selects are native; the canvas is `role="img"`. X, Y or Type changes redraw instantly (no transition beyond 150 ms) and announce the new caption.
+
+### 6. Profile tab (R14)
+
+The whole table, from the server, and it says so: a scope line above the grid, **DS-09**: "Whole table · {rows} rows · {cols} columns. Computed by the server, not from your query result." (12/16, `--text-muted`, one line, shown in the tab's body not in a notice strip). The rest uses the same grid component, read-only:
+- Columns as today (type, null %, approx distinct, min/max, mean, std, quartiles); the server's types are shown in their own column, so the header carries no kind hint and no details button.
+- Min and max cells are text-aligned left whatever they hold (a table's columns have different types); the numeric statistics follow the number rules (right-aligned, separators); null statistics (for example min of an all-null column) show the `null` token.
+- Sorting, cell focus, popover and copy work as in section 3 (same keys; ⌘C on a header copies the name). No selected column, no panel, no CSV (hidden on Profile, R9).
+- States: MC-75, MC-76, MC-77 as in R14. A table with zero rows still lists every column, with 0 rows in the scope line and null tokens in the statistics. Switching table resets sort and focus.
+- The Profile tab does not follow the query result: after an example query the tab says "Select a table to profile it" (MC-75) rather than showing a stale table.
+
+### 7. Edge-case matrix (DW-4.1)
+
+| Case | Grid and sort | Column panel | Chart | Header status, notice, CSV |
+|------|---------------|--------------|-------|----------------------------|
+| **All-null column** | Kind `null`, hint "null"; every cell the `null` token; sort is allowed and changes nothing | Counts (0 non-null, N nulls, 0 distinct), then MC-64; nothing else | Not offered as Y or X-default (it is not a `number`); can still be chosen as X (all "null" categories, a single bar) | Unchanged |
+| **Single distinct value** | Normal; sort changes nothing visible | Counts, then MC-65; range, top values and histogram omitted | As Y: bars of equal height, axis includes 0 so equal bars are drawn truthfully; as X: one category | Unchanged |
+| **Mixed numeric and text** | Kind `mixed`, hint "mixed"; left-aligned, no separators on its numbers; sort puts numbers first (by value), then text | DS-03 breakdown, counts, top values, MC-66; no range or histogram | Excluded from Y (needs every non-null value numeric); allowed as X (categories as text) | Unchanged |
+| **1,000-row truncation** | Header says "1,000+ rows" (MC-45); strip MC-50 always shown; sort is over those rows; the row range readout reads up to 1,000 | Footer MC-63 | Caption states the first 1,000 rows were plotted; sorted state is also named | CSV downloads the returned rows, not the full result |
+| **Zero rows** | Header row stays, "No rows matched." (MC-52), sort inert | Opens; counts 0, DS-05, footer "Based on 0 returned rows." | MC-69; controls disabled | Status MC-44; CSV enabled (header-only file); no range readout |
+
+Also covered: no result set (grid MC-53, panel unavailable because no header exists, chart MC-71, CSV disabled MC-48); error (grid MC-56, panel closes, chart MC-68, CSV disabled); leading-zero numeric strings (text, not numbers); huge integers (digit-grouped without precision loss); null sorting (always last); capped result with an active sort (both notices, one strip, up to two lines).
+
+### 8. Keyboard and Esc consolidation
+
+Nothing here adds an Esc layer. Esc closes one layer per press, in the page spec's order: (1) the cell popover, (3) the column panel, (4) cancel an in-flight Run. With the popover and the panel both open, the first Esc closes the popover, the second the panel. Grid keys are in section 3. `/` still focuses Ask or the editor (the grid is not a text field). Reading order and tab order are unchanged: tabs, then the grid (one stop), then the panel. Targets are at least 24 px (details button 24, sort target is the full header cell).
+
+### 9. New strings (merge into `## Microcopy` in Phase 5)
+
+Same voice: calm, precise, plain; sentence case; "·" is the only status separator.
+
+| ID | Where · state | Exact string | Tone |
+|----|--------------|--------------|------|
+| DS-01 | R9/R11 · scroll range readout (aria-hidden) | Rows {a} to {b} | neutral |
+| DS-02 | R11 · copy on a null cell (toast) | That cell is null, so nothing was copied. | neutral |
+| DS-03 | R12 · mixed column | Mixed: {a} numeric, {b} text. | neutral |
+| DS-04 | R12 · every value distinct | Every value is distinct, so no value repeats. | calm |
+| DS-05 | R12 · zero rows | The result has no rows, so there is nothing to summarize. | calm |
+| DS-06 | R13 · caption | {Y} by {X} · {n} rows plotted. Capped: {Y} by {X} · first 1,000 rows plotted. The result was capped. Sorted adds: · sorted by {col} ({ascending or descending}) | neutral |
+| DS-07 | R13 · non-zero baseline | Y axis starts at {min}, not zero. | neutral |
+| DS-08 | R13 · X option | Row number | neutral |
+| DS-09 | R14 · scope line | Whole table · {rows} rows · {cols} columns. Computed by the server, not from your query result. | neutral |
+| DS-10 | R12 · histogram text alternative | Histogram of {col}: {k} bins from {min} to {max}. The fullest bin, {lo} to {hi}, has {count} rows. | neutral |
+| DS-11 | R13 · Scatter disabled (title) | Scatter needs a second numeric column for X. | neutral |
+| DS-12 | R12 · top values overflow | {k} more values | neutral |
+
+### 10. Checks
+
+- DW-4.1: the five plan edge cases are each filled across grid, panel, chart and status in the matrix (section 7); no cell is left blank.
+- DW-4.2: bars include zero, one axis, one series, non-zero line baselines labelled, nothing dropped, capped and sorted data disclosed (section 5 audit table).
+- DW-4.3: only `--data-1` encodes data; contrast values are listed in the ink table; the accent appears on selection and focus in the grid, never in a chart or the panel's bars.
+- Density: 15 full rows at 1440 x 900 with Ask on (arithmetic in section 2, measured on the mock), grid scrolls in its own container with sticky header, and the scroll cues are specified.
+- Open risk: kinds are inferred from at most 1,000 values, so a column whose first 1,000 values look numeric but later values do not is only caught if those values were returned. Adding DuckDB types to the query payload would remove the guess; it needs a backend change and is not specified here.
