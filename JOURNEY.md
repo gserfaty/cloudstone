@@ -92,7 +92,7 @@ Notation: circle = entry/exit, diamond = decision, rectangle = action. Written a
 4. Decision: succeeded?
    - Yes: grid replaced, status `N rows - ms`, history gets a new row at top, column panel closes if its column no longer exists.
    - No: error text in status and in Results; history gets an error row; SQL stays untouched so the user can fix it.
-5. Optional: sort a column (click or Enter on the header label; cycle ascending, descending, original). If results were capped, the notice strip says the sort covers only the returned rows and suggests `ORDER BY`.
+5. Optional: sort a column (click or Enter on the header label; cycle ascending, descending, original). If results were capped, the notice strip says the sort covers only the returned rows and suggests `ORDER BY` in the SQL (LIMIT does not help; R10).
 6. (Exit) **Outcome (visible):** new result in the grid with row/time status, a new top entry in History.
 - DDL or statements with no result set: grid area shows "no result set" empty state, status shows success, CSV disabled.
 
@@ -102,13 +102,13 @@ Notation: circle = entry/exit, diamond = decision, rectangle = action. Written a
 3. Decision: Ask succeeded?
    - Yes, SQL ran: worksheet filled with the SQL, explanation shown, Results tab selected with the rows; history row records the question and the SQL.
    - SQL generated but failed: worksheet filled, explanation shown, error shown in status/Results; user edits and runs (continue as F2).
-   - Request failed (limit reached, Ask off, network): error in the explanation line; worksheet unchanged.
+   - Request failed (rate or time limit reached, network): error in the explanation line; worksheet unchanged.
 4. Action: edit the generated SQL and Run.
-5. (Exit) **Outcome (visible):** editable SQL in the worksheet plus either results or a clear error; the refined run appears in History marked as an edit of an Ask run only by its own SQL (no hidden linkage).
+5. (Exit) **Outcome (visible):** editable SQL in the worksheet plus either results or a clear error; the refined run appears as its own History row showing its SQL. History keeps no link from the Ask row to the run; each row is a complete record of what ran.
 - Ask off: the card is absent, a hint under the Worksheet title says how to enable it, `/` goes to the editor.
 
 ### F4. Upload when logged out
-1. (Entry) Click or drop files on the drop zone while logged out. The zone's label reads "Log in to upload".
+1. (Entry) Click or drop files on the drop zone while logged out. The zone's label reads "Sign up to upload" (it opens Sign up mode).
 2. No file is sent. The Auth dialog opens in Sign up mode, focus on Username.
 3. Decision: create account / log in / close.
    - Account created or logged in: dialog closes, toast confirms, drop zone becomes "Upload data", Explorer shows `my_data`. The user repeats the drop (the dropped files are not retained; no hidden state).
@@ -146,7 +146,7 @@ Notation: circle = entry/exit, diamond = decision, rectangle = action. Written a
 
 ##### R2 Upload drop zone (sidebar top)
 - Content: title, supported types hint, and the line "Saved only to your account, on this computer." (answers the upload-privacy anxiety); hidden file input accepting csv, json, ndjson, jsonl, xlsx, parquet, log (multiple).
-- States: **empty** n/a - idle is its normal state. **loading** per-file toast "Uploading name..." (zone stays usable for more files). **error** per-file error toast naming the file. **logged out** title reads "Log in to upload"; click or drop opens Auth in Sign up mode and sends nothing (F4). **Ask off** n/a - unaffected. Drag-over: zone shows a drop-target state.
+- States: **empty** n/a - idle is its normal state. **loading** per-file toast "Uploading name..." (zone stays usable for more files). **error** per-file error toast naming the file. **logged out** title reads "Sign up to upload"; click or drop opens Auth in Sign up mode and sends nothing (F4). **Ask off** n/a - unaffected. Drag-over: zone shows a drop-target state.
 - Keys: reachable by Tab; Enter/Space opens the file picker (logged in) or the Auth dialog (logged out).
 
 ##### R3 Sidebar view switch: Explorer | History
@@ -161,7 +161,7 @@ Notation: circle = entry/exit, diamond = decision, rectangle = action. Written a
   - **empty:** no own tables: logged in "Nothing yet. Drop a file to add one."; filter with no match: "No matches."
   - **loading:** table list loading shows a loading line; column expander shows "Loading..."
   - **error:** `/tables` or `/profile` failure shows the message inline in place of the list (not only a toast).
-  - **logged out:** `my_data` is shown with "Log in to upload and keep your own tables."; demo tables fully usable.
+  - **logged out:** `my_data` is shown with "Sign up to upload and keep your own tables."; demo tables fully usable.
   - **Ask off:** n/a - no Ask element in Explorer.
 - Keys: `/` is not used here. Search box focusable by Tab; Up/Down moves between table rows and their expanders; Enter on the name previews; Right/Left expands/collapses columns (or Enter on the expander); Enter on a column inserts it.
 - Cut: 2 groups (Hick); search carries the long-list case (Hick).
@@ -186,7 +186,7 @@ Notation: circle = entry/exit, diamond = decision, rectangle = action. Written a
 - States:
   - **empty:** idle with placeholder; chips shown only because Ask is on.
   - **loading:** Ask button becomes "Cancel" and Esc cancels (same message as Run: "Cancelled - the server may still finish it in the background."); explanation line says "Claude is writing a query..." (live region).
-  - **error:** explanation line in error style: what happened, why, how to fix (Phase 3 words).
+  - **error:** explanation line in error style: what happened, why, how to fix. Exact strings are the Ask error rows (ASK-E1 to ASK-E8) in `## Microcopy`.
   - **logged out:** available when Ask is on (README limit: billed to server key).
   - **Ask off:** the whole card is absent from the DOM flow (hidden); the Worksheet header shows a hint with the enabling command; `/` focuses the editor instead.
 - Keys: Esc while a question is in flight cancels it (Esc precedence, layer 4); `/` focuses the question input (when not typing and no dialog is open); Enter submits; chips are buttons activated by Enter/Space.
@@ -205,12 +205,12 @@ Notation: circle = entry/exit, diamond = decision, rectangle = action. Written a
 
 ##### R9 Results card header
 - Content: tablist [Results | Chart | Profile]; status chip (ok/error mark, rows, time); column count; CSV button.
-- States: **empty** before any run: status blank, CSV disabled; no-result-set statement: status reads "Statement ran, no result set" with ok mark, CSV disabled; zero rows: status "0 rows - N ms", CSV enabled (header-only file). **loading** status "Running..." and tabs stay usable. **error** error mark and message. **logged out** same. **Ask off** same.
+- States: **empty** before any run: status blank, CSV disabled; no-result-set statement: status reads "Statement ran, no result set" with ok mark, CSV disabled; zero rows: status "0 rows - N ms", CSV enabled (header-only file). Capped at 1,000 rows: status "1,000+ rows · N ms · showing the first 1,000" (the truncation notice in R10 repeats the scope). **loading** status "Running..." and tabs stay usable. **error** error mark and message. **logged out** same. **Ask off** same.
 - Keys: arrow keys move between tabs and activate (existing behavior); CSV is a button, disabled when no result set; hidden on Profile.
 - Cut: 3 tabs, 2 actions; status is plain text, not three badges (Hick).
 
 ##### R10 Notice strip (Results tab, above the grid)
-- Content: shown only when needed: (a) truncation "Showing the first 1,000 rows" + "Sorting and column stats cover only these rows; add ORDER BY or LIMIT in SQL" (b) sort active "Sorted by col (ascending)" with a clear control.
+- Content: shown only when needed: (a) truncation "Showing the first 1,000 rows" + "Sorting and column stats cover only these rows. For the right rows in order, add ORDER BY to your SQL; LIMIT does not help." (b) sort active "Sorted by col (ascending)" with a clear control.
 - States: hidden by default; **empty** n/a - hidden when there is nothing to say. **loading** n/a - hidden. **error** n/a - errors replace the grid (R11). **logged out** n/a - same as logged in. **Ask off** n/a - unaffected.
 - Keys: the clear-sort control is a button in tab order; Esc does not touch it (not in the Esc precedence table).
 
@@ -260,7 +260,7 @@ Notation: circle = entry/exit, diamond = decision, rectangle = action. Written a
 | Region | Empty | Loading | Error | Logged out | Ask off |
 |--------|-------|---------|-------|-----------|---------|
 | R1 Top bar | n/a | none | none | Log in + Sign up | no effect |
-| R2 Drop zone | idle | per-file toast | per-file toast | "Log in to upload" -> Auth | no effect |
+| R2 Drop zone | idle | per-file toast | per-file toast | "Sign up to upload" -> Auth (Sign up mode) | no effect |
 | R3 View switch | n/a | n/a | n/a | same | no effect |
 | R4 Explorer | no own tables / no match | list or columns "Loading..." | inline message | `my_data` hint, demo ok | no effect |
 | R5 Examples | n/a | via R8/R9 | via R8/R9 | available | available |
@@ -322,3 +322,174 @@ Reading order = tab order = visual order (WCAG 2.4.3, 1.3.2). Targets at least 2
 
 #### Out of scope (this page)
 Split layout, multiple worksheets, side-by-side result comparison, server-side history, dark theme.
+
+## Microcopy
+
+One voice across the Workbench: **calm, precise, plain.** Sentence case. No exclamation marks. Use SQL terms analysts already use (rows, column, query, distinct, null); no other jargon. Placeholders in `{braces}` are filled at runtime. Strings are exact; change them here first, then in the UI.
+
+**Voice vs tone (Podmajersky).** Voice is constant. Tone shifts with the moment. Never celebratory.
+
+**Error formula (Yifrah).** Every error states what happened, why (when known), and how to fix it, in that order. The Formula column names the parts. No error blames the user: no "you entered", "invalid input", "wrong" as a verdict. A failed step says what state the user's work is in ("your SQL is unchanged", "nothing was deleted") so the user is not left guessing (Nielsen #9).
+
+**Front-loading (Redish).** The first words of a line carry the meaning: the scanner reads the start of each status, toast and row.
+
+Tone column: **neutral** = status and labels; **direct** = errors, warnings and confirmations that ask for a decision; **calm** = empty states and completed actions.
+
+### Top bar, upload and sign-up routing (R1, R2)
+
+| ID | Where · state | Exact string | Tone | Formula |
+|----|--------------|--------------|------|---------|
+| MC-01 | R1 · logged out | Log in | neutral | |
+| MC-02 | R1 · logged out | Sign up | neutral | |
+| MC-03 | R1 · logged in | Log out | neutral | |
+| MC-04 | R1 · logged in, account button | `{name}` (aria: "Account settings for {name}") | neutral | |
+| MC-05 | R2 · idle | Upload data. Supported: CSV, JSON, NDJSON, JSONL, XLSX, Parquet, LOG. Saved only to your account, on this computer. | neutral | |
+| MC-06 | R2 · logged out | Sign up to upload | neutral | |
+| MC-07 | R2 · drag over | Drop to upload | neutral | |
+| MC-08 | R2 · loading | Uploading {file}... | neutral | |
+| MC-09 | R2 · done (toast) | Loaded {file} as {table}. | calm | |
+| MC-10 | R2 · error (toast, stays) | Could not load {file}. {server reason}. Check that it is a supported type, then drop it again. | direct | happened · why · fix |
+| MC-11 | F4 · after sign-up (toast) | Signed in. Drop your files again to upload them. | calm | |
+
+### Sidebar: view switch and Explorer (R3, R4)
+
+| ID | Where · state | Exact string | Tone | Formula |
+|----|--------------|--------------|------|---------|
+| MC-12 | R3 · tabs | Explorer · History (aria on History: "History, {n} runs") | neutral | |
+| MC-13 | R4 · empty, logged in | Nothing yet. Drop a file above to add one. | calm | |
+| MC-14 | R4 · logged out | Sign up to upload and keep your own tables. | calm | |
+| MC-15 | R4 · no match | No matches for '{query}'. Clear the search to see all tables. | neutral | |
+| MC-16 | R4 · loading | Loading tables... (columns: Loading...) | neutral | |
+| MC-17 | R4 · error, inline | Could not load tables. {server reason}. Reload the page to try again. | direct | happened · why · fix |
+| MC-18 | R4 · column error, inline | Could not load columns for {table}. {server reason}. Click the table again to retry. | direct | happened · why · fix |
+
+### Example queries (R5)
+
+| ID | Where · state | Exact string | Tone | Formula |
+|----|--------------|--------------|------|---------|
+| MC-19 | R5 · group | Example queries. The ten example labels and format subtitles keep their current wording; failing examples show the R8/R9 error strings. | neutral | |
+
+### History (R6)
+
+| ID | Where · state | Exact string | Tone | Formula |
+|----|--------------|--------------|------|---------|
+| MC-20 | R6 · empty | Queries you run appear here. Your last 100 runs are kept in this browser. | calm | |
+| MC-21 | R6 · Clear history, empty (tooltip) | Nothing to clear yet. | neutral | |
+| MC-22 | R6 · session-only notice | History is not saved in this browser, so it lasts only until you close this page. Free up browser storage to keep it. | direct | happened · why · fix |
+| MC-23 | R6 · logged out | Showing history for logged-out use in this browser. Log in to see your own history. | neutral | |
+| MC-24 | R6 · row labels | `Asked: {question}` (Ask rows only) · `{time}` (e.g. "2 min ago") · `{n} rows · {ms} ms` · `OK` or `Error` | neutral | |
+| MC-25 | R6 · row actions | Load (aria: "Load query from {time}") · Rerun (aria: "Rerun query from {time}") | neutral | |
+| MC-26 | R6 · clear confirm | Clear all history? Every saved run in this browser for this account is removed. It cannot be undone. Buttons: Clear history · Cancel | direct | |
+| MC-27 | R6 · cleared (toast) | History cleared. | calm | |
+
+### Ask card (R7) and Ask-off hint
+
+| ID | Where · state | Exact string | Tone | Formula |
+|----|--------------|--------------|------|---------|
+| MC-28 | R7 · idle placeholder | Ask a question about your data, for example: Which sales rep sold the most speakers? | neutral | |
+| MC-29 | R7 · mode note, subscription | Answered with your Claude plan. | neutral | |
+| MC-30 | R7 · mode note, api | Each question is billed to the server's API key. | neutral | |
+| MC-31 | R7 · button | Ask (busy: Cancel) | neutral | |
+| MC-32 | R7 · loading (live text) | Claude is writing a query... | neutral | |
+| MC-33 | R7 · cancelled; also R8 | Cancelled - the server may still finish it in the background. | neutral | |
+| MC-34 | R7 · empty question | Type a question first, then press Ask. | direct | |
+| ASK-E1 | R7 · error · Claude Code missing | Ask could not start Claude Code. It is not installed or not on the PATH. Install it, run `claude` once to log in, then ask again. | direct | happened · why · fix |
+| ASK-E2 | R7 · error · no API key | Ask could not reach the Claude API. The API key is missing or was refused. Set ANTHROPIC_API_KEY, restart the server, then ask again. | direct | happened · why · fix |
+| ASK-E3 | R7 · error · time limit | Ask stopped after 3 minutes, before Claude finished writing a query. Ask a narrower question, or write the SQL yourself. | direct | happened · why · fix |
+| ASK-E4 | R7 · error · declined | Claude declined to answer that question. Rephrase it, or write the SQL yourself in the worksheet. | direct | happened · why · fix |
+| ASK-E5 | R7 · error · cut off | Claude's answer was cut off before it finished. Ask a simpler question. | direct | happened · why · fix |
+| ASK-E6 | R7 · error · rate limit | Ask has reached the Claude API rate limit. Wait about a minute, then ask again. Run still works. | direct | happened · why · fix |
+| ASK-E7 | R7/R8 · SQL written, did not run | Claude wrote a query, but it did not run. The database said: {db message}. The SQL is in the worksheet. Edit it and press Run. | direct | happened · why · fix |
+| ASK-E8 | R7 · error · any other failure | Ask could not answer. {server reason}. Try again in a moment, or write the SQL yourself. | direct | happened · why · fix |
+| ASK-E9 | R8 header · Ask off (hint, not an error) | Ask is off. To turn it on, restart the server with CLOUDSTONE_ASK=subscription (your Claude plan) or CLOUDSTONE_ASK=api (API key). | neutral | |
+
+### Worksheet (R8)
+
+| ID | Where · state | Exact string | Tone | Formula |
+|----|--------------|--------------|------|---------|
+| MC-35 | R8 · empty placeholder | SELECT * FROM demo.sales LIMIT 100 | neutral | |
+| MC-36 | R8 · button | Run (shortcut hint: ⌘↵ / Ctrl+↵; busy: Cancel) | neutral | |
+| MC-37 | R8 · loading status (live) | Running... | neutral | |
+| MC-38 | R8 · error status | Query failed: {db message}. Your SQL is unchanged. Fix it and press Run. | direct | happened · why · fix |
+| MC-39 | R8 · Esc hint, toolbar | Esc then Tab leaves the editor. | neutral | |
+| MC-40 | R8 · replace (toast) | Worksheet replaced · Undo | neutral | |
+| MC-41 | R8 · undo done (toast) | Previous SQL restored. | calm | |
+| MC-42 | R8 · editor label (aria) | SQL editor | neutral | |
+
+### Results header (R9), notice strip (R10), grid (R11)
+
+| ID | Where · state | Exact string | Tone | Formula |
+|----|--------------|--------------|------|---------|
+| MC-43 | R9 · status, ok | {n} rows - {ms} ms | neutral | |
+| MC-44 | R9 · status, zero rows | 0 rows - {ms} ms | neutral | |
+| MC-45 | R9 · status, capped | 1,000+ rows · {ms} ms · showing the first 1,000 | neutral | |
+| MC-46 | R9 · status, no result set | Statement ran, no result set | neutral | |
+| MC-47 | R9 · status, running | Running... | neutral | |
+| MC-48 | R9 · CSV disabled (tooltip) | Run a query to download CSV. (no result set: "Nothing to download: this statement returned no result set.") | neutral | |
+| MC-49 | R9 · column count | {n} columns | neutral | |
+| MC-50 | R10 · truncation notice | Showing the first 1,000 rows. Sorting and column stats cover only these rows. For the right rows in order, add ORDER BY to your SQL; LIMIT does not help. | direct | |
+| MC-51 | R10 · sort active | Sorted by {col} ({ascending or descending}). Button: Clear sort | neutral | |
+| MC-52 | R11 · zero rows | No rows matched. | neutral | |
+| MC-53 | R11 · no result set (DDL) | No rows to show. The statement ran but returned no result set. | calm | |
+| MC-54 | R11 · nothing run yet | Run a query to see results. | calm | |
+| MC-55 | R11 · first load | Loading results... | neutral | |
+| MC-56 | R11 · error, replaces grid | Query failed: {db message}. Your SQL is unchanged. Fix it and press Run. (Same as MC-38.) | direct | happened · why · fix |
+| MC-57 | R11 · copy done (toast) | Cell copied. | calm | |
+| MC-58 | R11 · copy blocked (toast, stays) | Could not copy the cell. Your browser blocked clipboard access. Allow it for this page, then press Ctrl+C or ⌘C again. | direct | happened · why · fix |
+| MC-59 | R11 · column-details button (aria) | Column details for {col} | neutral | |
+
+### Column details (R12) and Chart (R13)
+
+| ID | Where · state | Exact string | Tone | Formula |
+|----|--------------|--------------|------|---------|
+| MC-60 | R12 · title | Column details: `{col}` · `{type}` | neutral | |
+| MC-61 | R12 · group labels | Counts (Non-null, Nulls, Distinct) · Range (Min, Max, Mean) · Top values | neutral | |
+| MC-62 | R12 · footer | Based on {n} returned rows. | neutral | |
+| MC-63 | R12 · footer, capped | Based on the first 1,000 rows. The result was capped, so this covers only those rows. | direct | |
+| MC-64 | R12 · all-null column | Every value in {col} is null, so there is nothing to summarize. Counts are shown above. | calm | |
+| MC-65 | R12 · single distinct value | {col} has one distinct value: {value}. | calm | |
+| MC-66 | R12 · error, partial stats | Range and histogram are not available for this type. Counts and top values are shown. | neutral | |
+| MC-67 | R13 · controls | Type (Bar, Line, Scatter) · X · Y | neutral | |
+| MC-68 | R13 · empty, no run | Run a query to chart its result. | calm | |
+| MC-69 | R13 · empty, zero rows | The result has no rows, so there is nothing to chart. | calm | |
+| MC-70 | R13 · empty, no numeric column | No numeric column to plot. Pick a query that returns at least one number, such as a count or total. | calm | |
+| MC-71 | R13 · empty, no result set | This statement returned no result set, so there is nothing to chart. | calm | |
+| MC-72 | R13 · Chart.js missing | The chart did not load. Check your connection and reload the page. The Results tab still shows the rows. | direct | happened · why · fix |
+| MC-73 | R13 · canvas text alternative | {Y} by {X}. The values are listed in the Results tab. | neutral | |
+
+### Profile (R14)
+
+| ID | Where · state | Exact string | Tone | Formula |
+|----|--------------|--------------|------|---------|
+| MC-74 | R14 · tab label | Profile: {table} (no table: Profile) | neutral | |
+| MC-75 | R14 · empty, after an example | Select a table to profile it. | calm | |
+| MC-76 | R14 · loading | Profiling table... | neutral | |
+| MC-77 | R14 · error, inline | Could not profile {table}. {server reason}. Try again, or choose another table. | direct | happened · why · fix |
+
+### Dialogs (R15) and toasts (R16)
+
+| ID | Where · state | Exact string | Tone | Formula |
+|----|--------------|--------------|------|---------|
+| MC-78 | R15 · Auth tabs and labels | Log in · Sign up · Username · Password · Show · Hide | neutral | |
+| MC-79 | R15 · sign-up hint | Passwords: 8 to 128 characters. Usernames: 3 to 32 letters, digits, '.', '_' or '-'. | neutral | |
+| MC-80 | R15 · submit | Log in (sign up: Create account; busy: Working...) | neutral | |
+| MC-81 | R15 · error, credentials do not match | Could not log in. That username and password do not match an account here. Check both and try again. | direct | happened · why · fix |
+| MC-82 | R15 · error, too many attempts | Log in is paused for this username after too many failed attempts. Try again in 15 minutes. | direct | happened · why · fix |
+| MC-83 | R15 · error, username taken | Could not create the account. That username is already taken. Choose another and submit again. | direct | happened · why · fix |
+| MC-84 | R15 · error, password length | Could not create the account. Passwords need 8 to 128 characters. Choose a longer password and submit again. | direct | happened · why · fix |
+| MC-85 | R15 · error, username format | Could not create the account. Usernames use 3 to 32 letters, digits, '.', '_' or '-'. Change the username and submit again. | direct | happened · why · fix |
+| MC-86 | R15 · error, network | Could not reach Cloudstone. Your details are still here. Check that the server is running, then submit again. | direct | happened · why · fix |
+| MC-87 | R15/R16 · logged in (toast) | Logged in as {name}. After sign-up: Account created. Logged in as {name}. | calm | |
+| MC-88 | R15 · Account, sections and labels | Account · Change password (Current password, New password, Change password) | neutral | |
+| MC-89 | R15 · password changed (toast) | Password changed. | calm | |
+| MC-90 | R15 · error, change password | Could not change the password. The current password does not match, so your password is unchanged. Enter it again and retry. | direct | happened · why · fix |
+| MC-91 | R15 · Delete account | Delete account. This permanently deletes your account and the tables you uploaded. It cannot be undone. Enter your password to confirm. Buttons: Delete account · Cancel | direct | |
+| MC-92 | R15 · error, delete | Could not delete the account. The password does not match, so nothing was deleted. Enter it again to confirm. | direct | happened · why · fix |
+| MC-93 | R16 · account deleted (toast) | Your account and its tables were deleted. | calm | |
+| MC-94 | R16 · logged out (toast) | Logged out. | calm | |
+| MC-95 | R16 · dismiss and close (aria) | Dismiss message · Close | neutral | |
+
+### Checks
+
+- Every state in the Workbench page-spec matrix (R1 to R16, columns empty, loading, error, logged out, Ask off) has at least one row above, or is marked n/a there. Rows MC-19, MC-23 and ASK-E9 cover the examples, logged-out history and Ask-off hint.
+- Every row with a `Formula` value follows what happened, why, how to fix. Blame words ("you entered", "invalid input", "wrong" as a verdict) do not appear.

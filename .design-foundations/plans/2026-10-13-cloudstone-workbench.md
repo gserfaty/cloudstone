@@ -5,7 +5,7 @@
 - **Seed:** `.design-foundations/research/2026-10-13-cloudstone-workbench.md` (confirmed for planning)
 - **Date:** 2026-10-13
 - **Status:** in-progress
-- **Current Phase:** 3
+- **Current Phase:** 4
 
 ## Context
 
@@ -273,3 +273,9 @@ Summary: `DESIGN.md` "Verdigris Ledger" (Sage/Ruler; Archivo + IBM Plex Mono; ve
 - [x] MOCK: styled mock `mocks/workbench.html` (+ desktop and narrow PNGs), minimal gate (sonnet)
 - [x] REVIEW: PASS on pixels (sonnet); detector exit 0, 1 advisory (row-number column). Minors: histogram uses the data blue (intended), clipped grid bottom with no scroll hint, narrow tab wrap, small Esc close target.
 - [x] User sign-off: **Approve**, and the signature swap kept. DESIGN.md locked (DW-2.7).
+
+### Phase 3: Words (Gate: Minimal)
+- [x] BUILD: minimal, produced directly (haiku); words check exits 0 (coverage, 104 unique IDs, error formula, no blame/exclamation, no stale placeholders)
+- [x] REVIEW: SKIPPED. Minimal gate; design execution evidence is the gate.
+- [x] Committed
+Summary: `JOURNEY.md` `## Microcopy` has 104 strings covering every Workbench state, with errors in the what → why → fix form, and the six Phase 1 wording issues are fixed. For Phase 5: replace "Log in to upload" in index.html with "Sign up to upload", use the Microcopy strings instead of raw server text, and use "·" as the only status separator.
