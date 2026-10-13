@@ -5,7 +5,7 @@
 - **Seed:** `.design-foundations/research/2026-10-13-cloudstone-workbench.md` (confirmed for planning)
 - **Date:** 2026-10-13
 - **Status:** in-progress
-- **Current Phase:** 2
+- **Current Phase:** mock gate
 
 ## Context
 
@@ -262,3 +262,9 @@ DAG: **1 → 2 → [mock gate: user locks DESIGN.md] → {3, 4} → 5**. Gates: 
 - [x] REVIEW: fail → fail → PASS (3 attempts, haiku; fresh reviewer each time)
 - [x] Committed
 Summary: `JOURNEY.md` specifies the analyst loop (F1–F5) and the Workbench page (R1–R16), with every state, an Esc precedence table, per-account history, undo on worksheet replace, cancel for Run/Ask, and the Ask mode note. 10 minor review findings are left for Phase 3 (words) and Phase 5.
+
+### Phase 2: Visual identity and tokens (Gate: Full)
+- [x] BUILD: discovery, two dealer rounds (round 0 all failed constraints; round 1 executed), critique and convergence (opus)
+- [x] REVIEW: PASS (sonnet). DW-2.7 pending the mock gate. Major: signature swapped from hand 1 (`duotone-images`) to hand 2 (`border-interrupt-headings`); the user decides at the mock gate.
+- [x] Committed
+Summary: `DESIGN.md` "Verdigris Ledger" (Sage/Ruler; Archivo + IBM Plex Mono; verdigris accent hue 165.7, 89.8° from series-1) with an AA-verified light token block. Pending user lock at the mock gate.

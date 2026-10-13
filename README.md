@@ -101,6 +101,10 @@ Prints `ok` when loading, profiling, querying, accounts, per-user isolation and 
 - With Ask on, logged-out visitors can ask questions too, and every question is billed to the server's API key. Fine on localhost; add a login requirement or rate limit before exposing it.
 - Questions don't carry context: each one is answered on its own, without the previous question.
 
+## Design docs
+
+The UI is being redesigned with the design-for-ai plugin (research → plan → mock → build). [JOURNEY.md](JOURNEY.md) is the page spec and [DESIGN.md](DESIGN.md) the visual identity and tokens; the brief, plan and review reports are in `.design-foundations/`.
+
 ## Contributing
 
 Contributions go through pull requests. `main` is protected: a pull request needs an approving review from the owner ([@gserfaty](https://github.com/gserfaty), set in `.github/CODEOWNERS`) before it can merge, and direct pushes are refused for everyone else. Run `.venv/bin/python app.py check` before opening one.

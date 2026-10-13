@@ -1,0 +1,323 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "seed": "cloudstone|2026-10-13|0",
+      "output": {
+        "seed": "cloudstone|2026-10-13|0",
+        "project": "cloudstone",
+        "date": "2026-10-13",
+        "reroll": 0,
+        "candidates": 5,
+        "baseHue": 242.46,
+        "goldenAngle": 137.50776405003785,
+        "constraintTier": 1,
+        "cellSpace": {
+          "families": 12,
+          "disciplines": 9,
+          "cells": 108,
+          "banned": 6,
+          "excluded": 0,
+          "available": 102
+        },
+        "hands": [
+          {
+            "index": 1,
+            "family": {
+              "id": "neo-brutalist",
+              "name": "Neo-Brutalist"
+            },
+            "composition": {
+              "id": "swiss-modular",
+              "name": "Swiss Modular",
+              "variance": 3,
+              "scale": "modest, ratio-locked jumps",
+              "density": "moderate, grid-metered",
+              "symmetry": "grid-aligned, flush-left rag-right",
+              "hierarchy": "size + weight strictly on the module grid",
+              "ground": "white with hairline dividers, no containers",
+              "dominantElement": "the typographic headline seated on the grid"
+            },
+            "hue": {
+              "deg": 242.46,
+              "name": "blue",
+              "paletteCommand": "node scripts/palette.mjs --seed 242.46 --chroma balanced --harmony mono"
+            },
+            "signature": {
+              "id": "hard-offset-shadow",
+              "text": "All interactive elements share one hard offset shadow that shifts on press"
+            }
+          },
+          {
+            "index": 2,
+            "family": {
+              "id": "playful-geometric",
+              "name": "Playful Geometric"
+            },
+            "composition": {
+              "id": "ledger-grid",
+              "name": "Ledger Grid",
+              "variance": 2,
+              "scale": "uniform small type, few size jumps",
+              "density": "high and even — tabular rows and columns",
+              "symmetry": "columnar, ruled",
+              "hierarchy": "flat with rank cues (position, weight), not size",
+              "ground": "ruled paper — hairlines structure everything",
+              "dominantElement": "the table/ruling system itself"
+            },
+            "hue": {
+              "deg": 19.97,
+              "name": "orange",
+              "paletteCommand": "node scripts/palette.mjs --seed 19.97 --chroma balanced --harmony mono"
+            },
+            "signature": {
+              "id": "logo-polygon-mask",
+              "text": "Every image is masked to the same irregular polygon derived from the logo"
+            }
+          },
+          {
+            "index": 3,
+            "family": {
+              "id": "warm-editorial",
+              "name": "Warm Editorial"
+            },
+            "composition": {
+              "id": "split-stage",
+              "name": "Split Stage",
+              "variance": 6,
+              "scale": "two panes at unequal scale",
+              "density": "unbalanced by design — one pane packed, one calm",
+              "symmetry": "hard asymmetric vertical split (e.g. 38/62)",
+              "hierarchy": "the heavier pane leads; the split line is structural",
+              "ground": "two grounds in tension (tone, texture, or value)",
+              "dominantElement": "the heavier pane"
+            },
+            "hue": {
+              "deg": 157.48,
+              "name": "green",
+              "paletteCommand": "node scripts/palette.mjs --seed 157.48 --chroma balanced --harmony mono"
+            },
+            "signature": {
+              "id": "accent-scarcity",
+              "text": "The accent color appears ONLY on the current nav item and the primary CTA — nowhere else"
+            }
+          },
+          {
+            "index": 4,
+            "family": {
+              "id": "art-deco-luxury",
+              "name": "Art Deco / Luxury"
+            },
+            "composition": {
+              "id": "fractured-grid",
+              "name": "Fractured Grid",
+              "variance": 9,
+              "scale": "colliding scales — fragments at different sizes",
+              "density": "clustered collisions with open counter-space",
+              "symmetry": "deliberate misalignment; diagonal flow",
+              "hierarchy": "the collision point leads; layers order the rest",
+              "ground": "layers overlap the ground and each other",
+              "dominantElement": "the collision point where layers meet"
+            },
+            "hue": {
+              "deg": 294.99,
+              "name": "violet",
+              "paletteCommand": "node scripts/palette.mjs --seed 294.99 --chroma balanced --harmony mono"
+            },
+            "signature": {
+              "id": "baseline-ruler",
+              "text": "A visible baseline ruler runs down one edge and content demonstrably sits on it"
+            }
+          },
+          {
+            "index": 5,
+            "family": {
+              "id": "retro-futurist",
+              "name": "Retro-Futurist"
+            },
+            "composition": {
+              "id": "editorial-spread",
+              "name": "Editorial Spread",
+              "variance": 7,
+              "scale": "oversized display type against modest body columns",
+              "density": "varied — columns, pull elements, deliberate gaps",
+              "symmetry": "magazine asymmetry; elements cross column boundaries",
+              "hierarchy": "display type first, decks and pulls second, body third",
+              "ground": "multi-column page the display type violates on purpose",
+              "dominantElement": "the display typography"
+            },
+            "hue": {
+              "deg": 72.5,
+              "name": "yellow",
+              "paletteCommand": "node scripts/palette.mjs --seed 72.5 --chroma balanced --harmony mono"
+            },
+            "signature": {
+              "id": "exposed-grid",
+              "text": "The layout grid becomes visible at exactly one moment (hover, load, or footer)"
+            }
+          }
+        ],
+        "contract": "The model justifies and executes this dealt hand — it does not re-choose. Rejected hand: re-deal with --reroll N+1; both deals stay recorded in used-dna.json."
+      }
+    },
+    {
+      "seed": "cloudstone|2026-10-13|1",
+      "output": {
+        "seed": "cloudstone|2026-10-13|1",
+        "project": "cloudstone",
+        "date": "2026-10-13",
+        "reroll": 1,
+        "candidates": 5,
+        "baseHue": 165.61,
+        "goldenAngle": 137.50776405003785,
+        "constraintTier": 1,
+        "cellSpace": {
+          "families": 12,
+          "disciplines": 9,
+          "cells": 108,
+          "banned": 6,
+          "excluded": 5,
+          "available": 97
+        },
+        "hands": [
+          {
+            "index": 1,
+            "family": {
+              "id": "art-deco-luxury",
+              "name": "Art Deco / Luxury"
+            },
+            "composition": {
+              "id": "ledger-grid",
+              "name": "Ledger Grid",
+              "variance": 2,
+              "scale": "uniform small type, few size jumps",
+              "density": "high and even — tabular rows and columns",
+              "symmetry": "columnar, ruled",
+              "hierarchy": "flat with rank cues (position, weight), not size",
+              "ground": "ruled paper — hairlines structure everything",
+              "dominantElement": "the table/ruling system itself"
+            },
+            "hue": {
+              "deg": 165.61,
+              "name": "teal",
+              "paletteCommand": "node scripts/palette.mjs --seed 165.61 --chroma balanced --harmony mono"
+            },
+            "signature": {
+              "id": "duotone-images",
+              "text": "All imagery is a strict duotone built from the two palette anchors"
+            }
+          },
+          {
+            "index": 2,
+            "family": {
+              "id": "warm-editorial",
+              "name": "Warm Editorial"
+            },
+            "composition": {
+              "id": "swiss-modular",
+              "name": "Swiss Modular",
+              "variance": 3,
+              "scale": "modest, ratio-locked jumps",
+              "density": "moderate, grid-metered",
+              "symmetry": "grid-aligned, flush-left rag-right",
+              "hierarchy": "size + weight strictly on the module grid",
+              "ground": "white with hairline dividers, no containers",
+              "dominantElement": "the typographic headline seated on the grid"
+            },
+            "hue": {
+              "deg": 303.12,
+              "name": "purple",
+              "paletteCommand": "node scripts/palette.mjs --seed 303.12 --chroma balanced --harmony mono"
+            },
+            "signature": {
+              "id": "border-interrupt-headings",
+              "text": "Headings interrupt their top border like a legend on a map frame"
+            }
+          },
+          {
+            "index": 3,
+            "family": {
+              "id": "organic-natural",
+              "name": "Organic / Natural"
+            },
+            "composition": {
+              "id": "monolith-center",
+              "name": "Monolith Center",
+              "variance": 1,
+              "scale": "one oversized element, everything else small",
+              "density": "sparse — most of the viewport is empty",
+              "symmetry": "strict central axis",
+              "hierarchy": "single-point: one focus, no competing levels",
+              "ground": "vast unbroken field",
+              "dominantElement": "the single centered mass"
+            },
+            "hue": {
+              "deg": 80.63,
+              "name": "yellow",
+              "paletteCommand": "node scripts/palette.mjs --seed 80.63 --chroma balanced --harmony mono"
+            },
+            "signature": {
+              "id": "accent-scarcity",
+              "text": "The accent color appears ONLY on the current nav item and the primary CTA — nowhere else"
+            }
+          },
+          {
+            "index": 4,
+            "family": {
+              "id": "playful-geometric",
+              "name": "Playful Geometric"
+            },
+            "composition": {
+              "id": "editorial-spread",
+              "name": "Editorial Spread",
+              "variance": 7,
+              "scale": "oversized display type against modest body columns",
+              "density": "varied — columns, pull elements, deliberate gaps",
+              "symmetry": "magazine asymmetry; elements cross column boundaries",
+              "hierarchy": "display type first, decks and pulls second, body third",
+              "ground": "multi-column page the display type violates on purpose",
+              "dominantElement": "the display typography"
+            },
+            "hue": {
+              "deg": 218.14,
+              "name": "cyan",
+              "paletteCommand": "node scripts/palette.mjs --seed 218.14 --chroma balanced --harmony mono"
+            },
+            "signature": {
+              "id": "exposed-grid",
+              "text": "The layout grid becomes visible at exactly one moment (hover, load, or footer)"
+            }
+          },
+          {
+            "index": 5,
+            "family": {
+              "id": "neo-brutalist",
+              "name": "Neo-Brutalist"
+            },
+            "composition": {
+              "id": "frieze-bands",
+              "name": "Frieze Bands",
+              "variance": 4,
+              "scale": "band-sized — each band sets its own scale",
+              "density": "alternating: packed band, breathing band",
+              "symmetry": "horizontal banding, full-width",
+              "hierarchy": "band order + band height carry importance",
+              "ground": "each band is its own ground; edges are hard",
+              "dominantElement": "the rhythm of varied band heights"
+            },
+            "hue": {
+              "deg": 355.64,
+              "name": "red",
+              "paletteCommand": "node scripts/palette.mjs --seed 355.64 --chroma balanced --harmony mono"
+            },
+            "signature": {
+              "id": "marginalia-stamps",
+              "text": "Small rubber-stamp-style status marks live in the margins"
+            }
+          }
+        ],
+        "contract": "The model justifies and executes this dealt hand — it does not re-choose. Rejected hand: re-deal with --reroll N+1; both deals stay recorded in used-dna.json."
+      }
+    }
+  ]
+}
