@@ -20,11 +20,14 @@ A local data workbench: upload structured and semi-structured files, then profil
 - **Structured, nested and messy data** — column types are inferred, nested JSON is queryable directly (`SELECT context.page FROM demo.events`), and JSON fields whose type varies between records become `JSON` columns (`SELECT tags->>'$[0]' FROM demo.customers`).
 - **Auto profile** — per column: type, null %, approx distinct count, min/max, mean, std, quartiles.
 - **Ask in plain English** (off by default) — type a question ("Which sales rep sold the most speakers?"); Claude writes the SQL, it runs, and you see the results, the SQL and a one-line explanation. Edit the SQL and press Run to refine. Works on demo data and your own tables.
-- **SQL box** — any DuckDB SQL over the demo tables and your own, results capped at 1,000 rows, with timing.
-- **Charts** — bar, line or scatter from the last query result; pick the X and Y columns.
-- **Snowsight-style workbench UI** — object explorer (expand a table to see its columns and types; click a column to insert it into the SQL), a line-numbered worksheet editor, Results / Chart / Profile tabs, CSV download, drag-and-drop upload, and log in / sign up / account settings in dialogs.
-- Keyboard: `/` jumps to the question box (or the editor when Ask is off), ⌘↵ / Ctrl↵ runs, Tab indents in the editor.
-- Light theme, works at phone width, keyboard- and screen-reader-friendly.
+- **SQL worksheet** — any DuckDB SQL over the demo tables and your own, results capped at 1,000 rows, with timing. Run and Ask turn into Cancel while working (Esc cancels); replacing unsaved worksheet text offers Undo.
+- **Results grid** — values formatted by kind (numbers with tabular figures, nulls, nested JSON), click a column name to sort (ascending → descending → original), arrow keys move between cells, Enter opens the full value, ⌘C / Ctrl+C copies it. The grid scrolls inside its own frame with a sticky header and a "Rows a to b" readout.
+- **Column details** — the details button on a header (or Shift+Enter) opens a panel with counts, nulls, distinct values, min/max/mean, top values and a histogram, computed over the returned rows.
+- **Query history** — the sidebar's History view keeps your last 100 queries (SQL, Ask question, status, rows, time) per account in this browser; click to load, rerun, or clear.
+- **Charts** — bar, line or scatter from the last query result, defaulting to the selected column. One mark per returned row (no hidden aggregation); rows with a null value aren't drawn as zero, and both are disclosed under the chart.
+- **Workbench UI ("Verdigris Ledger")** — Archivo and IBM Plex Mono, a verdigris accent used only for selection and the main actions, and section labels set on each section's top rule that turn green while you work in that section. Object explorer (expand a table to see its columns and types; click a column to insert it), line-numbered worksheet, Results / Chart / Profile tabs, CSV download, drag-and-drop upload, and log in / sign up / account settings in dialogs.
+- Keyboard: `/` jumps to the question box (or the editor when Ask is off), ⌘↵ / Ctrl↵ runs, Tab indents in the editor (Esc then Tab leaves it), and one Esc closes only the topmost layer (popover, dialog, column panel, then a running query).
+- Light theme only, works at phone width, every text pair meets WCAG AA, keyboard- and screen-reader-friendly.
 
 ## Setup
 
@@ -100,10 +103,11 @@ Prints `ok` when loading, profiling, querying, accounts, per-user isolation and 
 - Uploads are capped at 200 MB.
 - With Ask on, logged-out visitors can ask questions too, and every question is billed to the server's API key. Fine on localhost; add a login requirement or rate limit before exposing it.
 - Questions don't carry context: each one is answered on its own, without the previous question.
+- Query history lives in this browser's storage (per account, not synced across browsers), and falls back to the current session if storage is blocked.
 
 ## Design docs
 
-The UI is being redesigned with the design-for-ai plugin (research → plan → mock → build). [JOURNEY.md](JOURNEY.md) is the page spec and [DESIGN.md](DESIGN.md) the visual identity and tokens; the brief, plan and review reports are in `.design-foundations/`.
+The UI was designed with the design-for-ai plugin (research → plan → mock → build), each phase built by one agent and reviewed by another. [JOURNEY.md](JOURNEY.md) is the page spec, flows, microcopy and data-surface specs; [DESIGN.md](DESIGN.md) is the locked visual identity and token block. The brief, plan, per-phase reviews and mocks are in `.design-foundations/` and `mocks/`. Change DESIGN.md before changing a color, font or spacing value in `index.html`.
 
 ## Contributing
 

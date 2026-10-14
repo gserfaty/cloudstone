@@ -6,434 +6,529 @@
 <title>Cloudstone</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  :root {
-    color-scheme: light;
-    --bg: #f5f7fa; --surface: #ffffff; --surface-2: #f3f5f9; --surface-3: #e8ecf2;
-    --border: #e1e6ee; --border-strong: #cdd4df;
-    --text: #1b2433; --text-2: #4a5568; --text-3: #667085;
-    --accent: #1a6ce7; --accent-hover: #155ac4; --accent-text: #1559c0; --accent-soft: #eaf2fe;
-    --brand: #29b5e8; --navy: #102a43;
-    --danger: #c4320a; --danger-soft: #fdeee9; --success: #12805c; --success-soft: #e8f6f0;
-    --series-1: #2a78d6;
-    --shadow: 0 1px 2px rgb(16 42 67 / .05), 0 1px 3px rgb(16 42 67 / .06);
-    --shadow-lg: 0 16px 40px rgb(16 42 67 / .18);
-  }
-  * { box-sizing: border-box; }
-  [hidden] { display: none !important; }
-  html, body { height: 100%; }
-  body {
-    margin: 0; background: var(--bg); color: var(--text);
-    font: 14px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    display: grid; grid-template-rows: auto 1fr;
-  }
-  code, kbd, textarea.code, .mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
-  ::selection { background: var(--accent-soft); }
+/* Verdigris Ledger: tokens are DESIGN.md's block, verbatim. No colour literals anywhere else in this file. */
+:root {
+  --neutral-1: #fcfdfc;
+  --neutral-2: #f8f9f8;
+  --neutral-3: #eef1f0;
+  --neutral-4: #e4e9e7;
+  --neutral-5: #d9e0dd;
+  --neutral-6: #ccd4d1;
+  --neutral-7: #bdc6c1;
+  --neutral-8: #a3aea8;
+  --neutral-9: #adbbb5;
+  --neutral-10: #9ba8a2;
+  --neutral-11: #5e6562;
+  --neutral-12: #2b2f2d;
+  --accent-1: #fafefc;
+  --accent-2: #f4fbf7;
+  --accent-3: #e6f5ee;
+  --accent-4: #d9eee4;
+  --accent-5: #c9e6d8;
+  --accent-6: #b7dccb;
+  --accent-7: #a2cfbb;
+  --accent-8: #82b9a1;
+  --accent-9: #84c8ab;
+  --accent-10: #74b499;
+  --accent-11: #486c5d;
+  --accent-12: #20322a;
+  --accent-on-solid: #05100b;
+  --accent-bg-subtle: var(--accent-3);
+  --accent-solid: var(--accent-9);
+  --accent-solid-hover: var(--accent-10);
+  --accent-text: var(--accent-11);
+  --error-3: #ffebe9;
+  --error-9: #e1524f;
+  --error-11: #974843;
+  --success-3: #e0f8e0;
+  --success-9: #5ad664;
+  --success-11: #337437;
+  --warning-3: #f9f0dd;
+  --warning-9: #dbb155;
+  --warning-11: #76602f;
+  --info-3: #e3f3ff;
+  --info-9: #5baee5;
+  --info-11: #3d6886;
+  --background: var(--neutral-1);
+  --surface: var(--neutral-2);
+  --surface-hover: var(--neutral-3);
+  --surface-active: var(--neutral-4);
+  --rule: var(--neutral-5);
+  --border-subtle: var(--neutral-6);
+  --border: var(--neutral-7);
+  --border-strong: var(--neutral-8);
+  --border-control: color-mix(in oklab, var(--neutral-11) 45%, var(--neutral-8));
+  --text: var(--neutral-12);
+  --text-secondary: var(--neutral-11);
+  --text-muted: var(--neutral-11);
+  --accent-selected: var(--accent-4);
+  --accent-edge: var(--accent-11);
+  --focus: var(--accent-11);
+  --data-1: #2a78d6;
 
-  /* ---------- top bar ---------- */
-  .topbar {
-    display: flex; align-items: center; gap: 12px; padding: 0 20px; height: 52px;
-    background: var(--navy); color: #fff; position: sticky; top: 0; z-index: 10;
-  }
-  .topbar .btn.ghost { color: #dbe7f3; }
-  .topbar .btn.ghost:hover:not(:disabled) { background: rgb(255 255 255 / .1); color: #fff; }
-  .topbar .btn.primary { background: var(--brand); border-color: var(--brand); color: var(--navy); }
-  .topbar .btn.primary:hover:not(:disabled) { background: #4cc3ee; border-color: #4cc3ee; }
-  .topbar :focus-visible { outline-color: var(--brand); }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; letter-spacing: -.01em; }
-  .brand svg { width: 26px; height: 26px; }
-  .brand small { font-weight: 400; color: #9fb3c8; font-size: 12.5px; padding-left: 10px; border-left: 1px solid rgb(255 255 255 / .2); }
-  .spacer { flex: 1; }
-  .who { display: flex; align-items: center; gap: 8px; }
-  .avatar {
-    width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
-    background: var(--brand); color: var(--navy); font-weight: 600; font-size: 12px; text-transform: uppercase;
-  }
+  /* type */
+  --font-ui: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --text-12: 12px; --lh-12: 16px;
+  --text-13: 13px; --lh-13: 20px;
+  --text-14: 14px; --lh-14: 20px;
+  --text-16: 16px; --lh-16: 24px;
+  --text-20: 20px; --lh-20: 28px;
+  --tracking-label: .08em; --tracking-wordmark: .16em;
 
-  /* ---------- buttons & inputs ---------- */
-  button { font: inherit; color: inherit; }
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 12px;
-    border-radius: 8px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text);
-    font-weight: 500; font-size: 13px; cursor: pointer; white-space: nowrap;
-    transition: background .12s, border-color .12s, color .12s;
-  }
-  .btn:hover:not(:disabled) { background: var(--surface-2); }
-  .btn:disabled { opacity: .55; cursor: not-allowed; }
-  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .btn.primary:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
-  .btn.ghost { border-color: transparent; background: transparent; }
-  .btn.ghost:hover:not(:disabled) { background: var(--surface-2); }
-  .btn.danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 40%, var(--border)); }
-  .btn.danger:hover:not(:disabled) { background: var(--danger-soft); }
-  .btn.icon { width: 32px; padding: 0; }
-  .btn svg { width: 16px; height: 16px; flex: none; }
-  .btn.loading { pointer-events: none; }
-  .btn.loading svg { display: none; }
-  .btn.loading::before {
-    content: ""; width: 14px; height: 14px; border-radius: 50%;
-    border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  kbd {
-    font-size: 11px; padding: 1px 5px; border-radius: 4px; border: 1px solid var(--border-strong);
-    border-bottom-width: 2px; color: var(--text-3); background: var(--surface);
-  }
-  .btn.primary kbd { color: #fff; background: rgb(255 255 255 / .15); border-color: rgb(255 255 255 / .3); }
-  input[type=text], input[type=password], input[type=search], select, textarea {
-    font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong);
-    border-radius: 8px; transition: border-color .12s, box-shadow .12s;
-  }
-  input[type=text], input[type=password], input[type=search] { height: 36px; padding: 0 10px; width: 100%; }
-  select { height: 30px; padding: 0 8px; font-size: 13px; }
-  input:focus, select:focus, textarea:focus {
-    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
-  }
-  ::placeholder { color: var(--text-3); }
-  label.field { display: grid; gap: 6px; font-size: 13px; font-weight: 500; color: var(--text-2); }
+  /* space (4 px grid) */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-6: 24px; --space-8: 32px; --space-12: 48px;
+  --row-h: 32px; /* grid rows */
 
-  /* ---------- layout ---------- */
-  .app { display: grid; grid-template-columns: 272px minmax(0, 1fr); min-height: 0; }
-  .sidebar {
-    border-right: 1px solid var(--border); background: var(--surface); padding: 16px;
-    overflow-y: auto; display: grid; gap: 18px; align-content: start;
-    height: calc(100vh - 52px); position: sticky; top: 52px;
-  }
-  main { padding: 20px; display: grid; gap: 16px; align-content: start; min-width: 0; max-width: 1400px; width: 100%; margin: 0 auto; }
+  /* shape + depth */
+  --radius-control: 2px; --radius-float: 4px; /* grid cells and region frames: 0 */
+  --hairline: 1px solid var(--border);
+  --shadow-float: 0 1px 2px color-mix(in oklab, var(--neutral-12) 8%, transparent),
+                  0 8px 24px color-mix(in oklab, var(--neutral-12) 14%, transparent);
+  --focus-ring: 2px solid var(--focus); --focus-offset: 2px;
 
-  .label {
-    font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3);
-    margin: 0 0 6px; display: flex; align-items: center; gap: 6px;
-  }
-  .count { font-weight: 500; color: var(--text-3); background: var(--surface-2); border-radius: 999px; padding: 0 6px; letter-spacing: 0; }
+  /* motion */
+  --dur-1: 100ms; --dur-2: 150ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+}
 
-  /* upload drop zone */
-  .drop {
-    display: grid; justify-items: center; gap: 4px; text-align: center; padding: 16px 12px; cursor: pointer;
-    border: 1.5px dashed var(--border-strong); border-radius: 10px; background: var(--surface-2); color: var(--text-2);
-    transition: border-color .12s, background .12s;
-  }
-  .drop:hover, .drop.over { border-color: var(--accent); background: var(--accent-soft); }
-  .drop svg { width: 22px; height: 22px; color: var(--accent-text); }
-  .drop strong { font-weight: 600; font-size: 13px; color: var(--text); }
-  .drop span { font-size: 12px; color: var(--text-3); }
-  .drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
 
-  /* table & example lists */
-  .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
-  .list button {
-    all: unset; box-sizing: border-box; width: 100%; cursor: pointer; display: flex; align-items: center; gap: 8px;
-    padding: 6px 8px; border-radius: 6px; font-size: 13px; color: var(--text);
-  }
-  .list button:hover { background: var(--surface-2); }
-  .list button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-  .list button[aria-current="true"] { background: var(--accent-soft); color: var(--accent-text); font-weight: 500; }
-  .list .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .list .name .schema { color: var(--text-3); }
-  .list button[aria-current="true"] .schema { color: inherit; opacity: .7; }
-  .badge {
-    flex: none; font-size: 10px; font-weight: 600; letter-spacing: .03em; padding: 1px 6px; border-radius: 4px;
-    background: var(--surface-3); color: var(--text-2);
-  }
-  .list.examples button { flex-direction: column; align-items: flex-start; gap: 1px; }
-  .list.examples .sub { font-size: 11.5px; color: var(--text-3); }
-  .empty-note { font-size: 12.5px; color: var(--text-3); padding: 4px 8px; }
-  details.group > summary { list-style: none; cursor: pointer; }
-  details.group > summary::-webkit-details-marker { display: none; }
-  details.group > summary .chev { transition: transform .15s; width: 12px; height: 12px; }
-  details.group[open] > summary .chev { transform: rotate(90deg); }
+/* ---------- base ---------- */
+* { box-sizing: border-box; margin: 0; }
+[hidden] { display: none !important; }
+html { color-scheme: light; }
+body { background: var(--background); color: var(--text); font: 400 var(--text-14)/var(--lh-14) var(--font-ui); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; padding: 0; text-align: inherit; }
+button:disabled { cursor: not-allowed; color: var(--text-muted); }
+:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+a { color: var(--accent-text); text-decoration: underline; }
+code { font-family: var(--font-mono); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.muted { color: var(--text-muted); }
+.mono { font-family: var(--font-mono); }
 
-  /* object explorer */
-  .explorer { display: grid; gap: 8px; }
-  .explorer .label { margin: 0; }
-  details.db > summary {
-    list-style: none; cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 5px 4px; border-radius: 6px;
-    font-size: 13px; font-weight: 600; color: var(--text);
-  }
-  details.db > summary::-webkit-details-marker { display: none; }
-  details.db > summary:hover { background: var(--surface-2); }
-  details.db > summary .count { margin-left: auto; }
-  details.db > summary .chev { width: 12px; height: 12px; color: var(--text-3); transition: transform .15s; }
-  details.db[open] > summary .chev { transform: rotate(90deg); }
-  .dbi { width: 15px; height: 15px; color: var(--brand); }
-  .list.tree { margin-left: 10px; padding-left: 6px; border-left: 1px solid var(--border); }
-  .trow { display: flex; align-items: center; }
-  .list .exp {
-    flex: none; width: 20px; height: 26px; padding: 0; justify-content: center; color: var(--text-3); border-radius: 4px;
-  }
-  .list .exp svg { width: 11px; height: 11px; transition: transform .15s; }
-  .list .exp[aria-expanded="true"] svg { transform: rotate(90deg); }
-  .cols { list-style: none; margin: 0 0 4px 19px; padding: 0 0 0 8px; border-left: 1px solid var(--border); }
-  .list .cols button { padding: 3px 8px; font-size: 12.5px; color: var(--text-2); }
-  .cols .col { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .cols .type { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 10.5px; color: var(--text-3); }
+.btn { height: 28px; padding: 0 var(--space-3); border: 1px solid var(--border-control); border-radius: var(--radius-control); font-weight: 500; font-size: var(--text-13); background: var(--background); display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; transition: background var(--dur-1); }
+.btn:hover:not(:disabled) { background: var(--surface-hover); }
+.btn:active:not(:disabled) { background: var(--surface-active); }
+.btn:disabled { border-color: var(--border); }
+.btn.primary { background: var(--accent-solid); border-color: var(--accent-edge); color: var(--accent-on-solid); }
+.btn.primary:hover:not(:disabled) { background: var(--accent-solid-hover); }
+.btn.primary:active:not(:disabled) { background: var(--accent-solid-hover); }
+.btn.quiet { border-color: transparent; background: none; }
+.btn.quiet:hover:not(:disabled) { background: var(--surface-hover); }
+.btn.lg { height: 32px; padding: 0 var(--space-4); }
+.btn kbd { font: 400 var(--text-12) var(--font-mono); opacity: .8; }
+.btn[aria-busy="true"]::after { content: ""; width: 10px; height: 10px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ---------- cards ---------- */
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); min-width: 0; }
-  .card-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
-  .card-head h2 { margin: 0; font-size: 14px; font-weight: 600; }
-  .card-body { padding: 16px; }
-  .hint { font-size: 12.5px; color: var(--text-3); }
+input[type=text], input[type=search], input[type=password], select { height: 28px; border: 1px solid var(--border-control); border-radius: var(--radius-control); padding: 0 var(--space-2); background: var(--background); font-size: var(--text-13); min-width: 0; }
+input::placeholder { color: var(--text-muted); }
+select { padding-right: 4px; }
 
-  /* ask */
-  .ask { display: flex; gap: 8px; align-items: center; }
-  .ask .inputwrap { position: relative; flex: 1; }
-  .ask .inputwrap svg { position: absolute; left: 11px; top: 50%; translate: 0 -50%; width: 16px; height: 16px; color: var(--accent-text); pointer-events: none; }
-  .ask input { padding-left: 34px; height: 40px; font-size: 14px; }
-  .ask .btn { height: 40px; padding: 0 16px; }
-  .explain {
-    margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: var(--accent-soft); color: var(--text);
-    font-size: 13px; display: flex; gap: 8px;
-  }
-  .explain.err { background: var(--danger-soft); color: var(--danger); }
-  .suggestions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-  .chip {
-    all: unset; cursor: pointer; font-size: 12.5px; padding: 3px 10px; border-radius: 999px;
-    border: 1px solid var(--border); color: var(--text-2); background: var(--surface);
-  }
-  .chip:hover { border-color: var(--accent); color: var(--accent-text); }
-  .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* ---------- top bar ---------- */
+header.top { height: 40px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-4); border-bottom: var(--hairline); background: var(--background); }
+.wordmark { font-weight: 600; font-size: var(--text-13); text-transform: uppercase; letter-spacing: var(--tracking-wordmark); }
+.acct { display: flex; gap: var(--space-2); align-items: center; font-size: var(--text-13); }
+.avatar { width: 24px; height: 24px; border-radius: var(--radius-control); background: var(--accent-selected); display: inline-grid; place-items: center; font-weight: 600; font-size: var(--text-12); text-transform: uppercase; }
 
-  /* editor */
-  .editor {
-    display: flex; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); overflow: hidden;
-    transition: border-color .12s, box-shadow .12s;
-  }
-  .editor:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-  .gutter {
-    margin: 0; padding: 12px 10px 12px 12px; min-width: 44px; text-align: right; user-select: none; overflow: hidden;
-    font: 13px/1.6 "JetBrains Mono", ui-monospace, monospace; color: #98a2b3; background: var(--surface-2);
-    border-right: 1px solid var(--border);
-  }
-  textarea.code {
-    display: block; flex: 1; min-width: 0; min-height: 150px; resize: vertical; padding: 12px 14px; font-size: 13px; line-height: 1.6;
-    border: 0; border-radius: 0; background: transparent; tab-size: 2; white-space: pre; overflow: auto;
-  }
-  textarea.code:focus { box-shadow: none; }
-  .toolbar { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-  .status { font-size: 12.5px; color: var(--text-3); display: flex; align-items: center; gap: 6px; }
-  .status.ok::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
-  .status.err { color: var(--danger); white-space: pre-wrap; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; }
+/* ---------- layout ---------- */
+.app { flex: 1; min-height: 0; display: grid; grid-template-columns: 280px minmax(0, 1fr); }
+aside.side { background: var(--surface); border-right: var(--hairline); padding: var(--space-4) var(--space-3); overflow: auto; display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+main { padding: var(--space-4) var(--space-6) var(--space-3); display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; min-height: 0; overflow-y: auto; overflow-x: hidden; }
 
-  /* tabs */
-  .tabs { display: flex; gap: 2px; }
-  .tab {
-    all: unset; cursor: pointer; padding: 6px 12px; border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--text-2);
-  }
-  .tab:hover { background: var(--surface-2); color: var(--text); }
-  .tab[aria-selected="true"] { background: var(--surface-3); color: var(--text); }
-  .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* signature: the legend sits on the region's top rule; it turns accent while focus is inside */
+.region { position: relative; border: var(--hairline); padding: var(--space-3) var(--space-3) var(--space-2); flex: none; }
+.region > h2, .region > .lg-h { position: absolute; top: -8px; left: 12px; padding: 0 8px; background: var(--background); font: 600 var(--text-12)/var(--lh-12) var(--font-ui); text-transform: uppercase; letter-spacing: var(--tracking-label); color: var(--text-muted); transition: color var(--dur-1); margin: 0; z-index: 2; }
+aside .region > h2 { background: var(--surface); }
+.region::before { content: ""; position: absolute; top: -1px; left: -1px; width: 12px; height: 1px; background: transparent; transition: background var(--dur-1); z-index: 2; }
+.region:focus-within > h2 { color: var(--accent-text); }
+.region:focus-within::before { background: var(--accent-edge); }
+.region > h2 button { font: inherit; text-transform: inherit; letter-spacing: inherit; color: inherit; display: inline-flex; gap: 6px; align-items: center; }
 
-  /* data tables */
-  .grid-wrap { overflow: auto; max-height: 520px; }
-  table.data { border-collapse: separate; border-spacing: 0; font-size: 13px; width: max-content; min-width: 100%; }
-  table.data th, table.data td {
-    padding: 7px 14px; text-align: left; white-space: nowrap; max-width: 380px; overflow: hidden; text-overflow: ellipsis;
-    border-bottom: 1px solid var(--border);
-  }
-  table.data th {
-    position: sticky; top: 0; z-index: 1; background: var(--surface); font-weight: 600; font-size: 12px; color: var(--text-2);
-    box-shadow: inset 0 -1px 0 var(--border-strong);
-  }
-  table.data tbody tr:hover td { background: var(--surface-2); }
-  table.data .idx { color: var(--text-3); font-size: 11.5px; text-align: right; padding-right: 8px; position: sticky; left: 0; background: var(--surface); }
-  table.data th.idx { z-index: 2; }
-  table.data .num { text-align: right; font-variant-numeric: tabular-nums; }
-  table.data .null { color: var(--text-3); font-style: italic; }
-  table.data .obj { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; color: var(--text-2); }
-  .empty {
-    display: grid; justify-items: center; gap: 6px; padding: 44px 16px; text-align: center; color: var(--text-3); font-size: 13px;
-  }
-  .empty svg { width: 28px; height: 28px; opacity: .6; }
-  .empty strong { color: var(--text-2); font-weight: 600; }
+/* ---------- sidebar ---------- */
+.drop { display: block; border: 1px dashed var(--border-control); border-radius: var(--radius-control); padding: var(--space-3); font-size: var(--text-13); line-height: 18px; cursor: pointer; transition: background var(--dur-1); }
+.drop:hover, .drop.over { background: var(--surface-hover); }
+.drop b { font-weight: 600; display: block; }
+.drop span { color: var(--text-muted); font-size: var(--text-12); line-height: var(--lh-12); display: block; margin-top: 2px; }
+.drop.over { border-style: solid; border-color: var(--accent-edge); }
 
-  .chart-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; font-size: 13px; color: var(--text-2); }
-  .chart-controls label { display: flex; gap: 6px; align-items: center; }
-  .chart-box { position: relative; height: 360px; }
+.tabs { display: flex; border-bottom: var(--hairline); gap: var(--space-1); }
+.tab { padding: 0 12px; font-size: var(--text-13); font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; min-height: 32px; display: inline-flex; align-items: center; gap: 4px; transition: color var(--dur-1), border-color var(--dur-1); }
+.tab:hover { color: var(--text); }
+.tab[aria-selected=true] { color: var(--accent-text); border-bottom-color: var(--accent-edge); }
+.cnt { font: 400 var(--text-12) var(--font-mono); }
 
-  /* ---------- dialogs ---------- */
-  dialog {
-    border: 1px solid var(--border); border-radius: 14px; padding: 0; width: min(420px, calc(100vw - 32px));
-    background: var(--surface); color: var(--text); box-shadow: var(--shadow-lg);
-  }
-  dialog::backdrop { background: rgb(18 18 17 / .45); backdrop-filter: blur(2px); }
-  .dlg-head { display: flex; align-items: center; padding: 16px 20px 0; }
-  .dlg-head h2 { margin: 0; font-size: 16px; font-weight: 600; flex: 1; }
-  .dlg-body { padding: 16px 20px 20px; display: grid; gap: 14px; }
-  .segmented { display: grid; grid-template-columns: 1fr 1fr; background: var(--surface-2); border-radius: 9px; padding: 3px; }
-  .segmented button { all: unset; text-align: center; padding: 6px; border-radius: 7px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-2); }
-  .segmented button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
-  .segmented button:focus-visible { outline: 2px solid var(--accent); }
-  .pw { position: relative; }
-  .pw input { padding-right: 56px; }
-  .pw button { position: absolute; right: 4px; top: 50%; translate: 0 -50%; height: 28px; font-size: 12px; }
-  .form-err { color: var(--danger); font-size: 13px; background: var(--danger-soft); padding: 8px 10px; border-radius: 8px; }
-  .form-ok { color: var(--success); font-size: 13px; background: var(--success-soft); padding: 8px 10px; border-radius: 8px; }
-  .section-title { font-size: 13px; font-weight: 600; margin: 4px 0 -4px; }
-  .danger-zone { border-top: 1px solid var(--border); padding-top: 14px; display: grid; gap: 10px; }
-  .danger-zone p { margin: 0; font-size: 12.5px; color: var(--text-3); }
+.grp { font: 600 var(--text-12)/var(--lh-12) var(--font-ui); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--text-muted); margin: var(--space-3) 0 4px; display: flex; justify-content: space-between; }
+.grp .mono { font-weight: 400; }
+ul { list-style: none; padding: 0; }
+.search { width: 100%; margin-top: var(--space-3); }
+.note { font-size: var(--text-12); line-height: var(--lh-12); color: var(--text-muted); padding: 4px 8px; }
+.note.err { color: var(--error-11); }
+.trow { display: flex; align-items: center; min-height: 28px; border-radius: var(--radius-control); }
+.trow:hover { background: var(--surface-hover); }
+.trow:has([aria-current=true]) { background: var(--accent-selected); }
+.trow .exp { width: 24px; height: 24px; display: inline-grid; place-items: center; flex: none; color: var(--text-muted); border-radius: var(--radius-control); }
+.exp svg, .chev { width: 12px; height: 12px; transition: transform var(--dur-1); }
+.exp[aria-expanded=true] svg { transform: rotate(90deg); }
+.trow .tn { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 28px; padding-right: 8px; font-size: var(--text-13); }
+.tn .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.badge { font: 400 var(--text-12)/var(--lh-12) var(--font-mono); color: var(--text-muted); border: 1px solid var(--border); border-radius: var(--radius-control); padding: 0 5px; }
+.cols { padding-left: 24px; }
+.cols button { display: flex; width: 100%; justify-content: space-between; gap: 8px; padding: 2px 8px; min-height: 24px; font: 400 var(--text-13)/var(--lh-13) var(--font-mono); border-radius: var(--radius-control); }
+.cols button:hover { background: var(--surface-hover); }
+.cols .type { color: var(--text-muted); font-size: var(--text-12); }
+.cols .col { overflow: hidden; text-overflow: ellipsis; }
 
-  /* ---------- toasts ---------- */
-  .toasts { position: fixed; right: 16px; bottom: 16px; display: grid; gap: 8px; z-index: 50; width: min(360px, calc(100vw - 32px)); }
-  .toast {
-    background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--success); border-radius: 10px;
-    padding: 10px 14px; font-size: 13px; box-shadow: var(--shadow-lg); animation: rise .18s ease-out;
-  }
-  .toast.err { border-left-color: var(--danger); }
-  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+.ex { margin-top: var(--space-4); padding-top: var(--space-4); }
+.ex li button { display: block; width: 100%; padding: 4px 8px; font-size: var(--text-13); border-radius: var(--radius-control); line-height: var(--lh-13); }
+.ex li button:hover { background: var(--surface-hover); }
+.ex .sub { display: block; color: var(--text-muted); font-size: var(--text-12); line-height: var(--lh-12); }
+.ex.closed { padding: 0; border-bottom: 0; }
+.ex h2 .chev { transform: none; }
+.ex h2 [aria-expanded=true] .chev { transform: rotate(90deg); }
 
-  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* history */
+.hhead { display: flex; justify-content: flex-end; margin-top: var(--space-3); }
+.hlist { margin-top: var(--space-2); }
+.hrow { display: block; padding: 6px 8px; border-bottom: 1px solid var(--rule); cursor: pointer; border-radius: 0; }
+.hrow:hover { background: var(--surface-hover); }
+.hrow .q { font: 400 var(--text-13)/var(--lh-13) var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hrow .q.ask { font-family: var(--font-ui); }
+.hrow .m { display: flex; align-items: center; gap: 6px; font-size: var(--text-12); line-height: var(--lh-12); color: var(--text-muted); flex-wrap: wrap; }
+.hrow .m .f { font-family: var(--font-mono); }
+.hrow .m .acts { margin-left: auto; display: flex; gap: 4px; }
+.hrow .acts button { font-size: var(--text-12); color: var(--accent-text); text-decoration: underline; padding: 2px 4px; min-height: 24px; }
+.ok-t { color: var(--success-11); } .er-t { color: var(--error-11); }
+.confirm { border: var(--hairline); border-radius: var(--radius-control); padding: var(--space-3); margin-top: var(--space-2); font-size: var(--text-13); line-height: var(--lh-13); background: var(--background); }
+.confirm .row { display: flex; gap: var(--space-2); margin-top: var(--space-2); }
+.empty-rules { min-height: 96px; line-height: 32px; font-size: var(--text-13); color: var(--text-muted); padding: 0 8px; background:
+  linear-gradient(var(--rule), var(--rule)) 0 31px / 100% 1px no-repeat,
+  linear-gradient(var(--rule), var(--rule)) 0 63px / 100% 1px no-repeat,
+  linear-gradient(var(--rule), var(--rule)) 0 95px / 100% 1px no-repeat; }
+.empty-rules.pad { padding: 0 var(--space-3); }
 
-  @media (max-width: 860px) {
-    .app { grid-template-columns: 1fr; }
-    .sidebar { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
-    main { padding: 16px; }
-    .brand small, .who .name { display: none; }
-    .topbar { padding: 10px 16px; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before { animation-duration: .001ms !important; transition: none !important; }
-  }
+/* ---------- ask ---------- */
+.askrow { display: flex; gap: var(--space-2); }
+.askrow input { flex: 1; height: 32px; font-size: var(--text-16); padding: 0 12px; }
+.askmeta { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-top: 4px; height: 24px; }
+.chips { display: flex; gap: var(--space-2); min-width: 0; flex: 1; }
+.chip { border: 1px solid var(--border-control); border-radius: var(--radius-control); padding: 0 8px; font-size: var(--text-12); line-height: 20px; height: 24px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: background var(--dur-1); }
+.chip:hover:not(:disabled) { background: var(--surface-hover); }
+.mode { font-size: var(--text-12); color: var(--text-muted); white-space: nowrap; flex: none; }
+.explain { font-size: var(--text-13); line-height: var(--lh-13); margin-top: 4px; padding-bottom: 2px; }
+.explain.err { color: var(--error-11); }
+
+/* ---------- worksheet ---------- */
+.hint-off { font-size: var(--text-12); line-height: var(--lh-12); color: var(--text-muted); margin-bottom: var(--space-2); }
+.editor { display: flex; border: 1px solid var(--border-control); border-radius: var(--radius-control); background: var(--background); font: 400 var(--text-14)/var(--lh-14) var(--font-mono); transition: outline-color var(--dur-1); }
+.editor:focus-within { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+.gut { position: relative; width: 40px; flex: none; overflow: hidden; border-right: 1px solid var(--rule); color: var(--text-muted); user-select: none; }
+.gut pre { position: absolute; top: 8px; right: 10px; font: inherit; text-align: right; }
+#sql { flex: 1; min-width: 0; border: 0; background: transparent; padding: 8px 12px; height: 76px; min-height: 76px; max-height: 256px; resize: vertical; font: inherit; white-space: pre; overflow: auto; tab-size: 2; }
+#sql:focus-visible { outline: 0; }
+#sql::placeholder { color: var(--text-muted); }
+.bar { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-2); height: 32px; }
+.status { font: 400 var(--text-13)/var(--lh-13) var(--font-mono); color: var(--text-secondary); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; animation: fadein var(--dur-2) var(--ease-out); }
+.status .g { font-family: var(--font-ui); margin-right: 4px; }
+.status.ok .g { color: var(--success-11); }
+.status.err .g { color: var(--error-11); }
+.bar .status { flex: 1; }
+@keyframes fadein { from { opacity: 0; } }
+.esc { margin-left: auto; font-size: var(--text-12); color: var(--text-muted); white-space: nowrap; }
+
+/* ---------- results ---------- */
+section.results { flex: 1 1 auto; min-height: 238px; display: flex; flex-direction: column; padding: 0; }
+.rhead { display: flex; align-items: stretch; gap: var(--space-4); background: var(--surface); border-bottom: var(--hairline); padding: 4px var(--space-3) 0; height: 40px; flex: none; }
+.rhead .tab { min-height: 0; }
+.rsp { flex: 1; }
+.rhead .rs { align-self: center; display: flex; align-items: center; gap: var(--space-3); font-size: var(--text-12); color: var(--text-muted); min-width: 0; white-space: nowrap; }
+.rhead .rs .status { font-size: var(--text-13); }
+.fig { font-family: var(--font-mono); }
+.notice { flex: none; padding: 4px var(--space-3); font-size: var(--text-12); line-height: var(--lh-12); background: var(--info-3); color: var(--info-11); border-bottom: var(--hairline); display: flex; flex-direction: column; gap: 2px; }
+.notice .l { display: flex; gap: var(--space-2); align-items: center; min-height: 16px; }
+.notice button { color: var(--info-11); text-decoration: underline; font-size: var(--text-12); min-height: 24px; padding: 0 4px; }
+.rbody { flex: 1; min-height: 0; display: flex; }
+.gridbox { position: relative; flex: 1; min-width: 0; min-height: 0; display: flex; }
+.gridbox::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--border-strong); opacity: 0; pointer-events: none; transition: opacity var(--dur-1); }
+.gridbox.more::after { opacity: 1; }
+.gridwrap { flex: 1; min-width: 0; overflow: auto; scrollbar-width: thin; scrollbar-gutter: stable; scrollbar-color: var(--border-control) var(--surface); scroll-padding-top: 36px; scroll-padding-left: 44px; transition: opacity var(--dur-1); }
+.gridwrap.busy { opacity: .5; pointer-events: none; }
+.gridwrap .state { padding: var(--space-4) var(--space-3); font-size: var(--text-14); }
+.gridwrap .empty-rules { margin: 0; }
+.errbox { padding: var(--space-3) var(--space-3); margin: var(--space-3); background: var(--error-3); color: var(--error-11); border-left: 3px solid var(--error-9); font-size: var(--text-13); line-height: var(--lh-13); }
+.errbox pre { font: 400 var(--text-13)/var(--lh-13) var(--font-mono); white-space: pre-wrap; margin: 4px 0; }
+.scope { padding: 4px var(--space-3); font-size: var(--text-12); line-height: var(--lh-12); color: var(--text-muted); border-bottom: 1px solid var(--rule); flex: none; }
+
+table.g { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; font: 400 var(--text-13)/var(--lh-13) var(--font-mono); }
+.g th, .g td { height: var(--row-h); padding: 0 var(--space-3); border-bottom: 1px solid var(--rule); white-space: nowrap; text-align: left; min-width: 64px; max-width: 320px; overflow: hidden; text-overflow: ellipsis; }
+.g thead th { position: sticky; top: 0; z-index: 2; background: var(--surface); border-bottom: 3px double var(--border-strong); height: 36px; font-weight: 500; padding-right: 4px; }
+.g thead th.rn { z-index: 3; left: 0; }
+.g th.rn { position: sticky; left: 0; min-width: 44px; width: 44px; max-width: 44px; padding: 0 var(--space-2); text-align: right; color: var(--text-muted); font-weight: 400; background: var(--surface); border-right: var(--hairline); z-index: 1; }
+.g td.n, .g th.n { text-align: right; }
+.g tbody tr:focus-within td, .g tbody tr:focus-within th { background: var(--accent-selected); }
+.g td.selcol, .g th.selcol { background: var(--accent-bg-subtle); }
+.g thead th.sorted { background: var(--accent-selected); }
+.g td:focus-visible, .g th:focus-visible { outline-offset: -2px; }
+.null { color: var(--text-muted); font-style: italic; }
+.hw { display: flex; align-items: center; gap: var(--space-2); height: 33px; min-width: 0; }
+.hl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.n .hw { flex-direction: row; }
+.n .hl { text-align: right; }
+.hn { cursor: pointer; }
+.hn:hover { text-decoration: underline; }
+.hn.off { cursor: default; color: var(--text-muted); }
+.hn.off:hover { text-decoration: none; }
+.hk { color: var(--text-muted); font: 400 var(--text-12)/var(--lh-12) var(--font-ui); margin-left: 6px; }
+.dbtn { width: 24px; height: 24px; flex: none; display: inline-grid; place-items: center; color: var(--text-muted); border-radius: var(--radius-control); }
+.dbtn:hover { background: var(--surface-active); color: var(--text); }
+.dbtn svg { width: 14px; height: 14px; }
+
+.pop { position: fixed; z-index: 30; max-width: 360px; min-width: 160px; background: var(--background); border: var(--hairline); border-radius: var(--radius-float); box-shadow: var(--shadow-float); padding: var(--space-3); animation: popin var(--dur-2) var(--ease-out); }
+.pop .ph { font-size: var(--text-12); line-height: var(--lh-12); color: var(--text-muted); display: flex; justify-content: space-between; gap: var(--space-3); margin-bottom: 4px; }
+.pop pre { font: 400 var(--text-13)/var(--lh-13) var(--font-mono); white-space: pre-wrap; word-break: break-word; max-height: 240px; overflow: auto; }
+.pop .btn { margin-top: var(--space-2); }
+@keyframes popin { from { opacity: 0; transform: scale(.98); } }
+
+/* column details panel */
+.panel { width: 280px; flex: none; background: var(--surface); border-left: var(--hairline); padding: var(--space-3); overflow: auto; position: relative; animation: slidein var(--dur-2) var(--ease-out); }
+@keyframes slidein { from { opacity: 0; transform: translateX(8px); } }
+.panel .ph { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-2); }
+.panel h2 { font: 600 var(--text-14)/var(--lh-14) var(--font-mono); overflow-wrap: anywhere; }
+.panel h2 small { font: 400 var(--text-12) var(--font-mono); color: var(--text-muted); margin-left: 6px; }
+.panel h2:focus-visible { outline-offset: 2px; }
+.panel .x { width: 24px; height: 24px; display: inline-grid; place-items: center; flex: none; color: var(--text-muted); border-radius: var(--radius-control); }
+.panel .x:hover { background: var(--surface-active); color: var(--text); }
+.panel .x svg { width: 12px; height: 12px; }
+.panel h3 { font: 600 var(--text-12)/var(--lh-12) var(--font-ui); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--text-muted); margin: var(--space-3) 0 4px; padding-top: var(--space-3); border-top: 1px solid var(--rule); }
+.panel dl { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; font-size: var(--text-13); line-height: var(--lh-13); }
+.panel dt { color: var(--text-muted); } .panel dd { font-family: var(--font-mono); text-align: right; }
+.panel p { font-size: var(--text-13); line-height: var(--lh-13); margin-top: 4px; }
+.panel .foot { font-size: var(--text-12); line-height: var(--lh-12); color: var(--text-muted); margin-top: var(--space-3); }
+.hist { display: flex; align-items: flex-end; gap: 2px; height: 80px; border-bottom: 1px solid var(--border-control); margin-top: var(--space-2); }
+.hist i { flex: 1; background: var(--data-1); min-width: 1px; }
+.axis { display: flex; justify-content: space-between; font: 400 var(--text-12)/var(--lh-12) var(--font-mono); color: var(--text-muted); margin-top: 2px; }
+.top5 div { display: grid; grid-template-columns: 84px 1fr auto; gap: 6px; align-items: center; min-height: 20px; font: 400 var(--text-12)/var(--lh-12) var(--font-mono); }
+.top5 span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.top5 .b { display: block; height: 8px; background: var(--data-1); min-width: 1px; }
+.top5 .z { background: none; }
+
+/* chart */
+.chartpane { flex: 1; min-height: 0; padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); overflow: auto; }
+.cc { display: flex; gap: var(--space-4); align-items: center; flex-wrap: wrap; font-size: var(--text-13); color: var(--text-secondary); flex: none; }
+.cc label { display: flex; gap: 6px; align-items: center; }
+.cap { font-size: var(--text-12); line-height: var(--lh-12); color: var(--text-muted); flex: none; }
+.cap div + div { margin-top: 2px; }
+.cbox { position: relative; flex: 1; min-height: 200px; }
+
+/* ---------- dialogs ---------- */
+dialog { border: var(--hairline); border-radius: var(--radius-float); padding: 0; width: min(420px, calc(100vw - 32px)); background: var(--background); color: var(--text); box-shadow: var(--shadow-float); margin: auto; }
+dialog[open] { animation: popin var(--dur-2) var(--ease-out); }
+dialog::backdrop { background: color-mix(in oklab, var(--neutral-12) 40%, transparent); }
+.dh { display: flex; align-items: center; padding: var(--space-4) var(--space-4) 0; }
+.dh h2 { font: 600 var(--text-20)/var(--lh-20) var(--font-ui); letter-spacing: -.01em; flex: 1; }
+.dx { width: 28px; height: 28px; display: inline-grid; place-items: center; border-radius: var(--radius-control); color: var(--text-muted); }
+.dx:hover { background: var(--surface-hover); color: var(--text); }
+.dx svg { width: 14px; height: 14px; }
+.db { padding: var(--space-4); display: grid; gap: var(--space-3); }
+.seg { display: grid; grid-template-columns: 1fr 1fr; border-bottom: var(--hairline); }
+.seg .tab { justify-content: center; min-height: 32px; }
+label.field { display: grid; gap: 4px; font-size: var(--text-13); color: var(--text-secondary); }
+label.field input { height: 32px; font-size: var(--text-14); width: 100%; }
+.pw { position: relative; }
+.pw input { padding-right: 56px; }
+.pw button { position: absolute; right: 2px; top: 2px; height: 28px; padding: 0 var(--space-2); font-size: var(--text-12); color: var(--accent-text); text-decoration: underline; }
+.formmsg { font-size: var(--text-13); line-height: var(--lh-13); padding: var(--space-2) var(--space-3); border-left: 3px solid var(--error-9); background: var(--error-3); color: var(--error-11); }
+.formmsg.ok { border-left-color: var(--success-9); background: var(--success-3); color: var(--success-11); }
+.hint { font-size: var(--text-12); line-height: var(--lh-12); color: var(--text-muted); }
+.sec { border-top: var(--hairline); padding-top: var(--space-3); display: grid; gap: var(--space-2); }
+.sec h3 { font: 600 var(--text-14)/var(--lh-14) var(--font-ui); }
+.sec.danger h3 { color: var(--error-11); }
+.sec p { font-size: var(--text-13); line-height: var(--lh-13); color: var(--text-secondary); }
+.row { display: flex; gap: var(--space-2); }
+
+/* ---------- toasts ---------- */
+.toasts { position: fixed; right: 16px; bottom: 16px; display: grid; gap: var(--space-2); z-index: 50; width: min(380px, calc(100vw - 32px)); }
+.toast { display: flex; gap: var(--space-2); align-items: flex-start; background: var(--background); border: var(--hairline); border-left: 3px solid var(--success-9); border-radius: var(--radius-float); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3); font-size: var(--text-13); line-height: var(--lh-13); box-shadow: var(--shadow-float); animation: toastin var(--dur-2) var(--ease-out); }
+.toast.err { border-left-color: var(--error-9); }
+.toast.info { border-left-color: var(--info-9); }
+.toast .tg { font-weight: 600; } .toast:not(.err):not(.info) .tg { color: var(--success-11); } .toast.err .tg { color: var(--error-11); } .toast.info .tg { color: var(--info-11); }
+.toast .tt { flex: 1; min-width: 0; }
+.toast button { font-size: var(--text-12); min-height: 24px; padding: 0 6px; color: var(--accent-text); text-decoration: underline; flex: none; }
+.toast button.tx { text-decoration: none; color: var(--text-muted); width: 24px; padding: 0; text-align: center; font-size: var(--text-14); }
+@keyframes toastin { from { opacity: 0; transform: translateY(4px); } }
+
+/* ---------- narrow ---------- */
+@media (max-width: 1099px) {
+  .rbody { flex-direction: column; }
+  .panel { width: auto; border-left: 0; border-top: var(--hairline); max-height: 220px; }
+  .gridbox { min-height: 150px; }
+  .rhead .hide-m { display: none; }
+}
+@media (max-width: 859px) {
+  body { height: auto; min-height: 100vh; overflow: auto; }
+  .app { display: block; }
+  aside.side { border-right: 0; border-bottom: var(--hairline); }
+  main { padding: var(--space-4); overflow: visible; }
+  section.results { min-height: 0; }
+  .gridbox { flex: none; height: 420px; }
+  .rbody { display: block; }
+  .rbody .gridbox { height: 420px; }
+  .askrow { flex-wrap: wrap; } .askrow input { flex-basis: 100%; }
+  .askmeta { height: auto; flex-direction: column; align-items: flex-start; gap: 4px; }
+  .chips { flex-wrap: wrap; width: 100%; }
+  .chip { max-width: 100%; }
+  .btn, .chip, .tab, .trow .tn, .dbtn { min-height: 44px; }
+  .chip { height: auto; } .rhead .tab { min-height: 0; }
+  .esc { display: none; }
+  .rhead { height: auto; flex-wrap: wrap; gap: 0 var(--space-3); padding-bottom: 0; }
+  .rhead .rsp { display: none; }
+  .rhead .rs { width: 100%; flex-wrap: wrap; padding: 4px 0; white-space: normal; }
+  .rhead .rs.r2 { margin-left: 0; }
+  .region > h2 { max-width: calc(100% - 24px); }
+}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="i-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0 4 4m-4-4L8 7"/><path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/></symbol>
-  <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5Z"/></symbol>
-  <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></symbol>
-  <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M20 17v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2"/></symbol>
-  <symbol id="i-table" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/></symbol>
-  <symbol id="i-db" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.8"/><path d="M4.5 5.5v13c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8v-13M4.5 12c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8"/></symbol>
-  <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></symbol>
-  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-bars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M5 20V11M12 20V4M19 20v-6"/></symbol>
 </svg>
 
-<header class="topbar">
-  <div class="brand">
-    <svg viewBox="0 0 32 32" aria-hidden="true">
-      <rect width="32" height="32" rx="8" fill="var(--brand)"/>
-      <path d="M9.5 21.5h13a4 4 0 0 0 .6-7.95A5.5 5.5 0 0 0 12.6 12a4.75 4.75 0 0 0-3.1 9.5Z" fill="#fff" opacity=".95"/>
-      <path d="M11 24.5h10" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/>
-    </svg>
-    Cloudstone <small>data workbench</small>
-  </div>
-  <div class="spacer"></div>
-  <div id="loggedout" class="who">
-    <button class="btn ghost" data-auth="login">Log in</button>
+<header class="top">
+  <span class="wordmark">Cloudstone</span>
+  <div class="acct" id="loggedout">
+    <button class="btn" data-auth="login">Log in</button>
     <button class="btn primary" data-auth="signup">Sign up</button>
   </div>
-  <div id="loggedin" class="who" hidden>
-    <button class="btn ghost" id="accountbtn" aria-haspopup="dialog">
-      <span class="avatar" id="avatar" aria-hidden="true"></span><span class="name" id="who"></span>
-    </button>
-    <button class="btn ghost" id="logout">Log out</button>
+  <div class="acct" id="loggedin" hidden>
+    <button class="btn quiet" id="accountbtn" aria-haspopup="dialog"><span class="avatar" id="avatar" aria-hidden="true"></span><span id="who"></span></button>
+    <button class="btn" id="logout">Log out</button>
   </div>
 </header>
 
 <div class="app">
-  <aside class="sidebar" aria-label="Data">
-    <div>
-      <label class="drop" id="drop">
-        <svg><use href="#i-upload"/></svg>
-        <strong id="droptitle">Upload data</strong>
-        <span id="drophint">CSV, JSON, NDJSON, XLSX, Parquet, .log</span>
-        <input id="file" type="file" accept=".csv,.json,.ndjson,.jsonl,.xlsx,.parquet,.log" multiple>
-      </label>
+<aside class="side" aria-label="Data">
+  <label class="drop" id="drop" tabindex="0" role="button">
+    <b id="droptitle">Upload data</b>
+    <span id="drophint">Supported: CSV, JSON, NDJSON, JSONL, XLSX, Parquet, LOG.</span>
+    <span>Saved only to your account, on this computer.</span>
+    <input id="file" type="file" class="sr-only" tabindex="-1" accept=".csv,.json,.ndjson,.jsonl,.xlsx,.parquet,.log" multiple>
+  </label>
+
+  <div>
+    <div class="tabs" role="tablist" aria-label="Sidebar view" id="sidetabs">
+      <button class="tab" role="tab" id="stab-explorer" aria-controls="sp-explorer" aria-selected="true">Explorer</button>
+      <button class="tab" role="tab" id="stab-history" aria-controls="sp-history" aria-selected="false" tabindex="-1">History<span class="cnt" id="hcount">0</span></button>
     </div>
 
-    <section class="explorer" aria-label="Object explorer">
-      <h3 class="label">Databases</h3>
-      <input type="search" id="filter" placeholder="Search objects…" aria-label="Search tables">
-      <details class="db" open>
-        <summary><svg class="chev"><use href="#i-chev"/></svg><svg class="dbi"><use href="#i-db"/></svg>my_data<span class="count" id="minecount">0</span></summary>
-        <ul class="list tree" id="tables"></ul>
-      </details>
-      <details class="db" open>
-        <summary><svg class="chev"><use href="#i-chev"/></svg><svg class="dbi"><use href="#i-db"/></svg>demo<span class="count" id="democount">0</span></summary>
-        <ul class="list tree" id="demo"></ul>
-      </details>
-    </section>
+    <div id="sp-explorer" role="tabpanel" aria-labelledby="stab-explorer">
+      <input class="search" id="filter" type="search" placeholder="Search tables" aria-label="Search tables">
+      <div id="explorer">
+        <div class="grp"><span>my_data</span><span class="mono" id="minecount">0</span></div>
+        <ul id="tables"></ul>
+        <div class="grp"><span>demo</span><span class="mono" id="democount">0</span></div>
+        <ul id="demo"></ul>
+      </div>
+      <section class="region ex" aria-labelledby="ex-h">
+        <h2 id="ex-h"><button id="extoggle" aria-expanded="true" aria-controls="examples"><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg>Example queries</button></h2>
+        <ul id="examples"></ul>
+      </section>
+    </div>
 
-    <details class="group" open>
-      <summary class="label"><svg class="chev"><use href="#i-chev"/></svg> Example queries</summary>
-      <ul class="list examples" id="examples"></ul>
-    </details>
-  </aside>
+    <div id="sp-history" role="tabpanel" aria-labelledby="stab-history" hidden>
+      <div class="hhead"><button class="btn" id="hclear" disabled>Clear history</button></div>
+      <div id="hconfirm" class="confirm" role="group" aria-label="Clear history" hidden>
+        <div>Clear all history? Every saved run in this browser for this account is removed. It cannot be undone.</div>
+        <div class="row"><button class="btn" id="hclear-yes">Clear history</button><button class="btn" id="hclear-no">Cancel</button></div>
+      </div>
+      <p class="note" id="hnote" hidden></p>
+      <div id="hlist" class="hlist"></div>
+    </div>
+  </div>
+</aside>
 
-  <main>
-    <section class="card" id="askcard" hidden>
-      <div class="card-body">
-        <form class="ask" id="askform">
-          <div class="inputwrap">
-            <svg><use href="#i-spark"/></svg>
-            <input id="question" type="text" autocomplete="off" aria-label="Ask a question about your data in plain English"
-                   placeholder="Ask about your data in plain English…">
-          </div>
-          <button class="btn primary" id="askbtn"><svg><use href="#i-spark"/></svg>Ask</button>
-        </form>
-        <div class="suggestions" id="suggestions"></div>
-        <div class="explain" id="explain" role="status" hidden></div>
-      </div>
-    </section>
+<main id="main">
+  <section class="region" id="askcard" aria-labelledby="ask-h" hidden>
+    <h2 id="ask-h">Ask</h2>
+    <form class="askrow" id="askform">
+      <input id="question" type="text" autocomplete="off" aria-label="Ask a question about your data in plain English" placeholder="Ask a question about your data, for example: Which sales rep sold the most speakers?">
+      <button class="btn primary lg" id="askbtn">Ask</button>
+    </form>
+    <div class="askmeta"><div class="chips" id="suggestions"></div><span class="mode" id="mode"></span></div>
+    <div class="explain" id="explain" role="status" aria-live="polite" hidden></div>
+  </section>
 
-    <section class="card">
-      <div class="card-head">
-        <h2>Worksheet</h2>
-        <span class="hint" id="askoff" hidden>Plain-English questions are off. Start the server with <code>CLOUDSTONE_ASK=subscription</code> to turn them on.</span>
-      </div>
-      <div class="card-body">
-        <label class="sr-only" for="sql">SQL query</label>
-        <div class="editor">
-          <pre class="gutter" id="gutter" aria-hidden="true">1</pre>
-          <textarea id="sql" class="code" spellcheck="false" autocapitalize="off" autocorrect="off" wrap="off"
-                    placeholder="SELECT * FROM demo.sales LIMIT 100"></textarea>
-        </div>
-        <div class="toolbar">
-          <button class="btn primary" id="run"><svg><use href="#i-play"/></svg>Run <kbd>⌘↵</kbd></button>
-          <div class="status" id="qmsg" role="status" aria-live="polite"></div>
-        </div>
-      </div>
-    </section>
+  <section class="region" aria-labelledby="ws-h">
+    <h2 id="ws-h">Worksheet</h2>
+    <p class="hint-off" id="askoff" hidden>Ask is off. To turn it on, restart the server with <code>CLOUDSTONE_ASK=subscription</code> (your Claude plan) or <code>CLOUDSTONE_ASK=api</code> (API key).</p>
+    <div class="editor">
+      <div class="gut" aria-hidden="true"><pre id="gutter">1</pre></div>
+      <textarea id="sql" aria-label="SQL editor" spellcheck="false" autocapitalize="off" autocorrect="off" wrap="off" placeholder="SELECT * FROM demo.sales LIMIT 100"></textarea>
+    </div>
+    <div class="bar">
+      <button class="btn primary lg" id="run">Run <kbd id="runkey">⌘↵</kbd></button>
+      <div class="status" id="qmsg" role="status" aria-live="polite"></div>
+      <span class="esc">Esc then Tab leaves the editor.</span>
+    </div>
+  </section>
 
-    <section class="card">
-      <div class="card-head">
-        <div class="tabs" role="tablist" aria-label="Output">
-          <button class="tab" role="tab" id="tab-result" aria-controls="panel-result" aria-selected="true">Results</button>
-          <button class="tab" role="tab" id="tab-chart" aria-controls="panel-chart" aria-selected="false" tabindex="-1">Chart</button>
-          <button class="tab" role="tab" id="tab-profile" aria-controls="panel-profile" aria-selected="false" tabindex="-1">Profile</button>
-        </div>
-        <div class="spacer"></div>
-        <span class="hint" id="outmeta"></span>
-        <button class="btn" id="csv" disabled><svg><use href="#i-download"/></svg>CSV</button>
+  <section class="region results" id="results" aria-labelledby="rs-h">
+    <h2 id="rs-h">Results</h2>
+    <div class="rhead">
+      <div class="tabs" role="tablist" aria-label="Output" id="outtabs" style="border:0">
+        <button class="tab" role="tab" id="tab-result" aria-controls="panel-result" aria-selected="true">Results</button>
+        <button class="tab" role="tab" id="tab-chart" aria-controls="panel-chart" aria-selected="false" tabindex="-1">Chart</button>
+        <button class="tab" role="tab" id="tab-profile" aria-controls="panel-profile" aria-selected="false" tabindex="-1">Profile</button>
       </div>
-      <div id="panel-result" role="tabpanel" aria-labelledby="tab-result" class="grid-wrap" tabindex="0"></div>
-      <div id="panel-chart" role="tabpanel" aria-labelledby="tab-chart" class="card-body" hidden>
-        <div class="chart-controls">
-          <label>Type <select id="ctype"><option value="bar">Bar</option><option value="line">Line</option><option value="scatter">Scatter</option></select></label>
-          <label>X <select id="cx"></select></label>
-          <label>Y <select id="cy"></select></label>
-        </div>
-        <div class="chart-box"><canvas id="chart" role="img" aria-label="Chart of the query result"></canvas></div>
-        <div class="empty" id="chartempty" hidden></div>
+      <div class="rsp"></div>
+      <div class="rs">
+        <span id="outstatus"></span>
+        <span id="colcount" class="hide-m"></span>
+        <span id="rangeout" class="fig" aria-hidden="true" hidden></span>
+        <button class="btn" id="csv" disabled>CSV</button>
       </div>
-      <div id="panel-profile" role="tabpanel" aria-labelledby="tab-profile" class="grid-wrap" tabindex="0" hidden></div>
-    </section>
-  </main>
+    </div>
+    <div class="notice" id="notice" hidden></div>
+    <div id="panel-result" role="tabpanel" aria-labelledby="tab-result" class="rbody">
+      <div class="gridbox" id="boxres"><div class="gridwrap" id="gridres"></div></div>
+      <aside class="panel" id="colpanel" aria-labelledby="cp-h" hidden></aside>
+    </div>
+    <div id="panel-chart" role="tabpanel" aria-labelledby="tab-chart" class="chartpane" hidden>
+      <div class="cc">
+        <label>Type <select id="ctype"><option value="bar">Bar</option><option value="line">Line</option><option value="scatter">Scatter</option></select></label>
+        <label>X <select id="cx"></select></label>
+        <label>Y <select id="cy"></select></label>
+      </div>
+      <div class="cap" id="chartcap" role="status" aria-live="polite"></div>
+      <div class="cbox" id="cbox"><canvas id="chart" role="img"></canvas></div>
+      <div class="empty-rules" id="chartempty" hidden></div>
+    </div>
+    <div id="panel-profile" role="tabpanel" aria-labelledby="tab-profile" class="rbody" hidden style="flex-direction:column">
+      <div class="scope" id="profscope" hidden></div>
+      <div class="gridbox" id="boxprof"><div class="gridwrap" id="gridprof"></div></div>
+    </div>
+  </section>
+</main>
 </div>
 
+<div class="pop" id="pop" role="note" hidden></div>
+
 <dialog id="authdlg" aria-labelledby="authtitle">
-  <form method="dialog" class="dlg-head">
-    <h2 id="authtitle">Welcome to Cloudstone</h2>
-    <button class="btn ghost icon" aria-label="Close"><svg><use href="#i-x"/></svg></button>
-  </form>
-  <form class="dlg-body" id="authform" novalidate>
-    <div class="segmented" role="tablist" aria-label="Account action">
-      <button type="button" role="tab" data-mode="login" aria-selected="true">Log in</button>
-      <button type="button" role="tab" data-mode="signup" aria-selected="false">Sign up</button>
+  <div class="dh"><h2 id="authtitle">Log in</h2><button class="dx" type="button" data-close aria-label="Close"><svg aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <form class="db" id="authform" novalidate>
+    <div class="seg" role="tablist" aria-label="Account action">
+      <button type="button" class="tab" role="tab" data-mode="login" aria-selected="true">Log in</button>
+      <button type="button" class="tab" role="tab" data-mode="signup" aria-selected="false">Sign up</button>
     </div>
     <label class="field">Username
       <input id="username" type="text" autocomplete="username" required minlength="3" maxlength="32" spellcheck="false">
@@ -441,40 +536,31 @@
     <label class="field">Password
       <span class="pw">
         <input id="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128">
-        <button type="button" class="btn ghost" data-reveal="password">Show</button>
+        <button type="button" data-reveal="password" aria-label="Show password">Show</button>
       </span>
     </label>
-    <div class="hint" id="authhint" hidden>3-32 letters, digits, “.”, “_” or “-”. Password 8+ characters.</div>
-    <div class="form-err" id="autherr" role="alert" hidden></div>
-    <button class="btn primary" id="authsubmit" style="height:38px">Log in</button>
+    <div class="hint" id="authhint" hidden>Passwords: 8 to 128 characters. Usernames: 3 to 32 letters, digits, '.', '_' or '-'.</div>
+    <div class="formmsg" id="autherr" role="alert" hidden></div>
+    <button class="btn primary lg" id="authsubmit">Log in</button>
   </form>
 </dialog>
 
 <dialog id="acctdlg" aria-labelledby="accttitle">
-  <form method="dialog" class="dlg-head">
-    <h2 id="accttitle">Account</h2>
-    <button class="btn ghost icon" aria-label="Close"><svg><use href="#i-x"/></svg></button>
-  </form>
-  <div class="dlg-body">
-    <form id="pwform" style="display:grid; gap:12px">
-      <div class="section-title">Change password</div>
-      <label class="field">Current password
-        <input id="oldpw" type="password" autocomplete="current-password" required>
-      </label>
-      <label class="field">New password
-        <input id="newpw" type="password" autocomplete="new-password" required minlength="8">
-      </label>
-      <div id="pwmsg" role="status" hidden></div>
+  <div class="dh"><h2 id="accttitle">Account</h2><button class="dx" type="button" data-close aria-label="Close"><svg aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="db">
+    <form id="pwform" class="sec" style="border:0;padding:0">
+      <h3>Change password</h3>
+      <label class="field">Current password<input id="oldpw" type="password" autocomplete="current-password" required></label>
+      <label class="field">New password<input id="newpw" type="password" autocomplete="new-password" required minlength="8" maxlength="128"></label>
+      <div class="formmsg" id="pwmsg" role="alert" hidden></div>
       <button class="btn">Change password</button>
     </form>
-    <form id="delform" class="danger-zone">
-      <div class="section-title" style="color:var(--danger)">Delete account</div>
-      <p>Permanently deletes your account and every table you've uploaded. This can't be undone.</p>
-      <label class="field">Password
-        <input id="delpw" type="password" autocomplete="current-password" required>
-      </label>
-      <div class="form-err" id="delerr" role="alert" hidden></div>
-      <button class="btn danger">Delete account and data</button>
+    <form id="delform" class="sec danger">
+      <h3>Delete account</h3>
+      <p>This permanently deletes your account and the tables you uploaded. It cannot be undone. Enter your password to confirm.</p>
+      <label class="field">Password<input id="delpw" type="password" autocomplete="current-password" required></label>
+      <div class="formmsg" id="delerr" role="alert" hidden></div>
+      <div class="row"><button class="btn" id="delgo">Delete account</button><button class="btn" type="button" data-close>Cancel</button></div>
     </form>
   </div>
 </dialog>
@@ -482,15 +568,17 @@
 <div class="toasts" id="toasts" aria-live="polite"></div>
 
 <script>
+'use strict';
 const $ = id => document.getElementById(id);
 const el = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids); return e; };
-const icon = name => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.innerHTML = `<use href="#i-${name}"/>`; return s; };
+const icon = id => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('aria-hidden', 'true'); s.innerHTML = `<use href="#i-${id}"/>`; return s; };
 const ident = name => name.split('.').map(p => `"${p}"`).join('.');
-let last = null, chart = null, user = null, current = null, tableNames = [];
+const stripDot = s => String(s || '').trim().replace(/\.+$/, '');
+const plural = (n, w) => `${n.toLocaleString('en-US')} ${w}${n === 1 ? '' : 's'}`;
+const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 
-const DEMO_TYPES = {sales: 'CSV', employees: 'XLSX', products: 'JSON', events: 'NDJSON', customers: 'JSON', web_server: 'LOG', shipments: 'PARQUET'};
+const DEMO_TYPES = {sales: 'csv', employees: 'xlsx', products: 'json', events: 'ndjson', customers: 'json', web_server: 'log', shipments: 'parquet'};
 const SUGGESTIONS = ['Which sales rep sold the most speakers?', 'Average delivery days per carrier', 'Which customers came from the legacy system?', 'Error lines per hour in the server log'];
-
 const EXAMPLES = [
   ['Revenue by region', 'CSV', `SELECT region, round(sum(quantity * unit_price), 2) AS revenue
 FROM demo.sales GROUP BY 1 ORDER BY 2 DESC`],
@@ -532,239 +620,928 @@ FROM demo.shipments sh JOIN demo.sales s USING (order_id)
 GROUP BY 1 ORDER BY avg_days DESC`],
 ];
 
+// ---------- strings that are not static markup (JOURNEY.md Microcopy; DS-xx are Data surfaces) ----------
+const S = {
+  cancelled: 'Cancelled - the server may still finish it in the background.',
+  running: 'Running...',
+  loadingResults: 'Loading results...',
+  noRows: 'No rows matched.',
+  noSet: 'No rows to show. The statement ran but returned no result set.',
+  notRun: 'Run a query to see results.',
+  truncated: 'Showing the first 1,000 rows. Sorting and column stats cover only these rows. For the right rows in order, add ORDER BY to your SQL; LIMIT does not help.',
+  csvIdle: 'Run a query to download CSV.',
+  csvNoSet: 'Nothing to download: this statement returned no result set.',
+  sortOff: 'Sorting needs at least two rows.',                       // DS-16 (new)
+  gridHint: 'Shift+Enter on a header opens column details.',          // DS-17 (new)
+  chartErr: 'The last query failed, so there is nothing to chart. Fix the SQL and run it again.', // DS-18 (new)
+  chartMissing: 'The chart did not load. Check your connection and reload the page. The Results tab still shows the rows.',
+};
+
 // ---------- helpers ----------
-async function api(path, opts) {
+async function api(path, opts = {}) {
   const r = await fetch(path, opts);
   const j = await r.json().catch(() => ({error: `Server error (${r.status})`}));
   if (!r.ok) throw new Error(j.error);
   return j;
 }
-const post = (path, data) => api(path, {method: 'POST', body: JSON.stringify(data)});
+const post = (path, data, signal) => api(path, {method: 'POST', body: JSON.stringify(data), signal});
+const isNet = err => err && err.name === 'TypeError';
 
-function toast(text, isErr) {
-  const t = el('div', {className: 'toast' + (isErr ? ' err' : ''), textContent: text});
-  if (isErr) t.setAttribute('role', 'alert');
-  $('toasts').append(t);
-  setTimeout(() => t.remove(), isErr ? 7000 : 3500);
+// safe browser storage; falls back to memory for the session
+const memPrefs = {};
+const pref = (k, v) => {
+  try { if (v === undefined) return localStorage.getItem(k) ?? memPrefs[k] ?? null; localStorage.setItem(k, v); } catch { if (v === undefined) return memPrefs[k] ?? null; }
+  memPrefs[k] = v ?? memPrefs[k];
+  return null;
+};
+
+// ---------- toasts ----------
+function toast(text, o = {}) {
+  const box = $('toasts');
+  const t = el('div', {className: 'toast' + (o.err ? ' err' : o.info ? ' info' : '')});
+  if (o.err) t.setAttribute('role', 'alert');
+  t.append(el('span', {className: 'tg', textContent: o.err ? '✗' : o.info ? 'ⓘ' : '✓', ariaHidden: 'true'}), el('span', {className: 'tt', textContent: text}));
+  if (o.action) t.append(el('button', {type: 'button', textContent: o.action.label, onclick: () => { o.action.fn(); dismiss(); }}));
+  if (o.err || o.sticky) t.append(el('button', {type: 'button', className: 'tx', textContent: '×', onclick: dismiss}, ));
+  t.querySelector('.tx')?.setAttribute('aria-label', 'Dismiss message');
+  let timer = null, left = o.ms || 4000, started = 0, back = null;
+  const arm = () => { if (o.err || o.sticky) return; started = Date.now(); timer = setTimeout(dismiss, left); };
+  const pause = () => { if (timer) { clearTimeout(timer); timer = null; left -= Date.now() - started; } };
+  function dismiss() { pause(); t.remove(); if (back && document.contains(back)) back.focus(); }
+  t.addEventListener('mouseenter', pause); t.addEventListener('mouseleave', () => { if (!timer && left > 0) arm(); });
+  t.addEventListener('focusin', e => { pause(); if (e.relatedTarget && !t.contains(e.relatedTarget)) back = e.relatedTarget; });
+  t.addEventListener('focusout', e => { if (!t.contains(e.relatedTarget)) arm(); });
+  t.addEventListener('keydown', e => { if (e.key === 'Escape') { e.stopPropagation(); e.preventDefault(); dismiss(); } });
+  box.append(t);
+  while (box.children.length > 3) box.firstElementChild.remove();
+  arm();
+  return {el: t, dismiss};
 }
 
-async function busy(btn, fn) {
-  btn.classList.add('loading'); btn.disabled = true; btn.setAttribute('aria-busy', 'true');
-  try { return await fn(); } finally { btn.classList.remove('loading'); btn.disabled = false; btn.removeAttribute('aria-busy'); }
-}
-
-function show(node, text, cls) { node.hidden = !text; node.className = cls || node.className; node.textContent = text || ''; }
-
-const isNumeric = v => typeof v === 'number' || (typeof v === 'string' && v.trim() !== '' && !isNaN(v));
-
-// ---------- tables ----------
-function renderGrid(container, {columns, rows}, emptyText) {
-  if (!columns.length) {
-    container.replaceChildren(el('div', {className: 'empty'}, icon('table'), el('strong', {textContent: 'No rows to show'}), el('span', {textContent: emptyText || 'The statement ran but returned no result set.'})));
-    return;
+// ---------- value kinds and formatting (JOURNEY.md Data surfaces, section 1) ----------
+const RE_NUM = /^-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?$/;
+const RE_DATE = /^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}(:?\d{2})?)?)?$/;
+const collator = new Intl.Collator();
+function vkind(v) {
+  if (typeof v === 'number') return Number.isFinite(v) ? 'number' : 'text';
+  if (typeof v === 'boolean') return 'bool';
+  if (typeof v === 'string') {
+    if (RE_NUM.test(v)) return 'number';
+    if (RE_DATE.test(v)) return 'date';
+    if (v === 'true' || v === 'false') return 'bool';
+    return 'text';
   }
-  const numCol = columns.map((_, i) => rows.some(r => r[i] !== null) && rows.every(r => r[i] === null || isNumeric(r[i])));
-  const t = el('table', {className: 'data'});
-  const head = t.createTHead().insertRow();
-  head.append(el('th', {className: 'idx', textContent: '#'}));
-  columns.forEach((c, i) => head.append(el('th', {className: numCol[i] ? 'num' : '', textContent: c, title: c})));
-  const body = t.createTBody();
-  rows.forEach((r, n) => {
-    const tr = body.insertRow();
-    tr.append(el('td', {className: 'idx', textContent: n + 1}));
-    r.forEach((v, i) => {
-      const td = tr.insertCell();
-      if (v === null) { td.className = 'null'; td.textContent = 'null'; }
-      else if (typeof v === 'object') { td.className = 'obj'; td.textContent = JSON.stringify(v); }
-      else { td.className = numCol[i] ? 'num' : ''; td.textContent = v; }
-      td.title = td.textContent;
-    });
+  return 'json';
+}
+function colKind(rows, i) {
+  if (!rows.length) return 'unknown';
+  const seen = new Set();
+  for (const r of rows) {
+    if (r[i] === null) continue;
+    seen.add(vkind(r[i]));
+    if (seen.size > 1) return 'mixed';
+  }
+  return seen.size ? [...seen][0] : 'null';
+}
+const idLike = name => /^(id|year)$|_id$/i.test(name);
+function fmtNum(raw, noSep) {
+  const s = typeof raw === 'number' ? String(raw) : raw;
+  if (noSep) return s;
+  const m = /^(-?)(\d+)(\.\d+)?$/.exec(s);
+  if (!m) return s;
+  return m[1] + m[2].replace(/\B(?=(\d{3})+$)/g, ',') + (m[3] || '');
+}
+const rawOf = v => v === null ? '' : typeof v === 'object' ? JSON.stringify(v) : String(v);
+function cellInfo(v, kind, name) {
+  if (v === null) return {text: 'null', cls: 'null', raw: ''};
+  if (v === '') return {text: '""', cls: 'null', raw: ''};
+  const vk = vkind(v), raw = rawOf(v);
+  let text;
+  if (vk === 'number') text = kind === 'number' ? fmtNum(v, idLike(name)) : raw;
+  else if (vk === 'json') text = (Array.isArray(v) ? `[${v.length}] ` : '{…} ') + raw;
+  else if (vk === 'bool') text = String(v);
+  else text = raw.replace(/\s+/g, ' ');
+  return {text, cls: '', raw};
+}
+const hintOf = kind => kind === 'unknown' ? '—' : kind;
+
+function sortKey(v, kind) {
+  if (v === null) return null;
+  if (kind === 'number') return Number(v);
+  if (kind === 'mixed') return vkind(v) === 'number' ? [0, Number(v)] : [1, rawOf(v)];
+  return rawOf(v);
+}
+function sortedRows(rows, ci, kind, dir) {
+  const keyed = rows.map((r, i) => [sortKey(r[ci], kind), r]);
+  const cmp = (a, b) => {
+    if (kind === 'number') return a - b;
+    if (kind === 'mixed') return a[0] - b[0] || (a[0] === 0 ? a[1] - b[1] : collator.compare(a[1], b[1]));
+    return collator.compare(a, b);
+  };
+  keyed.sort((x, y) => {
+    const xn = x[0] === null, yn = y[0] === null;
+    if (xn || yn) return xn && yn ? 0 : xn ? 1 : -1;   // null always last
+    return dir * cmp(x[0], y[0]);
   });
-  if (!rows.length) {
-    const tr = body.insertRow();
-    tr.append(el('td', {colSpan: columns.length + 1, className: 'null', textContent: 'No rows matched.', style: 'text-align:center; padding:24px'}));
-  }
-  container.replaceChildren(t);
+  return keyed.map(k => k[1]);
 }
 
+// ---------- cell popover ----------
+const pop = {cell: null, grid: null};
+function closePop() {
+  if (!pop.cell) return false;
+  pop.cell.removeAttribute('aria-describedby');
+  pop.cell = null; $('pop').hidden = true;
+  return true;
+}
+async function copyText(text, okMsg) {
+  try { await navigator.clipboard.writeText(text); toast(okMsg || 'Cell copied.'); }
+  catch { toast('Could not copy the cell. Your browser blocked clipboard access. Allow it for this page, then press Ctrl+C or ⌘C again.', {err: true}); }
+}
+function openPop(grid, cell) {
+  const r = +cell.dataset.r, c = +cell.dataset.c, v = grid.rows[r - 1][c];
+  if (v === null) return;
+  closePop();
+  const kind = grid.kinds[c], p = $('pop');
+  const body = typeof v === 'object' ? JSON.stringify(v, null, 2) : String(v);
+  p.replaceChildren(
+    el('div', {className: 'ph'}, el('span', {textContent: grid.cols[c]}), el('span', {textContent: hintOf(kind)})),
+    el('pre', {textContent: body}),
+    el('button', {className: 'btn', type: 'button', tabIndex: -1, textContent: 'Copy', onclick: () => copyText(rawOf(v))}));
+  p.hidden = false;
+  const cr = cell.getBoundingClientRect(), pr = p.getBoundingClientRect();
+  const below = cr.bottom + 4 + pr.height <= innerHeight - 8;
+  p.style.top = Math.max(8, below ? cr.bottom + 4 : cr.top - pr.height - 4) + 'px';
+  p.style.left = Math.max(8, Math.min(cr.left, innerWidth - pr.width - 8)) + 'px';
+  cell.setAttribute('aria-describedby', 'pop');
+  pop.cell = cell; pop.grid = grid;
+}
+document.addEventListener('pointerdown', e => { if (pop.cell && !$('pop').contains(e.target)) closePop(); });
+
+// ---------- grid component (Results and Profile) ----------
+class Grid {
+  constructor(host, o = {}) {
+    this.host = host; this.box = host.parentElement; this.o = o;
+    this.cols = []; this.orig = []; this.rows = []; this.kinds = []; this.sort = null; this.sel = -1;
+    this.f = {r: 0, c: 0};
+    host.addEventListener('keydown', e => this.onKey(e));
+    host.addEventListener('click', e => this.onClick(e));
+    host.addEventListener('focusin', e => this.onFocusIn(e));
+    host.addEventListener('scroll', () => { closePop(); this.queueCue(); });
+  }
+  load(cols, rows, kindsOverride) {
+    this.cols = cols; this.orig = rows; this.rows = rows; this.sort = null;
+    this.kinds = kindsOverride || cols.map((_, i) => colKind(rows, i));
+    this.f = {r: rows.length ? 1 : 0, c: 0};
+    this.build();
+    this.host.scrollTop = 0; this.host.scrollLeft = 0;
+    this.queueCue();
+  }
+  clear() { this.cols = []; this.orig = this.rows = []; this.kinds = []; this.sort = null; this.sel = -1; this.queueCue(); }
+  get canSort() { return this.rows.length > 1; }
+  build() {
+    const {cols, rows, kinds} = this;
+    const t = el('table', {className: 'g'});
+    t.setAttribute('role', 'grid'); t.setAttribute('aria-rowcount', rows.length + 1); t.setAttribute('aria-colcount', cols.length);
+    const hr = t.createTHead().insertRow(); hr.setAttribute('role', 'row');
+    hr.append(el('th', {className: 'rn', scope: 'col'}));
+    cols.forEach((c, i) => {
+      const num = kinds[i] === 'number';
+      const th = el('th', {className: 'h' + (num ? ' n' : '') + (this.sort?.col === i ? ' sorted' : '') + (this.sel === i ? ' selcol' : ''), scope: 'col', tabIndex: -1});
+      th.setAttribute('role', 'columnheader');
+      th.dataset.r = 0; th.dataset.c = i;
+      th.title = this.o.hideKinds ? c : `${c} · ${hintOf(kinds[i])}`;
+      if (this.sort?.col === i) th.setAttribute('aria-sort', this.sort.dir > 0 ? 'ascending' : 'descending');
+      const off = !this.canSort;
+      const glyph = this.sort?.col === i ? (this.sort.dir > 0 ? ' ▲' : ' ▼') : '';
+      const name = el('span', {className: 'hn' + (off ? ' off' : ''), textContent: c + glyph});
+      if (off) { name.title = S.sortOff; name.setAttribute('aria-disabled', 'true'); }
+      const lab = el('span', {className: 'hl'}, name);
+      if (!this.o.hideKinds) lab.append(el('span', {className: 'hk', textContent: hintOf(kinds[i])}));
+      const wrap = el('div', {className: 'hw'}, lab);
+      if (this.o.onDetails) {
+        const b = el('button', {className: 'dbtn', type: 'button', tabIndex: -1}, icon('bars'));
+        b.setAttribute('aria-label', `Column details for ${c}`); b.title = `Column details for ${c}`;
+        wrap.append(b);
+      }
+      th.append(wrap);
+      hr.append(th);
+    });
+    const tb = t.createTBody();
+    rows.forEach((row, ri) => {
+      const tr = tb.insertRow(); tr.setAttribute('role', 'row');
+      tr.append(el('th', {className: 'rn', scope: 'row', textContent: ri + 1}));
+      row.forEach((v, ci) => {
+        const info = cellInfo(v, kinds[ci], cols[ci]);
+        const td = tr.insertCell();
+        td.className = ((kinds[ci] === 'number' && !this.o.leftCols?.includes(ci)) ? 'n ' : '') + info.cls + (this.sel === ci ? ' selcol' : '');
+        td.textContent = info.text; td.tabIndex = -1;
+        td.setAttribute('role', 'gridcell');
+        td.dataset.r = ri + 1; td.dataset.c = ci;
+        if (v !== null) td.title = info.raw.length > 80 ? info.raw.slice(0, 80) + '…' : info.raw;
+      });
+    });
+    if (!rows.length) {
+      const tr = tb.insertRow();
+      tr.append(el('td', {colSpan: cols.length + 1, className: 'null', textContent: S.noRows, style: 'font-style:normal;color:var(--text-muted)'}));
+      tr.firstChild.parentElement.style.height = '96px';
+    }
+    this.table = t; this.host.replaceChildren(t);
+    this.host.classList.remove('busy');
+    this.setRove(this.f.r, this.f.c);
+  }
+  cell(r, c) { return r === 0 ? this.table.tHead.rows[0].cells[c + 1] : this.table.tBodies[0].rows[r - 1]?.cells[c + 1]; }
+  setRove(r, c) {
+    const old = this.table.querySelector('[tabindex="0"]'); if (old) old.tabIndex = -1;
+    this.f = {r, c};
+    const n = this.cell(r, c); if (n) n.tabIndex = 0;
+  }
+  focus(r, c) {
+    const R = this.rows.length, C = this.cols.length; if (!C) return;
+    r = Math.max(R ? 0 : 0, Math.min(R, r)); c = Math.max(0, Math.min(C - 1, c));
+    this.setRove(r, c);
+    this.cell(r, c)?.focus();
+  }
+  onFocusIn(e) {
+    const t = e.target.closest?.('th,td'); if (!t || t.dataset.c === undefined || !this.table?.contains(t)) return;
+    this.setRove(+t.dataset.r, +t.dataset.c);
+  }
+  onClick(e) {
+    const t = e.target.closest('th,td'); if (!t || t.dataset.c === undefined) return;
+    const r = +t.dataset.r, c = +t.dataset.c;
+    if (r === 0) {
+      if (e.target.closest('.dbtn')) { e.stopPropagation(); this.o.onDetails?.(c); return; }
+      t.focus();
+      if (e.target.closest('.hn')) this.toggleSort(c);
+      return;
+    }
+    t.focus();
+    if (t.scrollWidth > t.clientWidth || vkind(this.rows[r - 1][c] ?? '') === 'json') openPop(this, t);
+  }
+  toggleSort(c) {
+    if (!this.canSort) return;
+    const s = this.sort;
+    if (!s || s.col !== c) this.sort = {col: c, dir: 1};
+    else if (s.dir > 0) this.sort = {col: c, dir: -1};
+    else this.sort = null;
+    this.applySort(true, c);
+  }
+  clearSort() { this.sort = null; this.applySort(false); }
+  applySort(refocus, c) {
+    this.rows = this.sort ? sortedRows(this.orig, this.sort.col, this.kinds[this.sort.col], this.sort.dir) : this.orig;
+    const st = this.host.scrollTop;
+    this.build();
+    this.host.scrollTop = st;
+    if (refocus) this.focus(0, c);
+    this.queueCue();
+    this.o.onView?.();
+  }
+  setSelected(i) {
+    this.sel = i;
+    if (!this.table) return;
+    this.table.querySelectorAll('.selcol').forEach(n => n.classList.remove('selcol'));
+    if (i >= 0) this.table.querySelectorAll(`[data-c="${i}"]`).forEach(n => n.classList.add('selcol'));
+  }
+  visibleRows() { return Math.max(1, Math.floor((this.host.clientHeight - 36) / 32)); }
+  onKey(e) {
+    const t = e.target.closest('th,td');
+    if (!t || t.dataset.c === undefined || e.target.closest('.dbtn')) return;
+    const r = +t.dataset.r, c = +t.dataset.c, R = this.rows.length, C = this.cols.length;
+    const mod = e.ctrlKey || e.metaKey;
+    const go = (nr, nc) => { e.preventDefault(); closePop(); this.focus(nr, nc); };
+    switch (e.key) {
+      case 'ArrowDown': if (mod) return go(R, C - 1); return go(r + 1, c);
+      case 'ArrowUp': if (mod) return go(R ? 1 : 0, 0); return go(r - 1, c);
+      case 'ArrowRight': return go(r, c + 1);
+      case 'ArrowLeft': return go(r, c - 1);
+      case 'Home': return mod ? go(R ? 1 : 0, 0) : go(r, 0);
+      case 'End': return mod ? go(R, C - 1) : go(r, C - 1);
+      case 'PageDown': return go(Math.min(R, r + this.visibleRows() - 1), c);
+      case 'PageUp': return go(Math.max(0, r - (this.visibleRows() - 1)), c);
+      case 'Enter':
+        e.preventDefault();
+        if (r === 0) { if (e.shiftKey) this.o.onDetails?.(c); else this.toggleSort(c); }
+        else if (!e.shiftKey) openPop(this, t);
+        return;
+      case ' ': if (r === 0) { e.preventDefault(); this.toggleSort(c); } return;
+      case 'c': case 'C':
+        if (mod) {
+          e.preventDefault();
+          if (r === 0) return copyText(this.cols[c]);
+          const v = this.rows[r - 1][c];
+          if (v === null) return toast('That cell is null, so nothing was copied.', {info: true});
+          copyText(rawOf(v));
+        }
+    }
+  }
+  queueCue() {
+    if (this._q) return;
+    this._q = requestAnimationFrame(() => {
+      this._q = 0;
+      const h = this.host, more = h.scrollHeight - h.scrollTop - h.clientHeight > 1;
+      this.box.classList.toggle('more', more && this.rows.length > 0);
+      this.o.onScroll?.(h, this);
+    });
+  }
+}
+
+// ---------- state ----------
+let user = null, current = null, tableNames = [], profTable = null, running = false, inflight = null;
+let view = null;          // {truncated, ms, noset} for the last good result
+let lastErr = null;       // last query error text (replaces the grid)
+let selName = null, panelOpen = false, lastRunSql = '', trapOff = false, chart = null;
+let authOpener = null, authFromUpload = false;
+
+// ---------- results grid ----------
+const resGrid = new Grid($('gridres'), {
+  onDetails: i => openPanel(i),
+  onView: () => { renderNotice(); if (panelOpen) renderPanel(); if (!$('panel-chart').hidden) drawChart(); },
+  onScroll: (h, g) => {
+    const out = $('rangeout');
+    if (!view || h.scrollHeight <= h.clientHeight + 1 || !g.rows.length) { out.hidden = true; return; }
+    const a = Math.floor(h.scrollTop / 32) + 1, b = Math.min(g.rows.length, Math.max(a, Math.floor((h.scrollTop + h.clientHeight - 36) / 32)));
+    out.textContent = `Rows ${a} to ${b}`; out.hidden = false;
+  },
+});
+const profGrid = new Grid($('gridprof'), {hideKinds: true, leftCols: [2, 3]});
+
+function stateBox(host, text, extra) {
+  host.replaceChildren(el('div', {className: 'state'}, el('div', {className: 'empty-rules', textContent: text}), ...(extra || [])));
+}
+function setStatus(kind, text, wsText) {
+  const glyph = kind === 'ok' ? '✓' : kind === 'err' ? '✗' : '';
+  const mk = t => { const s = el('span', {className: 'status ' + kind}); if (glyph) s.append(el('span', {className: 'g', textContent: glyph}), t); else s.append(t); return s; };
+  $('outstatus').replaceChildren(text ? mk(text) : '');
+  const q = $('qmsg'); q.replaceChildren();
+  if (wsText || text) { const s = mk(wsText ?? text); s.title = wsText && text !== wsText ? '' : ''; q.append(s); if (kind === 'err') q.firstChild.title = lastErr || ''; }
+}
+function paintResults() {
+  const host = $('gridres');
+  closePop();
+  if (lastErr) {
+    resGrid.clear();
+    host.replaceChildren(el('div', {className: 'errbox'}, 'Query failed:', el('pre', {textContent: lastErr.includes('\n') ? lastErr.trim() : stripDot(lastErr) + '.'}), 'Your SQL is unchanged. Fix it and press Run.'));
+  } else if (!view) {
+    resGrid.clear();
+    stateBox(host, running ? S.loadingResults : S.notRun);
+  } else if (view.noset) {
+    resGrid.clear();
+    stateBox(host, S.noSet);
+  }
+  const ok = view && !lastErr && !view.noset;
+  $('csv').disabled = !ok;
+  $('csv').title = ok ? '' : (view?.noset && !lastErr ? S.csvNoSet : S.csvIdle);
+  $('colcount').textContent = ok ? plural(resGrid.cols.length, 'column') : '';
+  if (!ok) { $('rangeout').hidden = true; if (panelOpen) closePanel(); }
+  renderNotice();
+}
+function renderNotice() {
+  const n = $('notice'), lines = [];
+  const ok = view && !lastErr && !view.noset;
+  if (ok && view.truncated) lines.push(el('div', {className: 'l', textContent: 'ⓘ ' + S.truncated}));
+  if (ok && resGrid.sort) {
+    const s = resGrid.sort;
+    lines.push(el('div', {className: 'l'}, `ⓘ Sorted by ${resGrid.cols[s.col]} (${s.dir > 0 ? 'ascending' : 'descending'}).`,
+      el('button', {type: 'button', textContent: 'Clear sort', onclick: () => { resGrid.clearSort(); }})));
+  }
+  n.hidden = !lines.length; n.replaceChildren(...lines);
+  resGrid.queueCue();
+}
+
+function showResult(r, ms) {
+  lastErr = null;
+  view = {truncated: r.truncated, ms, noset: !r.columns.length};
+  resGrid.sel = -1;
+  if (view.noset) { resGrid.clear(); }
+  else {
+    if (selName && !r.columns.includes(selName)) { selName = null; closePanel(); }
+    resGrid.sel = selName ? r.columns.indexOf(selName) : -1;
+    resGrid.load(r.columns, r.rows);
+  }
+  paintResults();
+  const n = r.rows.length;
+  if (view.noset) setStatus('ok', 'Statement ran, no result set');
+  else {
+    const cap = r.truncated ? `1,000+ rows · ${ms} ms · showing the first 1,000` : `${plural(n, 'row')} · ${ms} ms`;
+    setStatus('ok', cap);
+  }
+  if (panelOpen) renderPanel();
+  chartReset();
+  if (!$('panel-chart').hidden) drawChart();
+}
+function showError(msg) {
+  lastErr = msg; selName = null;
+  paintResults();
+  setStatus('err', 'Query failed', `Query failed: ${stripDot(msg).split('\n')[0]}`);
+  if (!$('panel-chart').hidden) drawChart();
+}
+
+// ---------- column details panel (R12) ----------
+function selIdx() { return selName ? resGrid.cols.indexOf(selName) : -1; }
+function closePanel(restore) {
+  const had = panelOpen; panelOpen = false;
+  $('colpanel').hidden = true;
+  if (restore && had && selName) { const th = resGrid.cell(0, resGrid.cols.indexOf(selName)); th?.focus(); }
+}
+function openPanel(i) {
+  if (resGrid.cols[i] === undefined) return;
+  const moved = selName !== resGrid.cols[i];
+  selName = resGrid.cols[i];
+  resGrid.setSelected(i);
+  panelOpen = true; $('colpanel').hidden = false;
+  renderPanel();
+  $('cp-h').focus();
+  if (moved) { chartReset(); if (!$('panel-chart').hidden) drawChart(); }
+}
+function colStats(i) {
+  const rows = resGrid.orig, kind = resGrid.kinds[i];
+  const nn = rows.map(r => r[i]).filter(v => v !== null);
+  const counts = new Map();
+  for (const v of nn) { const k = rawOf(v); const e = counts.get(k); e ? e.n++ : counts.set(k, {n: 1, v}); }
+  return {rows, kind, nn, counts};
+}
+function renderPanel() {
+  const p = $('colpanel'), i = selIdx();
+  if (i < 0) { closePanel(); return; }
+  const name = resGrid.cols[i], {rows, kind, nn, counts} = colStats(i);
+  const total = rows.length, distinct = counts.size;
+  const kindLabel = hintOf(kind);
+  const f = n => n.toLocaleString('en-US');
+  const fmtV = v => cellInfo(v, kind, name).text;
+  const x = el('button', {className: 'x', type: 'button', onclick: () => closePanel(true)}, icon('x'));
+  x.setAttribute('aria-label', 'Close'); x.title = 'Close';
+  const h = el('h2', {id: 'cp-h', tabIndex: -1}, name, el('small', {textContent: `· ${kindLabel}`}));
+  h.setAttribute('aria-label', `Column details: ${name} · ${kindLabel}`);
+  const parts = [el('div', {className: 'ph'}, h, x)];
+  const dl = items => el('dl', {}, ...items.flatMap(([k, v]) => [el('dt', {textContent: k}), el('dd', {textContent: v})]));
+  let footer = view?.truncated ? 'Based on the first 1,000 rows. The result was capped, so this covers only those rows.' : `Based on ${plural(total, 'returned row')}.`.replace('returned row', 'returned row');
+  if (kind === 'unknown') {
+    parts.push(el('p', {textContent: 'No rows to describe.'}));
+    footer = 'Based on 0 returned rows.';
+  } else {
+    if (kind === 'mixed') {
+      const a = nn.filter(v => vkind(v) === 'number').length;
+      parts.push(el('p', {textContent: `Mixed: ${f(a)} numeric, ${f(nn.length - a)} text.`}));
+    }
+    parts.push(el('h3', {textContent: 'Counts'}), dl([['Non-null', f(nn.length)], ['Nulls', f(total - nn.length)], ['Distinct', f(distinct)]]));
+    if (kind === 'null') parts.push(el('p', {textContent: `Every value in ${name} is null, so there is nothing to summarize. Counts are shown above.`}));
+    else if (distinct === 1) parts.push(el('p', {textContent: `${name} has one distinct value: ${fmtV(counts.values().next().value.v)}.`}));
+    else {
+      const sortedVals = [...counts.values()];
+      if (kind === 'number' || kind === 'date') {
+        const key = kind === 'number' ? e => Number(e.v) : e => rawOf(e.v);
+        const asc = [...sortedVals].sort((a, b) => kind === 'number' ? key(a) - key(b) : collator.compare(key(a), key(b)));
+        const items = [['Min', fmtV(asc[0].v)], ['Max', fmtV(asc[asc.length - 1].v)]];
+        if (kind === 'number') {
+          const mean = nn.reduce((s, v) => s + Number(v), 0) / nn.length;
+          const ms = Math.abs(mean) >= 1 ? mean.toFixed(2) : String(Number(mean.toPrecision(4)));
+          items.push(['Mean', fmtNum(ms, idLike(name))]);
+        }
+        parts.push(el('h3', {textContent: 'Range'}), dl(items));
+      } else if (kind === 'json' || kind === 'mixed') {
+        parts.push(el('p', {textContent: 'Range and histogram are not available for this type. Counts and top values are shown.'}));
+      }
+      parts.push(el('h3', {textContent: 'Top values'}));
+      if (distinct === nn.length && distinct > 1) parts.push(el('p', {textContent: 'Every value is distinct, so no value repeats.'}));
+      else {
+        const top = sortedVals.sort((a, b) => b.n - a.n || collator.compare(rawOf(a.v), rawOf(b.v))).slice(0, 5);
+        const box = el('div', {className: 'top5'});
+        for (const t of top) {
+          const lab = cellInfo(t.v, kind, name).text;
+          const b = el('i', {className: 'b'}); b.style.width = (t.n / total * 100) + '%';
+          box.append(el('div', {}, el('span', {textContent: lab, title: lab}), el('span', {}, b), el('span', {textContent: f(t.n)})));
+        }
+        parts.push(box);
+        if (distinct > 5) parts.push(el('p', {className: 'foot', textContent: `${f(distinct - 5)} more values`}));
+      }
+      if (kind === 'number') parts.push(...histogram(name, nn.map(Number), fmtV, nn));
+    }
+  }
+  parts.push(el('p', {className: 'foot', textContent: footer}));
+  p.replaceChildren(...parts);
+  p.setAttribute('aria-labelledby', 'cp-h');
+}
+function histogram(name, nums, fmtV) {
+  const min = Math.min(...nums), max = Math.max(...nums);
+  if (min === max) return [];
+  const distinct = [...new Set(nums)].sort((a, b) => a - b);
+  let bins;
+  if (nums.every(Number.isInteger) && distinct.length <= 10) bins = distinct.map(v => ({lo: v, hi: v, n: 0}));
+  else { const w = (max - min) / 10; bins = Array.from({length: 10}, (_, i) => ({lo: min + w * i, hi: min + w * (i + 1), n: 0})); }
+  for (const v of nums) {
+    const k = bins.length === distinct.length && bins[0].lo === bins[0].hi ? distinct.indexOf(v) : Math.min(9, Math.floor((v - min) / ((max - min) / 10)));
+    bins[k].n++;
+  }
+  const top = Math.max(...bins.map(b => b.n)), fat = bins.find(b => b.n === top);
+  const fm = n => fmtNum(String(Number(n.toPrecision(6))), false);
+  const box = el('div', {className: 'hist'});
+  for (const b of bins) {
+    const i = el('i'); i.style.height = b.n ? Math.max(1, Math.round(b.n / top * 80)) + 'px' : '0';
+    i.title = `${fm(b.lo)} to ${fm(b.hi)}: ${b.n.toLocaleString('en-US')} rows`;
+    box.append(i);
+  }
+  box.setAttribute('role', 'img');
+  box.setAttribute('aria-label', `Histogram of ${name}: ${bins.length} bins from ${fm(min)} to ${fm(max)}. The fullest bin, ${fm(fat.lo)} to ${fm(fat.hi)}, has ${fat.n.toLocaleString('en-US')} rows.`);
+  return [box, el('div', {className: 'axis'}, el('span', {textContent: fm(min)}), el('span', {textContent: fm(max)}))];
+}
+
+// ---------- chart (R13) ----------
+const nums = () => resGrid.kinds.map((k, i) => k === 'number' ? i : -1).filter(i => i >= 0);
+function chartReset() {
+  const k = resGrid.kinds, cols = resGrid.cols;
+  if (!cols.length) return;
+  const n = nums(), sel = selIdx();
+  const non = cols.map((_, i) => i).filter(i => k[i] !== 'number');
+  const firstNon = non.find(i => k[i] === 'date') ?? non[0] ?? -1;
+  let x, y;
+  if (sel >= 0 && k[sel] === 'number') { y = sel; x = firstNon; }
+  else if (sel >= 0) { x = sel; y = n[0] ?? -1; }
+  else { x = firstNon; y = n.find(i => i !== x) ?? n[0] ?? -1; }
+  const type = x >= 0 && k[x] === 'date' && resGrid.rows.length >= 3 ? 'line' : 'bar';
+  $('ctype').value = type;
+  fillChartSelects(x, y);
+}
+function fillChartSelects(x, y) {
+  const cols = resGrid.cols, n = nums(), type = $('ctype').value;
+  const xs = (type === 'scatter' ? n : cols.map((_, i) => i)).map(i => new Option(cols[i], i));
+  if (type !== 'scatter') xs.push(new Option('Row number', -1));
+  $('cx').replaceChildren(...xs);
+  $('cy').replaceChildren(...n.map(i => new Option(cols[i], i)));
+  const xv = xs.some(o => +o.value === x) ? x : (+xs[0]?.value ?? -1);
+  $('cx').value = String(xv);
+  if (y >= 0) $('cy').value = String(y);
+  const sc = [...$('ctype').options].find(o => o.value === 'scatter');
+  sc.disabled = n.length < 2; sc.title = n.length < 2 ? 'Scatter needs a second numeric column for X.' : '';
+}
+function chartEmpty(msg) {
+  chart?.destroy(); chart = null;
+  $('chartempty').textContent = msg; $('chartempty').hidden = false; $('cbox').hidden = true;
+  $('chartcap').replaceChildren();
+  for (const id of ['ctype', 'cx', 'cy']) $(id).disabled = true;
+}
+function drawChart() {
+  chart?.destroy(); chart = null;
+  const g = resGrid;
+  if (typeof Chart === 'undefined') return chartEmpty(S.chartMissing);
+  if (lastErr) return chartEmpty(S.chartErr);
+  if (!view) return chartEmpty('Run a query to chart its result.');
+  if (view.noset) return chartEmpty('This statement returned no result set, so there is nothing to chart.');
+  if (!g.rows.length) return chartEmpty('The result has no rows, so there is nothing to chart.');
+  if (!nums().length) return chartEmpty('No numeric column to plot. Pick a query that returns at least one number, such as a count or total.');
+  if (!$('cy').options.length) chartReset();
+  const type = $('ctype').value, xi = +$('cx').value, yi = +$('cy').value;
+  const yname = g.cols[yi], xname = xi < 0 ? 'Row number' : g.cols[xi];
+  const yvals = g.rows.map(r => r[yi] === null ? null : Number(r[yi]));
+  if (yvals.every(v => v === null)) return chartEmpty(`Every ${yname} value is null, so there is nothing to plot. Pick another column for Y.`);
+  for (const id of ['ctype', 'cx', 'cy']) $(id).disabled = false;
+  $('chartempty').hidden = true; $('cbox').hidden = false;
+  const css = getComputedStyle(document.documentElement), v = n => css.getPropertyValue(n).trim();
+  const ink = v('--text-muted'), axis = v('--border-control'), rule = v('--rule'), bg = v('--background'), data1 = v('--data-1');
+  const font = {family: v('--font-ui'), size: 12};
+  const xlabel = (row, i) => xi < 0 ? String(i + 1) : cellInfo(row[xi], g.kinds[xi], g.cols[xi]).text;
+  const labels = g.rows.map(xlabel);
+  const ytxt = n => fmtNum(String(n), false);
+  const nullY = yvals.filter(v => v === null).length;
+  let dataset, plotted;
+  if (type === 'scatter') {
+    const pts = g.rows.map((r, i) => (yvals[i] === null || r[xi] === null) ? null : {x: Number(r[xi]), y: yvals[i]}).filter(Boolean);
+    plotted = pts.length;
+    dataset = {data: pts, backgroundColor: data1, borderColor: bg, borderWidth: 1, pointRadius: 4, pointHoverRadius: 5};
+  } else if (type === 'line') {
+    plotted = yvals.length - nullY;
+    dataset = {data: yvals, borderColor: data1, backgroundColor: data1, borderWidth: 2, pointRadius: 3, pointBackgroundColor: data1, pointBorderColor: bg, pointBorderWidth: 1, tension: 0, spanGaps: false};
+  } else {
+    plotted = yvals.length - nullY;
+    dataset = {data: yvals, backgroundColor: data1, borderRadius: 0, borderSkipped: false, maxBarThickness: 56};
+  }
+  const present = yvals.filter(v => v !== null);
+  const yscale = {grid: {color: rule}, border: {color: axis}, ticks: {color: ink, font, callback: val => ytxt(val)}, title: {display: true, text: yname, color: ink, font}};
+  if (type === 'bar') { const lo = Math.min(0, ...present), hi = Math.max(0, ...present); yscale.min = lo; yscale.max = hi === lo ? 1 : hi; yscale.grace = 0; }
+  const xscale = type === 'scatter'
+    ? {type: 'linear', grid: {color: rule}, border: {color: axis}, ticks: {color: ink, font, callback: val => ytxt(val)}, title: {display: true, text: xname, color: ink, font}}
+    : {type: 'category', grid: {display: false}, border: {color: axis}, ticks: {color: ink, font, maxRotation: 0, autoSkip: true}, title: {display: true, text: xname, color: ink, font}};
+  chart = new Chart($('chart'), {
+    type, data: {labels: type === 'scatter' ? undefined : labels, datasets: [{label: yname, ...dataset}]},
+    options: {
+      maintainAspectRatio: false, animation: {duration: reduced.matches ? 0 : 150},
+      interaction: {mode: type === 'scatter' ? 'nearest' : 'index', intersect: false},
+      plugins: {
+        legend: {display: false}, title: {display: false},
+        tooltip: {backgroundColor: bg, titleColor: v('--text'), bodyColor: v('--text-secondary'), borderColor: v('--border'), borderWidth: 1, padding: 8, cornerRadius: 4, titleFont: font, bodyFont: font, displayColors: false,
+          callbacks: type === 'scatter' ? {label: c => `${xname}: ${ytxt(c.parsed.x)}, ${yname}: ${ytxt(c.parsed.y)}`} : {label: c => `${yname}: ${ytxt(c.parsed.y)}`}},
+      },
+      scales: {x: xscale, y: yscale},
+    },
+  });
+  $('chart').setAttribute('aria-label', `${yname} by ${xname}. The values are listed in the Results tab.`);
+  // caption (HTML, live region)
+  const sort = g.sort ? ` · sorted by ${g.cols[g.sort.col]} (${g.sort.dir > 0 ? 'ascending' : 'descending'})` : '';
+  const cap = [el('div', {textContent: (view.truncated ? `${yname} by ${xname} · first 1,000 rows plotted. The result was capped.` : `${yname} by ${xname} · ${plural(plotted, 'row')} plotted`) + sort})];
+  if (type !== 'scatter' && new Set(labels).size < labels.length) cap.push(el('div', {textContent: `${xname} repeats across rows. Use GROUP BY in SQL for one bar per value.`}));
+  if (nullY) cap.push(el('div', {textContent: `${plural(nullY, 'row')} with no ${yname} value not plotted.`}));
+  const lo = chart.scales.y.min;
+  if (type !== 'bar' && lo > 0) cap.push(el('div', {textContent: `Y axis starts at ${ytxt(lo)}, not zero.`}));
+  $('chartcap').replaceChildren(...cap);
+}
+$('ctype').onchange = () => { fillChartSelects(+$('cx').value, +$('cy').value); drawChart(); };
+$('cx').onchange = $('cy').onchange = drawChart;
+
+// ---------- profile (R14) ----------
+async function loadProfile(name, prof) {
+  profTable = name;
+  $('tab-profile').textContent = name ? `Profile: ${name}` : 'Profile';
+  const sc = $('profscope');
+  if (!name) { sc.hidden = true; profGrid.clear(); stateBox($('gridprof'), 'Select a table to profile it.'); return; }
+  sc.hidden = true; profGrid.clear(); stateBox($('gridprof'), 'Profiling table...');
+  try {
+    const p = prof || await api('/profile?table=' + encodeURIComponent(name));
+    if (profTable !== name) return;
+    const ci = p.columns.indexOf('count');
+    const rowsN = p.rows.length ? Number(p.rows[0][ci]) : 0;
+    sc.textContent = `Whole table · ${rowsN.toLocaleString('en-US')} rows · ${plural(p.rows.length, 'column')}. Computed by the server, not from your query result.`;
+    sc.hidden = false;
+    const kinds = p.columns.map((c, i) => (c === 'column_name' || c === 'column_type' || c === 'min' || c === 'max') ? 'text' : colKind(p.rows, i));
+    profGrid.o.leftCols = [];
+    profGrid.load(p.columns, p.rows, kinds);
+  } catch (err) {
+    if (profTable !== name) return;
+    stateBox($('gridprof'), `Could not profile ${name}. ${stripDot(err.message)}. Try again, or choose another table.`);
+  }
+}
+
+// ---------- tables / explorer (R4) ----------
 const colCache = new Map(), expanded = new Set();
+let tablesState = 'loading', tablesErr = '';
 const shortType = t => t.replace(/\(.*\)/, '');
 const colRef = c => /^[A-Za-z_]\w*$/.test(c) ? c : `"${c.replace(/"/g, '""')}"`;
-
 async function columnsOf(name) {
   if (!colCache.has(name)) colCache.set(name, api('/profile?table=' + encodeURIComponent(name)).then(p => p.rows.map(r => [r[0], r[1]])));
   try { return await colCache.get(name); } catch (err) { colCache.delete(name); throw err; }
 }
-
-function tableButton(name) {
+function tableItem(name) {
   const [schema, base] = name.includes('.') ? name.split('.') : ['', name];
-  const open = el('button', {onclick: () => openTable(name)}, el('span', {className: 'name', title: `${name} · click to preview`, textContent: base}));
+  const open = el('button', {type: 'button', className: 'tn', onclick: () => openTable(name)}, el('span', {className: 'name', textContent: base}));
+  open.title = `${name} · click to preview`; open.dataset.table = name; open.dataset.nav = '1';
   const type = schema === 'demo' && DEMO_TYPES[base];
   if (type) open.append(el('span', {className: 'badge', textContent: type}));
-  open.dataset.table = name;
   if (name === current) open.setAttribute('aria-current', 'true');
-  const exp = el('button', {className: 'exp', title: 'Show columns'}, icon('chev'));
-  exp.setAttribute('aria-label', `Show columns of ${name}`);
-  exp.setAttribute('aria-expanded', 'false');
+  const exp = el('button', {type: 'button', className: 'exp', title: 'Show columns'}, icon('chev'));
+  exp.setAttribute('aria-label', `Show columns of ${name}`); exp.setAttribute('aria-expanded', 'false'); exp.dataset.nav = '1';
   const cols = el('ul', {className: 'cols', hidden: true});
   const toggle = async on => {
     exp.setAttribute('aria-expanded', on); cols.hidden = !on;
     on ? expanded.add(name) : expanded.delete(name);
     if (!on || cols.childElementCount) return;
-    cols.replaceChildren(el('li', {className: 'empty-note', textContent: 'Loading…'}));
+    cols.replaceChildren(el('li', {className: 'note', textContent: 'Loading...'}));
     try {
-      cols.replaceChildren(...(await columnsOf(name)).map(([c, t]) => el('li', {}, el('button', {
-        title: `${c} ${t} · click to insert`, onclick: () => insertSql(colRef(c)),
-      }, el('span', {className: 'col', textContent: c}), el('span', {className: 'type', textContent: shortType(t)})))));
-    } catch (err) { cols.replaceChildren(el('li', {className: 'empty-note', textContent: err.message})); }
+      cols.replaceChildren(...(await columnsOf(name)).map(([c, t]) => {
+        const b = el('button', {type: 'button', title: `${c} ${t} · click to insert`, onclick: () => insertSql(colRef(c))}, el('span', {className: 'col', textContent: c}), el('span', {className: 'type', textContent: shortType(t)}));
+        b.dataset.nav = '1';
+        return el('li', {}, b);
+      }));
+    } catch (err) { cols.replaceChildren(el('li', {className: 'note err', textContent: `Could not load columns for ${name}. ${stripDot(err.message)}. Click the table again to retry.`})); }
   };
   exp.onclick = () => toggle(exp.getAttribute('aria-expanded') !== 'true');
+  open.addEventListener('click', () => { if (exp.getAttribute('aria-expanded') === 'true' && cols.querySelector('.err')) { cols.replaceChildren(); toggle(true); } });
   if (expanded.has(name)) toggle(true);
-  return el('li', {}, el('div', {className: 'trow'}, exp, open), cols);
+  const li = el('li', {}, el('div', {className: 'trow'}, exp, open), cols);
+  li._toggle = toggle;
+  return li;
 }
-
 function renderTableLists() {
   const q = $('filter').value.trim().toLowerCase();
   const match = n => !q || n.toLowerCase().includes(q);
-  const demo = tableNames.filter(n => n.startsWith('demo.'));
-  const mine = tableNames.filter(n => !n.startsWith('demo.'));
-  $('democount').textContent = demo.length;
-  $('minecount').textContent = mine.length;
-  const shownDemo = demo.filter(match), shownMine = mine.filter(match);
-  $('demo').replaceChildren(...(shownDemo.length ? shownDemo.map(tableButton) : [el('li', {className: 'empty-note', textContent: 'No matches.'})]));
-  $('tables').replaceChildren(...(shownMine.length ? shownMine.map(tableButton)
-    : [el('li', {className: 'empty-note', textContent: q && mine.length ? 'No matches.' : user ? 'Nothing yet. Drop a file above to add one.' : 'Log in to upload and keep your own tables.'})]));
+  const demo = tableNames.filter(n => n.startsWith('demo.')), mine = tableNames.filter(n => !n.startsWith('demo.'));
+  $('democount').textContent = demo.length; $('minecount').textContent = mine.length;
+  const note = (t, cls) => [el('li', {className: 'note' + (cls ? ' ' + cls : ''), textContent: t})];
+  if (tablesState === 'loading') { $('demo').replaceChildren(...note('Loading tables...')); $('tables').replaceChildren(); return; }
+  if (tablesState === 'error') { $('demo').replaceChildren(...note(`Could not load tables. ${stripDot(tablesErr)}. Reload the page to try again.`, 'err')); $('tables').replaceChildren(); return; }
+  const sd = demo.filter(match), sm = mine.filter(match);
+  const none = `No matches for '${$('filter').value.trim()}'. Clear the search to see all tables.`;
+  $('demo').replaceChildren(...(sd.length ? sd.map(tableItem) : note(none)));
+  $('tables').replaceChildren(...(sm.length ? sm.map(tableItem)
+    : note(q && mine.length ? none : user ? 'Nothing yet. Drop a file above to add one.' : 'Sign up to upload and keep your own tables.')));
 }
-
 async function loadTables() {
-  tableNames = await api('/tables');
-  for (const k of colCache.keys()) if (!k.startsWith('demo.')) colCache.delete(k);
+  try {
+    tableNames = await api('/tables'); tablesState = 'ok';
+    for (const k of colCache.keys()) if (!k.startsWith('demo.')) colCache.delete(k);
+  } catch (err) { tablesState = 'error'; tablesErr = err.message; }
   renderTableLists();
 }
-
 function markCurrent(name) {
   current = name;
-  for (const b of document.querySelectorAll('.list button[data-table]'))
-    b.dataset.table === name ? b.setAttribute('aria-current', 'true') : b.removeAttribute('aria-current');
+  for (const b of document.querySelectorAll('button[data-table]')) b.dataset.table === name ? b.setAttribute('aria-current', 'true') : b.removeAttribute('aria-current');
 }
-
 async function openTable(name, prof) {
   markCurrent(name);
-  $('tab-profile').textContent = `Profile · ${name}`;
-  setSql(`SELECT * FROM ${ident(name)} LIMIT 100`);
-  const p = prof ? Promise.resolve(prof) : api('/profile?table=' + encodeURIComponent(name));
-  run();
-  try { renderGrid($('panel-profile'), await p); } catch (err) { $('panel-profile').replaceChildren(el('div', {className: 'empty', textContent: err.message})); }
+  replaceSql(`SELECT * FROM ${ident(name)} LIMIT 100`);
+  const p = loadProfile(name, prof);
+  await run();
+  await p;
 }
+$('filter').oninput = renderTableLists;
+// arrow-key movement through the explorer
+$('explorer').addEventListener('keydown', e => {
+  const t = e.target.closest('button[data-nav]'); if (!t) return;
+  const all = [...$('explorer').querySelectorAll('button[data-nav]')].filter(b => b.offsetParent);
+  const i = all.indexOf(t);
+  if (e.key === 'ArrowDown') { e.preventDefault(); all[Math.min(all.length - 1, i + 1)]?.focus(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); all[Math.max(0, i - 1)]?.focus(); }
+  else if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && t.classList.contains('tn')) {
+    e.preventDefault(); t.closest('li')._toggle(e.key === 'ArrowRight');
+  }
+});
 
-// ---------- editor ----------
+// ---------- editor (R8) ----------
 function syncGutter() {
-  const n = $('sql').value.split('\n').length;
-  $('gutter').textContent = Array.from({length: n}, (_, i) => i + 1).join('\n');
-  $('gutter').scrollTop = $('sql').scrollTop;
+  const n = $('sql').value.split('\n').length, g = $('gutter');
+  g.textContent = Array.from({length: n}, (_, i) => i + 1).join('\n');
+  g.style.transform = `translateY(${-$('sql').scrollTop}px)`;
 }
 function setSql(v) { $('sql').value = v; syncGutter(); }
+function replaceSql(text) {
+  const t = $('sql'), prev = t.value, a = t.selectionStart, b = t.selectionEnd;
+  const dirty = prev.trim() !== '' && prev !== lastRunSql && prev !== text;
+  setSql(text);
+  if (dirty) toast('Worksheet replaced', {ms: 8000, action: {label: 'Undo', fn: () => { setSql(prev); t.focus(); t.setSelectionRange(a, b); toast('Previous SQL restored.'); }}});
+}
 function insertSql(text) {
   const t = $('sql');
-  t.focus();
-  t.setRangeText(text, t.selectionStart, t.selectionEnd, 'end');
-  syncGutter();
+  t.focus(); t.setRangeText(text, t.selectionStart, t.selectionEnd, 'end'); syncGutter();
 }
 $('sql').addEventListener('input', syncGutter);
-$('sql').addEventListener('scroll', () => { $('gutter').scrollTop = $('sql').scrollTop; });
+$('sql').addEventListener('scroll', syncGutter);
+try { const h = pref('cloudstone.editorH'); if (h) $('sql').style.height = h; } catch {}
+if (window.ResizeObserver) {
+  let ro0 = true;
+  new ResizeObserver(() => { if (ro0) { ro0 = false; return; } pref('cloudstone.editorH', $('sql').style.height); syncGutter(); }).observe($('sql'));
+}
 
-// ---------- query & results ----------
+// ---------- history (R6) ----------
+const memHist = {};
+let hist = [], sessionOnly = false;
+const histKey = () => 'cloudstone.history:' + (user || '');
+function histLoad() {
+  try { const s = localStorage.getItem(histKey()); hist = s ? JSON.parse(s) : []; if (!Array.isArray(hist)) hist = []; sessionOnly = false; }
+  catch { hist = memHist[histKey()] || []; sessionOnly = true; }
+  renderHistory();
+}
+function histSave() {
+  memHist[histKey()] = hist;
+  try { localStorage.setItem(histKey(), JSON.stringify(hist)); } catch { sessionOnly = true; }
+}
+function addHistory(entry) {
+  hist.unshift({...entry, sql: entry.sql.slice(0, 20000), t: Date.now()});
+  hist = hist.slice(0, 100);
+  histSave(); renderHistory();
+}
+function ago(t) {
+  const s = (Date.now() - t) / 1000;
+  if (s < 45) return 'just now';
+  if (s < 3600) return Math.round(s / 60) + ' min ago';
+  if (s < 86400) return Math.round(s / 3600) + ' h ago';
+  return new Date(t).toLocaleDateString(undefined, {month: 'short', day: 'numeric'});
+}
+let hActive = 0;
+function renderHistory() {
+  $('hcount').textContent = hist.length;
+  $('stab-history').setAttribute('aria-label', `History, ${plural(hist.length, 'run')}`);
+  $('hclear').disabled = !hist.length;
+  $('hclear').title = hist.length ? '' : 'Nothing to clear yet.';
+  const note = $('hnote');
+  note.hidden = !(sessionOnly || !user);
+  note.textContent = sessionOnly ? 'History is not saved in this browser, so it lasts only until you close this page. Free up browser storage to keep it.'
+    : 'Showing history for logged-out use in this browser. Log in to see your own history.';
+  note.className = 'note' + (sessionOnly ? ' err' : '');
+  const list = $('hlist');
+  if (!hist.length) { list.replaceChildren(el('div', {className: 'empty-rules', textContent: 'Queries you run appear here. Your last 100 runs are kept in this browser.'})); return; }
+  hActive = Math.min(hActive, hist.length - 1);
+  list.replaceChildren(...hist.map((h, i) => {
+    const when = ago(h.t);
+    const first = h.ask ? `Asked: ${h.ask}` : h.sql.split('\n').find(l => l.trim()) || h.sql;
+    const li = el('div', {className: 'hrow', tabIndex: i === hActive ? 0 : -1});
+    li.setAttribute('role', 'listitem'); li.dataset.i = i;
+    const load = el('button', {type: 'button', tabIndex: -1, textContent: 'Load', onclick: ev => { ev.stopPropagation(); loadHist(i, false); }});
+    load.setAttribute('aria-label', `Load query from ${when}`);
+    const rerun = el('button', {type: 'button', tabIndex: -1, textContent: 'Rerun', onclick: ev => { ev.stopPropagation(); loadHist(i, true); }});
+    rerun.setAttribute('aria-label', `Rerun query from ${when}`);
+    const fig = h.ok ? `${plural(h.rows, 'row')} · ${h.ms} ms` : `${h.ms} ms`;
+    li.append(
+      el('div', {className: 'q' + (h.ask ? ' ask' : ''), textContent: first, title: h.sql}),
+      el('div', {className: 'm'}, el('span', {textContent: when}), el('span', {textContent: '·'}), el('span', {className: 'f', textContent: fig}), el('span', {textContent: '·'}),
+        el('span', {className: h.ok ? 'ok-t' : 'er-t', textContent: h.ok ? '✓ OK' : '✗ Error'}), el('span', {className: 'acts'}, load, rerun)));
+    return li;
+  }));
+}
+function loadHist(i, andRun) {
+  const h = hist[i]; if (!h) return;
+  replaceSql(h.sql);
+  if (andRun) { markCurrent(null); run(); selectTab('result'); } else $('sql').focus();
+}
+$('hlist').addEventListener('click', e => { const r = e.target.closest('.hrow'); if (r) { hActive = +r.dataset.i; loadHist(hActive, false); } });
+$('hlist').addEventListener('keydown', e => {
+  const r = e.target.closest('.hrow'); if (!r || e.target !== r) return;
+  const rows = [...$('hlist').querySelectorAll('.hrow')], i = +r.dataset.i;
+  const mv = n => { e.preventDefault(); n = Math.max(0, Math.min(rows.length - 1, n)); rows[i].tabIndex = -1; rows[n].tabIndex = 0; hActive = n; rows[n].focus(); };
+  if (e.key === 'ArrowDown') mv(i + 1); else if (e.key === 'ArrowUp') mv(i - 1);
+  else if (e.key === 'Home') mv(0); else if (e.key === 'End') mv(rows.length - 1);
+  else if (e.key === 'Enter') { e.preventDefault(); loadHist(i, e.metaKey || e.ctrlKey); }
+});
+function setConfirm(on) { $('hconfirm').hidden = !on; if (on) $('hclear-no').focus(); }
+$('hclear').onclick = () => setConfirm(true);
+$('hclear-no').onclick = () => { setConfirm(false); $('hclear').focus(); };
+$('hclear-yes').onclick = () => { hist = []; histSave(); setConfirm(false); renderHistory(); toast('History cleared.'); $('hclear').focus(); };
+
+// sidebar view switch
+function selectSide(name, focus) {
+  for (const t of ['explorer', 'history']) {
+    const on = t === name, tab = $('stab-' + t);
+    tab.setAttribute('aria-selected', on); tab.tabIndex = on ? 0 : -1; $('sp-' + t).hidden = !on;
+    if (on && focus) tab.focus();
+  }
+  if (name === 'history') renderHistory(); else setConfirm(false);
+}
+for (const t of ['explorer', 'history']) $('stab-' + t).onclick = () => selectSide(t);
+$('sidetabs').onkeydown = e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') selectSide($('stab-explorer').getAttribute('aria-selected') === 'true' ? 'history' : 'explorer', true);
+};
+
+// examples
+function setExamples(open) {
+  $('examples').hidden = !open; $('extoggle').setAttribute('aria-expanded', open); $('extoggle').closest('.region').classList.toggle('closed', !open);
+}
+$('extoggle').onclick = () => { const open = $('examples').hidden; setExamples(open); pref('cloudstone.examples', open ? 'open' : 'closed'); };
+$('examples').replaceChildren(...EXAMPLES.map(([label, sub, sql]) => el('li', {}, el('button', {
+  type: 'button', onclick: () => { markCurrent(null); loadProfile(null); replaceSql(sql); run(); selectTab('result'); },
+}, el('span', {textContent: label}), el('span', {className: 'sub', textContent: sub})))));
+
+// ---------- run (R8) ----------
+function setRunBusy(kind) {
+  const run = $('run'), ask = $('askbtn');
+  running = !!kind;
+  run.firstChild.textContent = kind === 'run' ? 'Cancel ' : 'Run ';
+  run.querySelector('kbd').hidden = kind === 'run';
+  run.setAttribute('aria-busy', kind === 'run'); ask.setAttribute('aria-busy', kind === 'ask');
+  ask.textContent = kind === 'ask' ? 'Cancel' : 'Ask';
+  run.disabled = kind === 'ask'; ask.disabled = kind === 'run';
+  $('gridres').classList.toggle('busy', kind === 'run' && !!view && !lastErr);
+  $('gridres').setAttribute('aria-busy', kind === 'run');
+}
+function cancelInflight() {
+  if (!inflight) return false;
+  inflight.ctrl.abort(); return true;
+}
 async function run() {
+  if (inflight) { if (inflight.kind === 'run') cancelInflight(); return; }
   const sql = $('sql').value.trim();
   if (!sql) { $('sql').focus(); return; }
-  const t0 = performance.now();
-  show($('qmsg'), 'Running…', 'status');
-  await busy($('run'), async () => {
-    try {
-      showResult(await post('/query', {sql}), t0);
-      loadTables();
-    } catch (err) {
-      show($('qmsg'), err.message, 'status err');
+  const ctrl = new AbortController(), t0 = performance.now();
+  inflight = {kind: 'run', ctrl};
+  lastRunSql = $('sql').value;
+  setRunBusy('run');
+  setStatus('busy', S.running);
+  if (!view || lastErr) { view = null; lastErr = null; paintResults(); }
+  try {
+    const r = await post('/query', {sql}, ctrl.signal);
+    const ms = Math.round(performance.now() - t0);
+    showResult(r, ms);
+    addHistory({sql, ok: true, rows: r.rows.length, ms});
+    loadTables();
+  } catch (err) {
+    const ms = Math.round(performance.now() - t0);
+    if (err.name === 'AbortError') {
+      setStatus('busy', S.cancelled);
+      if (!view && !lastErr) paintResults();
+    } else {
+      const msg = isNet(err) ? 'Could not reach Cloudstone. Check that the server is running' : err.message;
+      showError(msg); addHistory({sql, ok: false, rows: 0, ms});
     }
-  });
+  } finally {
+    inflight = null; setRunBusy(null);
+    if (view && !lastErr) $('gridres').classList.remove('busy');
+  }
 }
+$('run').onclick = run;
+if (!/Mac|iPhone|iPad/.test(navigator.platform)) $('runkey').textContent = 'Ctrl ↵';
 
-function showResult(r, t0) {
-  last = r;
-  const n = r.rows.length;
-  show($('qmsg'), `${n.toLocaleString()}${r.truncated ? '+' : ''} row${n === 1 ? '' : 's'} · ${Math.round(performance.now() - t0)} ms${r.truncated ? ' · showing the first 1,000' : ''}`, 'status ok');
-  $('outmeta').textContent = r.columns.length ? `${r.columns.length} column${r.columns.length === 1 ? '' : 's'}` : '';
-  $('csv').disabled = !r.columns.length;
-  renderGrid($('panel-result'), r);
-  setupChart(r);
-}
-
+// ---------- CSV ----------
 function downloadCsv() {
-  if (!last?.columns.length) return;
+  if (!resGrid.cols.length || lastErr) return;
   const cell = v => {
     if (v === null) return '';
     let s = typeof v === 'object' ? JSON.stringify(v) : String(v);
     if (typeof v === 'string' && /^[=+\-@]/.test(s)) s = "'" + s;  // keep spreadsheets from running it as a formula
     return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
-  const csv = [last.columns, ...last.rows].map(r => r.map(cell).join(',')).join('\r\n');
+  const csv = [resGrid.cols, ...resGrid.rows].map(r => r.map(cell).join(',')).join('\r\n');
   const a = el('a', {href: URL.createObjectURL(new Blob([csv], {type: 'text/csv'})), download: (current || 'query').replace(/\W+/g, '_') + '.csv'});
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
+$('csv').onclick = downloadCsv;
 
-// ---------- chart ----------
-function setupChart(r) {
-  const nums = r.columns.map((_, i) => i).filter(i => r.rows.some(row => row[i] !== null) && r.rows.every(row => row[i] === null || isNumeric(row[i])));
-  const opts = r.columns.map((c, i) => new Option(c, i));
-  $('cx').replaceChildren(...opts.map(o => o.cloneNode(true)));
-  $('cy').replaceChildren(...opts.filter(o => nums.includes(+o.value)));
-  const x = Math.max(0, r.columns.findIndex((_, i) => !nums.includes(i)));
-  const y = nums.find(i => i !== x) ?? nums[0];
-  $('cx').value = x;
-  if (y !== undefined) $('cy').value = y;
-  const looksTemporal = /date|month|day|week|year|hour|time|^ts$/i.test(r.columns[x] || '') || r.rows.slice(0, 5).every(row => /^\d{4}-\d{2}/.test(row[x] ?? ''));
-  $('ctype').value = looksTemporal && r.rows.length > 2 ? 'line' : 'bar';
-  if (!$('panel-chart').hidden) drawChart();
-}
-
-function drawChart() {
-  chart?.destroy(); chart = null;
-  const r = last, empty = $('chartempty'), box = document.querySelector('.chart-box');
-  const why = !r ? 'Run a query to chart its result.' : !r.rows.length ? 'The result has no rows.' : $('cy').options.length ? '' : 'The result has no numeric column to plot.';
-  empty.hidden = !why; box.hidden = !!why;
-  if (why) { empty.replaceChildren(el('strong', {textContent: 'Nothing to chart'}), el('span', {textContent: why})); return; }
-  const css = getComputedStyle(document.documentElement), v = n => css.getPropertyValue(n).trim();
-  const x = +$('cx').value, y = +$('cy').value, type = $('ctype').value;
-  const color = v('--series-1'), grid = v('--border'), ink = v('--text-3'), surface = v('--surface');
-  const font = {family: 'Inter, ui-sans-serif, system-ui, sans-serif', size: 12};
-  const label = c => typeof c === 'object' && c !== null ? JSON.stringify(c) : c ?? 'null';
-  const dataset = type === 'scatter'
-    ? {data: r.rows.map(row => ({x: +row[x], y: +row[y]})), backgroundColor: color, borderColor: surface, borderWidth: 2, pointRadius: 5, pointHoverRadius: 6}
-    : type === 'line'
-      ? {data: r.rows.map(row => +row[y]), borderColor: color, backgroundColor: color, borderWidth: 2, pointRadius: 4, pointHoverRadius: 5, pointBorderColor: surface, pointBorderWidth: 2, tension: 0}
-      : {data: r.rows.map(row => +row[y]), backgroundColor: color, borderRadius: 4, borderSkipped: 'start', maxBarThickness: 56};
-  chart = new Chart($('chart'), {
-    type,
-    data: {labels: type === 'scatter' ? undefined : r.rows.map(row => label(row[x])), datasets: [{label: r.columns[y], ...dataset}]},
-    options: {
-      maintainAspectRatio: false, animation: {duration: matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 300},
-      interaction: {mode: type === 'scatter' ? 'nearest' : 'index', intersect: false},
-      plugins: {
-        legend: {display: false},
-        title: {display: true, text: `${r.columns[y]} by ${r.columns[x]}`, align: 'start', color: v('--text-2'), font: {...font, size: 13, weight: '600'}, padding: {bottom: 12}},
-        tooltip: {backgroundColor: v('--surface'), titleColor: v('--text'), bodyColor: v('--text-2'), borderColor: v('--border-strong'), borderWidth: 1, padding: 10, cornerRadius: 8, titleFont: font, bodyFont: font, displayColors: false},
-      },
-      scales: {
-        x: {type: type === 'scatter' ? 'linear' : 'category', grid: {display: type === 'scatter', color: grid}, border: {color: grid}, ticks: {color: ink, font, maxRotation: 0, autoSkip: true}, title: {display: true, text: r.columns[x], color: ink, font}},
-        y: {beginAtZero: type === 'bar', grid: {color: grid}, border: {display: false}, ticks: {color: ink, font}, title: {display: true, text: r.columns[y], color: ink, font}},
-      },
-    },
-  });
-  $('chart').setAttribute('aria-label', `${type} chart of ${r.columns[y]} by ${r.columns[x]}; the Results tab has the same data as a table`);
-}
-
-// ---------- tabs ----------
+// ---------- tabs (R9) ----------
 const TABS = ['result', 'chart', 'profile'];
 function selectTab(name, focus) {
   for (const t of TABS) {
@@ -773,167 +1550,219 @@ function selectTab(name, focus) {
     $('panel-' + t).hidden = !on;
     if (on && focus) tab.focus();
   }
-  $('csv').hidden = name === 'profile';
-  $('outmeta').hidden = name === 'profile';
-  if (name === 'chart') drawChart();
+  const prof = name === 'profile';
+  $('csv').hidden = prof; $('colcount').hidden = prof;
+  if (name !== 'result') { closePop(); $('rangeout').hidden = true; }
+  else resGrid.queueCue();
+  if (name === 'chart') { if (!$('cy').options.length && view && !view.noset) chartReset(); drawChart(); }
+  if (name === 'profile') profGrid.queueCue();
 }
 for (const t of TABS) $('tab-' + t).onclick = () => selectTab(t);
-document.querySelector('.tabs').onkeydown = e => {
+$('outtabs').onkeydown = e => {
   const i = TABS.findIndex(t => $('tab-' + t).getAttribute('aria-selected') === 'true');
-  if (e.key === 'ArrowRight') selectTab(TABS[(i + 1) % TABS.length], true);
-  if (e.key === 'ArrowLeft') selectTab(TABS[(i + TABS.length - 1) % TABS.length], true);
+  if (e.key === 'ArrowRight') selectTab(TABS[(i + 1) % 3], true);
+  if (e.key === 'ArrowLeft') selectTab(TABS[(i + 2) % 3], true);
 };
 
-// ---------- ask ----------
-async function ask(question) {
-  if (!question.trim()) { $('question').focus(); return; }
-  const t0 = performance.now();
-  show($('explain'), 'Claude is writing a query…', 'explain');
-  await busy($('askbtn'), async () => {
-    try {
-      const j = await post('/ask', {question});
-      setSql(j.sql);
-      show($('explain'), j.explanation, 'explain');
-      if (j.error) { show($('qmsg'), j.error, 'status err'); }
-      else if (j.sql) { showResult(j, t0); selectTab('result'); }
-    } catch (err) {
-      show($('explain'), err.message, 'explain err');
-    }
-  });
+// ---------- ask (R7) ----------
+let askMode = 'off';
+function askReason(msg) {
+  if (/isn't installed|not on PATH/i.test(msg)) return 'Ask could not start Claude Code. It is not installed or not on the PATH. Install it, run `claude` once to log in, then ask again.';
+  if (/API key|ANTHROPIC_API_KEY/i.test(msg)) return 'Ask could not reach the Claude API. The API key is missing or was refused. Set ANTHROPIC_API_KEY, restart the server, then ask again.';
+  if (/3 minutes/i.test(msg)) return 'Ask stopped after 3 minutes, before Claude finished writing a query. Ask a narrower question, or write the SQL yourself.';
+  if (/declined/i.test(msg)) return 'Claude declined to answer that question. Rephrase it, or write the SQL yourself in the worksheet.';
+  if (/cut off/i.test(msg)) return "Claude's answer was cut off before it finished. Ask a simpler question.";
+  if (/rate limit/i.test(msg)) return 'Ask has reached the Claude API rate limit. Wait about a minute, then ask again. Run still works.';
+  return `Ask could not answer. ${stripDot(msg)}. Try again in a moment, or write the SQL yourself.`;
 }
-$('askform').onsubmit = e => { e.preventDefault(); ask($('question').value); };
-$('suggestions').replaceChildren(...SUGGESTIONS.map(s => el('button', {className: 'chip', type: 'button', textContent: s, onclick: () => { $('question').value = s; ask(s); }})));
+function explain(text, err) { const e = $('explain'); e.hidden = !text; e.textContent = text || ''; e.className = 'explain' + (err ? ' err' : ''); }
+async function doAsk(question) {
+  if (inflight) { if (inflight.kind === 'ask') cancelInflight(); return; }
+  if (!question.trim()) { explain('Type a question first, then press Ask.', true); $('question').focus(); return; }
+  const ctrl = new AbortController(), t0 = performance.now();
+  inflight = {kind: 'ask', ctrl};
+  setRunBusy('ask'); explain('Claude is writing a query...');
+  try {
+    const j = await post('/ask', {question}, ctrl.signal);
+    const ms = Math.round(performance.now() - t0);
+    if (j.sql && j.sql.trim()) { replaceSql(j.sql); lastRunSql = j.sql; }
+    if (j.error) {
+      explain(`Claude wrote a query, but it did not run. The database said: ${stripDot(j.error)}. The SQL is in the worksheet. Edit it and press Run.`, true);
+      showError(j.error);
+      addHistory({sql: j.sql, ask: question, ok: false, rows: 0, ms});
+    } else {
+      explain(j.explanation);
+      if (j.sql && j.sql.trim()) { showResult(j, ms); selectTab('result'); addHistory({sql: j.sql, ask: question, ok: true, rows: j.rows.length, ms}); }
+    }
+  } catch (err) {
+    if (err.name === 'AbortError') explain(S.cancelled);
+    else explain(isNet(err) ? 'Ask could not answer. Could not reach Cloudstone. Try again in a moment, or write the SQL yourself.' : askReason(err.message), true);
+  } finally { inflight = null; setRunBusy(null); }
+}
+$('askform').onsubmit = e => { e.preventDefault(); doAsk($('question').value); };
+$('suggestions').replaceChildren(...SUGGESTIONS.map(s => el('button', {className: 'chip', type: 'button', textContent: s, title: s, onclick: () => { $('question').value = s; doAsk(s); }})));
 
-// ---------- upload ----------
+// ---------- upload (R2) ----------
 async function upload(files) {
-  if (!user) { openAuth('signup'); return; }
+  if (!user) { authFromUpload = true; openAuth('signup', $('drop')); return; }
   for (const f of files) {
-    const t = el('div', {className: 'toast', textContent: `Uploading ${f.name}…`});
-    $('toasts').append(t);
+    const t = toast(`Uploading ${f.name}...`, {sticky: true, info: true});
     try {
       const j = await api('/upload?name=' + encodeURIComponent(f.name), {method: 'POST', body: f});
-      t.remove();
-      toast(`Loaded ${f.name} as ${j.table}`);
+      t.dismiss();
+      toast(`Loaded ${f.name} as ${j.table}.`);
       await loadTables();
       await openTable(j.table, j.profile);
     } catch (err) {
-      t.remove();
-      toast(`${f.name}: ${err.message}`, true);
+      t.dismiss();
+      toast(`Could not load ${f.name}. ${isNet(err) ? 'Could not reach Cloudstone' : stripDot(err.message)}. Check that it is a supported type, then drop it again.`, {err: true});
     }
   }
 }
 $('file').onchange = e => { upload([...e.target.files]); e.target.value = ''; };
-$('drop').onclick = e => { if (!user) { e.preventDefault(); openAuth('signup'); } };
-for (const ev of ['dragenter', 'dragover']) $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.add('over'); });
-for (const ev of ['dragleave', 'drop']) $('drop').addEventListener(ev, () => $('drop').classList.remove('over'));
+$('drop').onclick = e => { if (!user) { e.preventDefault(); authFromUpload = true; openAuth('signup', $('drop')); } };
+$('drop').onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); user ? $('file').click() : (authFromUpload = true, openAuth('signup', $('drop'))); } };
+const dropTitle = () => $('droptitle').textContent = user ? 'Upload data' : 'Sign up to upload';
+for (const ev of ['dragenter', 'dragover']) $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.add('over'); $('droptitle').textContent = 'Drop to upload'; });
+for (const ev of ['dragleave', 'drop']) $('drop').addEventListener(ev, () => { $('drop').classList.remove('over'); dropTitle(); });
 $('drop').addEventListener('drop', e => { e.preventDefault(); upload([...e.dataTransfer.files]); });
+for (const ev of ['dragover', 'drop']) document.addEventListener(ev, e => { if (!e.target.closest?.('#drop')) e.preventDefault(); });
 
-// ---------- accounts ----------
+// ---------- accounts (R15) ----------
 let authMode = 'login';
 function setAuthMode(mode) {
   authMode = mode;
-  for (const b of document.querySelectorAll('.segmented button')) b.setAttribute('aria-selected', b.dataset.mode === mode);
-  $('authtitle').textContent = mode === 'login' ? 'Welcome back' : 'Create your account';
+  for (const b of document.querySelectorAll('.seg .tab')) { b.setAttribute('aria-selected', b.dataset.mode === mode); b.tabIndex = b.dataset.mode === mode ? 0 : -1; }
+  $('authtitle').textContent = mode === 'login' ? 'Log in' : 'Sign up';
   $('authsubmit').textContent = mode === 'login' ? 'Log in' : 'Create account';
   $('password').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
-  $('authhint').hidden = mode === 'login';
-  $('autherr').hidden = true;
+  $('authhint').hidden = mode === 'login'; $('autherr').hidden = true;
 }
-function openAuth(mode) {
-  setAuthMode(mode);
-  $('authform').reset();
-  $('authdlg').showModal();
-  $('username').focus();
+function openAuth(mode, opener) {
+  authOpener = opener || document.activeElement;
+  setAuthMode(mode); $('authform').reset();
+  $('authdlg').showModal(); $('username').focus();
 }
-for (const b of document.querySelectorAll('[data-auth]')) b.onclick = () => openAuth(b.dataset.auth);
-for (const b of document.querySelectorAll('.segmented button')) b.onclick = () => setAuthMode(b.dataset.mode);
+$('authdlg').addEventListener('close', () => { authFromUpload = false; if (authOpener && document.contains(authOpener)) authOpener.focus(); });
+for (const b of document.querySelectorAll('[data-auth]')) b.onclick = () => openAuth(b.dataset.auth, b);
+for (const b of document.querySelectorAll('.seg .tab')) b.onclick = () => setAuthMode(b.dataset.mode);
+for (const b of document.querySelectorAll('[data-close]')) b.onclick = () => b.closest('dialog').close();
 for (const b of document.querySelectorAll('[data-reveal]')) b.onclick = () => {
   const i = $(b.dataset.reveal), hidden = i.type === 'password';
   i.type = hidden ? 'text' : 'password'; b.textContent = hidden ? 'Hide' : 'Show';
   b.setAttribute('aria-label', hidden ? 'Hide password' : 'Show password');
 };
-
+function msgBox(id, text, ok) { const n = $(id); n.hidden = !text; n.textContent = text || ''; n.className = 'formmsg' + (ok ? ' ok' : ''); }
+const NETFAIL = 'Could not reach Cloudstone. Your details are still here. Check that the server is running, then submit again.';
+function authMsg(err) {
+  const m = err.message || '';
+  if (isNet(err)) return NETFAIL;
+  if (/too many failed/i.test(m)) return 'Log in is paused for this username after too many failed attempts. Try again in 15 minutes.';
+  if (/wrong username or password/i.test(m)) return 'Could not log in. That username and password do not match an account here. Check both and try again.';
+  if (/taken/i.test(m)) return 'Could not create the account. That username is already taken. Choose another and submit again.';
+  if (/password must be/i.test(m)) return 'Could not create the account. Passwords need 8 to 128 characters. Choose a longer password and submit again.';
+  if (/username must be/i.test(m)) return "Could not create the account. Usernames use 3 to 32 letters, digits, '.', '_' or '-'. Change the username and submit again.";
+  return `${authMode === 'login' ? 'Could not log in.' : 'Could not create the account.'} ${stripDot(m)}. Check the details and submit again.`;
+}
+async function busyBtn(btn, label, fn) {
+  const old = btn.textContent; btn.disabled = true; btn.setAttribute('aria-busy', 'true'); if (label) btn.textContent = label;
+  try { return await fn(); } finally { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = old; }
+}
 $('authform').onsubmit = async e => {
   e.preventDefault();
-  await busy($('authsubmit'), async () => {
+  await busyBtn($('authsubmit'), 'Working...', async () => {
     try {
       const j = await post('/' + authMode, {username: $('username').value.trim(), password: $('password').value});
+      const fromUpload = authFromUpload;
+      authOpener = fromUpload ? $('drop') : authOpener;
       $('authdlg').close();
       await setUser(j.user);
-      toast(authMode === 'login' ? `Welcome back, ${j.user}` : `Account created. Welcome, ${j.user}!`);
-    } catch (err) { show($('autherr'), err.message, 'form-err'); }
+      toast(fromUpload ? 'Signed in. Drop your files again to upload them.' : authMode === 'login' ? `Logged in as ${j.user}.` : `Account created. Logged in as ${j.user}.`);
+    } catch (err) { msgBox('autherr', authMsg(err)); }
   });
 };
-
-$('logout').onclick = async () => { await setUser((await post('/logout', {})).user); toast('Logged out'); };
-$('accountbtn').onclick = () => { $('pwform').reset(); $('delform').reset(); $('pwmsg').hidden = $('delerr').hidden = true; $('acctdlg').showModal(); };
-
+$('logout').onclick = async () => { await post('/logout', {}); await setUser(null); toast('Logged out.'); };
+$('accountbtn').onclick = () => { $('pwform').reset(); $('delform').reset(); msgBox('pwmsg'); msgBox('delerr'); $('acctdlg').showModal(); };
 $('pwform').onsubmit = async e => {
   e.preventDefault();
-  await busy(e.submitter || e.target.querySelector('button'), async () => {
-    try {
-      await post('/password', {old: $('oldpw').value, new: $('newpw').value});
-      e.target.reset();
-      show($('pwmsg'), 'Password changed. Your other sessions were logged out.', 'form-ok');
-    } catch (err) { show($('pwmsg'), err.message, 'form-err'); }
+  await busyBtn(e.submitter || e.target.querySelector('button'), 'Working...', async () => {
+    try { await post('/password', {old: $('oldpw').value, new: $('newpw').value}); e.target.reset(); msgBox('pwmsg'); toast('Password changed.'); }
+    catch (err) { msgBox('pwmsg', isNet(err) ? NETFAIL : 'Could not change the password. The current password does not match, so your password is unchanged. Enter it again and retry.'); }
   });
 };
-
 $('delform').onsubmit = async e => {
   e.preventDefault();
-  if (!confirm(`Delete the account "${user}" and all of its tables? This can't be undone.`)) return;
-  await busy(e.submitter || e.target.querySelector('button'), async () => {
+  await busyBtn($('delgo'), 'Working...', async () => {
     try {
       await post('/account/delete', {password: $('delpw').value});
-      $('acctdlg').close();
+      authOpener = null; $('acctdlg').close();
       await setUser(null);
-      toast('Account and data deleted');
-    } catch (err) { show($('delerr'), err.message, 'form-err'); }
+      toast('Your account and its tables were deleted.');
+    } catch (err) { $('delpw').value = ''; msgBox('delerr', isNet(err) ? NETFAIL : 'Could not delete the account. The password does not match, so nothing was deleted. Enter it again to confirm.'); }
   });
 };
-
-function setUser(u) {
+async function setUser(u) {
   user = u;
-  $('loggedout').hidden = !!u;
-  $('loggedin').hidden = !u;
-  $('who').textContent = u || '';
-  $('avatar').textContent = (u || '?')[0];
-  $('droptitle').textContent = u ? 'Upload data' : 'Log in to upload';
-  $('drophint').textContent = u ? 'Drop files or click · CSV, JSON, NDJSON, XLSX, Parquet, .log' : 'Your uploads are saved to your account';
+  $('loggedout').hidden = !!u; $('loggedin').hidden = !u;
+  $('who').textContent = u || ''; $('avatar').textContent = (u || '?')[0];
+  $('accountbtn').setAttribute('aria-label', `Account settings for ${u}`);
+  dropTitle();
   $('file').disabled = !u;
-  if (current && !current.startsWith('demo.') && !u) current = null;
-  return loadTables();
+  if (current && !current.startsWith('demo.') && !u) { current = null; }
+  histLoad();
+  await loadTables();
 }
 
-// ---------- keyboard ----------
-$('run').onclick = run;
-$('csv').onclick = downloadCsv;
-$('filter').oninput = renderTableLists;
+// ---------- keyboard (Esc precedence, R8 keys) ----------
 $('sql').onkeydown = e => {
-  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); }
-  if (e.key === 'Tab' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {  // indent instead of leaving the editor
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); return; }
+  if (e.key === 'Tab' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    if (trapOff) { trapOff = false; return; }   // Esc then Tab leaves the editor
     e.preventDefault(); insertSql('  ');
-  }
+  } else if (e.key !== 'Escape' && e.key !== 'Shift') trapOff = false;
 };
+$('sql').addEventListener('blur', () => { trapOff = false; });
 document.addEventListener('keydown', e => {
+  const open = document.querySelector('dialog[open]');
+  if (e.key === 'Escape') {
+    if (closePop()) { pop.grid = null; e.preventDefault(); return; }                      // 1 popover
+    if (!$('hconfirm').hidden) { setConfirm(false); $('hclear').focus(); e.preventDefault(); return; }  // 1 clear confirm
+    if (open) return;                                                                       // 2 dialog (native)
+    if (panelOpen && $('results').contains(document.activeElement)) {                       // 3 column panel
+      const inside = $('colpanel').contains(document.activeElement);
+      closePanel(inside); e.preventDefault(); return;
+    }
+    if (cancelInflight()) { e.preventDefault(); return; }                                   // 4 cancel
+    if (document.activeElement === $('sql')) { trapOff = true; return; }                    // 5 editor
+    return;
+  }
   const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
-  if (e.key === '/' && !typing && !document.querySelector('dialog[open]')) {
+  if (e.key === '/' && !typing && !open && !e.metaKey && !e.ctrlKey) {
     e.preventDefault();
     ($('askcard').hidden ? $('sql') : $('question')).focus();
   }
 });
-for (const id of ['ctype', 'cx', 'cy']) $(id).onchange = drawChart;
-if (!/Mac|iPhone|iPad/.test(navigator.platform)) document.querySelector('#run kbd').textContent = 'Ctrl ↵';
+
+addEventListener('resize', () => { resGrid.queueCue(); profGrid.queueCue(); });
 
 // ---------- start ----------
-$('examples').replaceChildren(...EXAMPLES.map(([label, sub, sql]) => el('li', {}, el('button', {
-  onclick: () => { markCurrent(null); setSql(sql); run(); selectTab('result'); },
-}, el('span', {textContent: label}), el('span', {className: 'sub', textContent: sub})))));
-api('/me').then(j => {
-  $('askcard').hidden = !j.ask;
-  $('askoff').hidden = j.ask;
-  return setUser(j.user);
-}).then(() => openTable('demo.sales')).catch(err => toast(err.message, true));
+setExamples(true);
+(async () => {
+  let j = {user: null, ask: 'off'};
+  try { j = await api('/me'); } catch (err) { toast(isNet(err) ? 'Could not reach Cloudstone. Check that the server is running, then reload the page.' : err.message, {err: true}); }
+  askMode = j.ask === true ? 'subscription' : (j.ask || 'off');
+  $('askcard').hidden = askMode === 'off';
+  $('askoff').hidden = askMode !== 'off';
+  $('mode').textContent = askMode === 'subscription' ? 'Answered with your Claude plan.' : askMode === 'api' ? "Each question is billed to the server's API key." : '';
+  await setUser(j.user);
+  const p = pref('cloudstone.examples');
+  setExamples(p ? p === 'open' : hist.length === 0);
+  syncGutter();
+  setStatus('', '');
+  paintResults();
+  loadProfile(null);
+  openTable('demo.sales');
+})();
 </script>
 </body>
 </html>

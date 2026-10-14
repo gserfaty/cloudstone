@@ -4,8 +4,8 @@
 - **Entry stage:** Discover. There's no `JOURNEY.md` or `DESIGN.md`, so no stage is skipped.
 - **Seed:** `.design-foundations/research/2026-10-13-cloudstone-workbench.md` (confirmed for planning)
 - **Date:** 2026-10-13
-- **Status:** in-progress
-- **Current Phase:** 5
+- **Status:** complete
+- **Completed:** 2026-10-13
 
 ## Context
 
@@ -285,3 +285,18 @@ Summary: `JOURNEY.md` `## Microcopy` has 104 strings covering every Workbench st
 - [x] REVIEW: fail → PASS (2 attempts, haiku; fresh reviewer). Fixed: the one-mark-per-row chart rule, null Y never drawn as zero (disclosed count), and zero-row column kind `unknown`.
 - [x] Committed
 Summary: `JOURNEY.md` `## Data surfaces` specifies the grid (kinds, formatting, sort, cell focus/popover/copy, sticky header, scroll cues), the column panel, the chart and the profile, plus an edge-case matrix and DS-01–DS-15 strings. For Phase 5: only the header *name* sorts and the details button must not trigger a sort; disabled sort on 0/1-row results gets an explanatory title; give the post-error chart state its own string; show a Shift+Enter hint.
+
+### Phase 5: Compose into the live app (Gate: Full)
+- [x] BUILD: discovery, design and production (sonnet); the run was cut off by a usage limit, then resumed with its context; evidence: 864 text nodes ≥ 4.92:1, focus 5.56–5.75:1, accent ≈ 1% of the screen, no color literal outside `:root`, 375 px with no page scroll
+- [x] REVIEW: fail → PASS (haiku). The only blocker was a screenshot of the Ask-on state rather than the default; it was recaptured. 0 Critical, 0 Major; detector exit 0 with 0 findings.
+- [x] Orchestrator smoke test: no console errors; an example query runs and history records it. Fixed a grid formatting inconsistency (per-value grouping threshold → grouping at ≥ 1,000; JOURNEY.md updated).
+- [x] Committed
+Summary: the live `index.html` implements DESIGN.md and JOURNEY.md: Verdigris Ledger identity, query history, column details, a sortable keyboard grid, truthful chart, ≥ 15 rows at 1440×900. `/me` returns the Ask mode.
+
+## Trust report
+- **Contrast:** PASS (DESIGN.md token block AA-checked with palette.mjs; rendered page measured: 864 text nodes ≥ 4.92:1, focus ≥ 5.56:1). Light only, as the user decided.
+- **Token coverage:** all semantic aliases resolved; type scale and functional colors present; no color literal outside `:root`.
+- **Mocks:** `mocks/workbench.html` (approved), `mocks/final-workbench.png` (Ask off, default), `mocks/final-workbench-ask-on.png`.
+- **Heuristic:** no unresolved Critical findings; no open Majors (Phase 4's two Majors were implemented in Phase 5).
+- **Not verified live:** Ask-on states beyond idle (no question was submitted, to save the user's plan allowance); Chart.js missing and localStorage blocked (checked from the code paths only); a full real-keyboard Tab/Esc walk-through.
+- **Follow-up:** at 375 px the explorer stacks above the worksheet, so Run sits below the first screen (Minor); "Revenue by month" (`YYYY-MM` labels) defaults to a bar chart because the date rule needs a full date.

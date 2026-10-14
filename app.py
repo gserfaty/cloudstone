@@ -381,7 +381,7 @@ class Handler(BaseHTTPRequestHandler):
                 if url.path == "/":
                     return self.send(200, (HERE / "index.html").read_bytes(), "text/html; charset=utf-8")
                 if url.path == "/me":
-                    return self.send(200, {"user": me[1] if me else None, "ask": ask_mode() != "off"})
+                    return self.send(200, {"user": me[1] if me else None, "ask": ask_mode()})
                 if url.path == "/tables":
                     return self.send(200, tables(db))
                 if url.path == "/profile":

@@ -508,7 +508,7 @@ Specs for the results experience: grid (R11), column details (R12), chart (R13) 
 |------|------|-------|--------|
 | `unknown` | the result has **zero rows**, so there are no values to infer from (checked first; it beats the `null` rule below, which would otherwise be vacuously true) | left | header hint "—"; no cells exist |
 | `null` | there is at least one row and every value is null | left | `null` token |
-| `number` | every non-null value is a JS number, or a numeric string with no leading zero (`"02134"` is text; `"0"` and `"0.5"` are numbers). Decimals and huge integers arrive as strings and count | right | tabular figures; en-US thousands separators on floats and on integers >= 10,000 (digit-grouped as text, never through `Number`, so huge integers keep every digit); no separators when the column is named `id`, ends in `_id`, or is `year` (case-insensitive); decimals exactly as returned; non-finite values are text |
+| `number` | every non-null value is a JS number, or a numeric string with no leading zero (`"02134"` is text; `"0"` and `"0.5"` are numbers). Decimals and huge integers arrive as strings and count | right | tabular figures; en-US thousands separators on every value of 1,000 or more, so a column never mixes grouped and ungrouped figures (digit-grouped as text, never through `Number`, so huge integers keep every digit); no separators when the column is named `id`, ends in `_id`, or is `year` (case-insensitive); decimals exactly as returned; non-finite values are text |
 | `date` | every non-null value matches ISO date or timestamp (`2026-10-13`, `2026-10-13 09:30:00`, `...T...Z`) | left | as returned |
 | `bool` | every non-null value is `true` or `false` | left | `true` / `false` |
 | `json` | every non-null value is an object or array | left | hint then truncated preview: `[3] [1,2,3]`, `{…} {"city":"Oslo","zip"…`; popover pretty-prints |
@@ -701,6 +701,9 @@ Same voice: calm, precise, plain; sentence case; "·" is the only status separat
 | DS-13 | R13 · caption, repeated X | {X} repeats across rows. Use GROUP BY in SQL for one bar per value. | neutral |
 | DS-14 | R13 · caption, null Y | {k} rows with no {Y} value not plotted. | neutral |
 | DS-15 | R13 · empty, every Y null | Every {Y} value is null, so there is nothing to plot. Pick another column for Y. | calm |
+| DS-16 | R11 · sort disabled (0 or 1 row), header title | Sorting needs at least two rows. | neutral |
+| DS-17 | R11 · header title | Shift+Enter on a header opens column details. | neutral |
+| DS-18 | R13 · empty, after a failed query | The last query failed, so there is nothing to chart. Fix the SQL and run it again. | calm |
 
 ### 10. Checks
 

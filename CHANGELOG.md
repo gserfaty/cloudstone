@@ -5,6 +5,10 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 ## [Unreleased]
 
 ### Added
+- Query history in the sidebar (Explorer | History): last 100 queries per account in this browser, with load, rerun and clear.
+- Results grid: sorting by column name, keyboard cell navigation, a full-value popover and ⌘C / Ctrl+C copy, a sticky header and row-number column, and a "Rows a to b" readout.
+- Column details panel: counts, nulls, distinct, min/max/mean, top values and a histogram over the returned rows.
+- Cancel for running queries and Ask (button or Esc), and Undo when an action replaces unsaved worksheet text.
 - `JOURNEY.md` `## Data surfaces`: grid, column panel, chart and profile specs with an edge-case matrix; the chart never aggregates client-side and never draws nulls as zero (design phase 4).
 - `JOURNEY.md` `## Microcopy`: 104 strings for every workbench state, empty state, error and dialog (design phase 3).
 - `mocks/workbench.html` (+ screenshots): styled mock of the redesigned workbench for the sign-off gate; reviewed on pixels with no Critical or Major findings.
@@ -26,6 +30,10 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 - README, ARCHITECTURE and CHANGELOG docs, plus a `CLAUDE.md` rule to keep them current with every commit and push.
 
 ### Changed
+- Applied the locked "Verdigris Ledger" design to the live UI (design phase 5): Archivo + IBM Plex Mono, verdigris accent, section legends on the top rule, ≥ 15 result rows visible at 1440×900, every text pair WCAG AA, all colors from the DESIGN.md token block.
+- `/me` returns the Ask mode (`"off"`, `"subscription"` or `"api"`) instead of a boolean, so the page can say who pays for a question.
+- Chart: one mark per returned row with no client-side aggregation, null values never drawn as zero, and both disclosed in a caption; bars have square ends.
+- Logged-out upload control now reads "Sign up to upload" and opens sign-up.
 - `DESIGN.md` locked: the user approved the Verdigris Ledger direction and its signature detail on the styled mock.
 - Redesigned the UI after Snowflake's Snowsight: navy top bar, light cool-gray theme with a blue accent, an object explorer with expandable columns, a line-numbered worksheet, Results / Chart / Profile tabs, and dialogs for log in, sign up and account settings.
 - Results grid: row numbers, right-aligned numbers, styled nulls and nested JSON, sticky header, CSV download (cells that look like spreadsheet formulas are escaped).
@@ -37,6 +45,7 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 - Demo data now lives in a read-only `data/demo.duckdb`, attached to every user's database as `demo`.
 
 ### Fixed
+- Results grid groups thousands on every number of 1,000 or more (except id/year columns), so a column no longer shows `5693` next to `5,231.5`.
 - Removed a stray copy of the design dealer ledger from the repo root; the full ledger is `.design-foundations/used-dna.json`.
 
 ### Removed

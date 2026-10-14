@@ -14,7 +14,7 @@ browser (index.html) ──fetch + session cookie──▶ app.py (http.server)
 | File | Role |
 |------|------|
 | `app.py` | Stdlib `HTTPServer` on `127.0.0.1:8000`. Serves the page, accounts, uploads, queries. Also holds the self-check (`python app.py check`). |
-| `index.html` | Whole UI: plain HTML/CSS/JS, no build step. Chart.js from cdnjs, Inter and JetBrains Mono from Google Fonts (falls back to system fonts offline). Light theme only; colors are CSS variables on `:root`. |
+| `index.html` | Whole UI: plain HTML/CSS/JS, no build step. Chart.js from cdnjs, Archivo and IBM Plex Mono from Google Fonts (falls back to system fonts offline). Light theme only; the `:root` block is DESIGN.md's token block verbatim, and no color literal appears outside it. |
 | Claude | Turns questions into SQL in `ask()`: through the local Claude Code CLI on your Claude plan (`subscription` mode) or the `anthropic` SDK with an API key (`api` mode). |
 | `demo/` | Demo files, one per supported format. Rebuilt into `data/demo.duckdb` on every start. |
 | `data/` | All runtime state, git-ignored. Created on first run. |
@@ -27,7 +27,7 @@ browser (index.html) ──fetch + session cookie──▶ app.py (http.server)
 | Method | Path | Auth | Body / query | Returns |
 |--------|------|------|--------------|---------|
 | GET | `/` | | | `index.html` |
-| GET | `/me` | | | `{user: name or null, ask: true/false}`; the page hides the Ask box when `ask` is false |
+| GET | `/me` | | | `{user: name or null, ask: "off" \| "subscription" \| "api"}`; the page hides the Ask box when `off` and shows a one-line note saying who pays when it's on |
 | GET | `/tables` | | | `["demo.sales", ..., "my_upload"]`: demo tables first, then your own |
 | GET | `/profile` | | `?table=name` | `{columns, rows, truncated}` from `SUMMARIZE` |
 | POST | `/query` | | `{"sql": "..."}` | `{columns, rows, truncated}` |
@@ -88,6 +88,13 @@ The self-check passes stand-ins for the SDK client and for `subprocess.run`, so 
 - Sessions: `secrets.token_urlsafe(32)` in an `HttpOnly; SameSite=Strict` cookie; only its SHA-256 is stored. 30-day expiry; expired rows are deleted on lookup.
 - Lockout: `FAILS` counts failures per username in memory; 5 within 15 minutes locks it until the window passes. Resets on success or restart.
 - POSTs with an `Origin` header that doesn't match `Host` are refused (on top of `SameSite=Strict`).
+
+## Front end
+
+- **One file, no framework:** `index.html` holds markup, CSS and JS. It implements JOURNEY.md's page spec (regions R1–R16), microcopy and data-surface specs.
+- **Query history:** browser `localStorage` under `cloudstone.history:<username>` (empty username for logged-out use), last 100 entries. No server endpoint. If storage throws, history is kept in memory for the session.
+- **Grid kinds are inferred in the browser** from the returned values, because `/query` returns column names only (dates, decimals and huge integers arrive as strings). Sorting and column-detail stats run over the returned rows (≤ 1,000), and the UI says so when results were capped.
+- **Chart:** one mark per returned row, never aggregated client-side; null values are skipped, not drawn as zero. Data ink uses `--data-1` only, never the accent.
 
 ## Design decisions
 
