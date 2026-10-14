@@ -114,3 +114,7 @@ The UI was designed with the design-for-ai plugin (research → plan → mock �
 Contributions go through pull requests. `main` is protected: a pull request needs an approving review from the owner ([@gserfaty](https://github.com/gserfaty), set in `.github/CODEOWNERS`) before it can merge, and direct pushes are refused for everyone else. Run `.venv/bin/python app.py check` before opening one.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for how it works and [CHANGELOG.md](CHANGELOG.md) for history.
+
+## License
+
+[MIT](LICENSE)

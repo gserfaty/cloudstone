@@ -5,6 +5,7 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 ## [Unreleased]
 
 ### Added
+- MIT license (`LICENSE`).
 - Query history in the sidebar (Explorer | History): last 100 queries per account in this browser, with load, rerun and clear.
 - Results grid: sorting by column name, keyboard cell navigation, a full-value popover and ⌘C / Ctrl+C copy, a sticky header and row-number column, and a "Rows a to b" readout.
 - Column details panel: counts, nulls, distinct, min/max/mean, top values and a histogram over the returned rows.
