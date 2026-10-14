@@ -299,4 +299,4 @@ Summary: the live `index.html` implements DESIGN.md and JOURNEY.md: Verdigris Le
 - **Mocks:** `mocks/workbench.html` (approved), `mocks/final-workbench.png` (Ask off, default), `mocks/final-workbench-ask-on.png`.
 - **Heuristic:** no unresolved Critical findings; no open Majors (Phase 4's two Majors were implemented in Phase 5).
 - **Not verified live:** Ask-on states beyond idle (no question was submitted, to save the user's plan allowance); Chart.js missing and localStorage blocked (checked from the code paths only); a full real-keyboard Tab/Esc walk-through.
-- **Follow-up:** at 375 px the explorer stacks above the worksheet, so Run sits below the first screen (Minor); "Revenue by month" (`YYYY-MM` labels) defaults to a bar chart because the date rule needs a full date.
+- **Follow-up:** both resolved after the build: at < 860 px main now comes before the explorer, and `YYYY-MM` counts as a date (line chart by default).

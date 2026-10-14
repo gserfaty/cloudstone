@@ -375,8 +375,9 @@ label.field input { height: 32px; font-size: var(--text-14); width: 100%; }
 }
 @media (max-width: 859px) {
   body { height: auto; min-height: 100vh; overflow: auto; }
-  .app { display: block; }
-  aside.side { border-right: 0; border-bottom: var(--hairline); }
+  .app { display: flex; flex-direction: column; }
+  main { order: -1; }
+  aside.side { border-right: 0; border-top: var(--hairline); }
   main { padding: var(--space-4); overflow: visible; }
   section.results { min-height: 0; }
   .gridbox { flex: none; height: 420px; }
@@ -680,7 +681,7 @@ function toast(text, o = {}) {
 
 // ---------- value kinds and formatting (JOURNEY.md Data surfaces, section 1) ----------
 const RE_NUM = /^-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?$/;
-const RE_DATE = /^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}(:?\d{2})?)?)?$/;
+const RE_DATE = /^\d{4}-\d{2}(-\d{2}([ T]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}(:?\d{2})?)?)?)?$/;
 const collator = new Intl.Collator();
 function vkind(v) {
   if (typeof v === 'number') return Number.isFinite(v) ? 'number' : 'text';

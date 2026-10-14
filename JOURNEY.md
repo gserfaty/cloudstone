@@ -304,7 +304,7 @@ Reading order = tab order = visual order (WCAG 2.4.3, 1.3.2). Targets at least 2
 #### Responsive behavior (structure only)
 - >= 1100 px: sidebar + main; column panel docked right inside the results card.
 - 860 to 1099 px: sidebar + main; column panel stacks under the grid.
-- < 860 px: sidebar stacks above main (as today); grid scrolls inside its container; page never scrolls sideways.
+- < 860 px: main comes first and the sidebar stacks below it, so Run and the first results are on the first screen; grid scrolls inside its container; page never scrolls sideways.
 
 #### Where the page cuts options (Hick for choice counts, Cowan for chunks held in memory)
 
@@ -509,7 +509,7 @@ Specs for the results experience: grid (R11), column details (R12), chart (R13) 
 | `unknown` | the result has **zero rows**, so there are no values to infer from (checked first; it beats the `null` rule below, which would otherwise be vacuously true) | left | header hint "—"; no cells exist |
 | `null` | there is at least one row and every value is null | left | `null` token |
 | `number` | every non-null value is a JS number, or a numeric string with no leading zero (`"02134"` is text; `"0"` and `"0.5"` are numbers). Decimals and huge integers arrive as strings and count | right | tabular figures; en-US thousands separators on every value of 1,000 or more, so a column never mixes grouped and ungrouped figures (digit-grouped as text, never through `Number`, so huge integers keep every digit); no separators when the column is named `id`, ends in `_id`, or is `year` (case-insensitive); decimals exactly as returned; non-finite values are text |
-| `date` | every non-null value matches ISO date or timestamp (`2026-10-13`, `2026-10-13 09:30:00`, `...T...Z`) | left | as returned |
+| `date` | every non-null value matches ISO year-month, date or timestamp (`2026-10`, `2026-10-13`, `2026-10-13 09:30:00`, `...T...Z`) | left | as returned |
 | `bool` | every non-null value is `true` or `false` | left | `true` / `false` |
 | `json` | every non-null value is an object or array | left | hint then truncated preview: `[3] [1,2,3]`, `{…} {"city":"Oslo","zip"…`; popover pretty-prints |
 | `text` | everything else that is uniformly text | left | single line, ellipsis, whitespace collapsed |

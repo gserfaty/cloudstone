@@ -45,6 +45,8 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 - Demo data now lives in a read-only `data/demo.duckdb`, attached to every user's database as `demo`.
 
 ### Fixed
+- On phones the worksheet and results come first and the explorer moves below them, so Run is on the first screen.
+- Month labels like `2026-03` count as dates, so "Revenue by month" opens as a line chart.
 - Results grid groups thousands on every number of 1,000 or more (except id/year columns), so a column no longer shows `5693` next to `5,231.5`.
 - Removed a stray copy of the design dealer ledger from the repo root; the full ledger is `.design-foundations/used-dna.json`.
 
