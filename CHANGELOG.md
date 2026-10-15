@@ -5,6 +5,7 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 ## [Unreleased]
 
 ### Added
+- 2026-10-14: fix plan for the verification findings (`.design-foundations/build/2026-10-14-fix-plan.md`); all fixes re-tested with real key presses and simulated Chart.js/storage failures.
 - 2026-10-14: browser verification report for the paths left untested after the redesign (Ask, Chart.js missing, blocked storage, keyboard-only): `.design-foundations/build/2026-10-14-browser-verification.md`.
 - MIT license (`LICENSE`).
 - Query history in the sidebar (Explorer | History): last 100 queries per account in this browser, with load, rerun and clear.
