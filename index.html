@@ -1183,7 +1183,7 @@ function chartEmpty(msg) {
 function drawChart() {
   chart?.destroy(); chart = null;
   const g = resGrid;
-  if (typeof Chart === 'undefined') return chartEmpty(S.chartMissing);
+  if (typeof Chart === 'undefined') { document.querySelector('#panel-chart .cc').hidden = true; return chartEmpty(S.chartMissing); }
   if (lastErr) return chartEmpty(S.chartErr);
   if (!view) return chartEmpty('Run a query to chart its result.');
   if (view.noset) return chartEmpty('This statement returned no result set, so there is nothing to chart.');
@@ -1391,21 +1391,21 @@ $('sql').addEventListener('scroll', syncGutter);
 try { const h = pref('cloudstone.editorH'); if (h) $('sql').style.height = h; } catch {}
 if (window.ResizeObserver) {
   let ro0 = true;
-  new ResizeObserver(() => { if (ro0) { ro0 = false; return; } pref('cloudstone.editorH', $('sql').style.height); syncGutter(); }).observe($('sql'));
+  new ResizeObserver(() => { if (ro0) { ro0 = false; return; } const h = $('sql').style.height; if (h) pref('cloudstone.editorH', h); syncGutter(); }).observe($('sql'));
 }
 
 // ---------- history (R6) ----------
 const memHist = {};
-let hist = [], sessionOnly = false;
+let hist = [], sessionOnly = false, storeFull = false;
 const histKey = () => 'cloudstone.history:' + (user || '');
 function histLoad() {
-  try { const s = localStorage.getItem(histKey()); hist = s ? JSON.parse(s) : []; if (!Array.isArray(hist)) hist = []; sessionOnly = false; }
-  catch { hist = memHist[histKey()] || []; sessionOnly = true; }
+  try { const s = localStorage.getItem(histKey()); hist = s ? JSON.parse(s) : []; if (!Array.isArray(hist)) hist = []; sessionOnly = false; storeFull = false; }
+  catch { hist = memHist[histKey()] || []; sessionOnly = true; storeFull = false; }
   renderHistory();
 }
 function histSave() {
   memHist[histKey()] = hist;
-  try { localStorage.setItem(histKey(), JSON.stringify(hist)); } catch { sessionOnly = true; }
+  try { localStorage.setItem(histKey(), JSON.stringify(hist)); } catch (e) { sessionOnly = true; storeFull = e?.name === 'QuotaExceededError'; }
 }
 function addHistory(entry) {
   hist.unshift({...entry, sql: entry.sql.slice(0, 20000), t: Date.now()});
@@ -1427,9 +1427,9 @@ function renderHistory() {
   $('hclear').title = hist.length ? '' : 'Nothing to clear yet.';
   const note = $('hnote');
   note.hidden = !(sessionOnly || !user);
-  note.textContent = sessionOnly ? 'History is not saved in this browser, so it lasts only until you close this page. Free up browser storage to keep it.'
+  note.textContent = sessionOnly ? 'History is not saved in this browser, so it lasts only until you close this page. ' + (storeFull ? 'Free up browser storage to keep it.' : 'Allow site data for this page in your browser settings to keep it.')
     : 'Showing history for logged-out use in this browser. Log in to see your own history.';
-  note.className = 'note' + (sessionOnly ? ' err' : '');
+  note.className = 'note';
   const list = $('hlist');
   if (!hist.length) { list.replaceChildren(el('div', {className: 'empty-rules', textContent: 'Queries you run appear here. Your last 100 runs are kept in this browser.'})); return; }
   hActive = Math.min(hActive, hist.length - 1);

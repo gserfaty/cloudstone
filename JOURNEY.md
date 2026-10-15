@@ -375,7 +375,8 @@ Tone column: **neutral** = status and labels; **direct** = errors, warnings and 
 |----|--------------|--------------|------|---------|
 | MC-20 | R6 · empty | Queries you run appear here. Your last 100 runs are kept in this browser. | calm | |
 | MC-21 | R6 · Clear history, empty (tooltip) | Nothing to clear yet. | neutral | |
-| MC-22 | R6 · session-only notice | History is not saved in this browser, so it lasts only until you close this page. Free up browser storage to keep it. | direct | happened · why · fix |
+| MC-22 | R6 · session-only notice (storage full) | History is not saved in this browser, so it lasts only until you close this page. Free up browser storage to keep it. | direct | happened · why · fix |
+| MC-22b | R6 · session-only notice (storage blocked) | History is not saved in this browser, so it lasts only until you close this page. Allow site data for this page in your browser settings to keep it. | direct | happened · why · fix |
 | MC-23 | R6 · logged out | Showing history for logged-out use in this browser. Log in to see your own history. | neutral | |
 | MC-24 | R6 · row labels | `Asked: {question}` (Ask rows only) · `{time}` (e.g. "2 min ago") · `{n} rows · {ms} ms` · `OK` or `Error` | neutral | |
 | MC-25 | R6 · row actions | Load (aria: "Load query from {time}") · Rerun (aria: "Rerun query from {time}") | neutral | |

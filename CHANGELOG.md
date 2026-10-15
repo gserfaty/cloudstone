@@ -47,6 +47,9 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 - Demo data now lives in a read-only `data/demo.duckdb`, attached to every user's database as `demo`.
 
 ### Fixed
+- 2026-10-14: The Chart tab hides its Type, X and Y controls when Chart.js fails to load, so only the message shows.
+- 2026-10-14: When browser storage is blocked, History shows a neutral notice that no longer suggests freeing space; a full store keeps the free-space advice.
+- 2026-10-14: The editor height is no longer saved as an empty value when it has not been resized.
 - 2026-10-14: Explorer is one Tab stop with arrow keys (Right and Left expand, collapse, and return from a column); the log in dialog's Log in / Sign up control is a tablist.
 - 2026-10-14: Ask now explains an expired or missing Claude Code login ("run claude in a terminal to log in again") instead of raw OAuth text and "try again in a moment".
 - On phones the worksheet and results come first and the explorer moves below them, so Run is on the first screen.
