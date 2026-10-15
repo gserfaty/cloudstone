@@ -47,6 +47,7 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 - Demo data now lives in a read-only `data/demo.duckdb`, attached to every user's database as `demo`.
 
 ### Fixed
+- 2026-10-14: Ask now explains an expired or missing Claude Code login ("run claude in a terminal to log in again") instead of raw OAuth text and "try again in a moment".
 - On phones the worksheet and results come first and the explorer moves below them, so Run is on the first screen.
 - Month labels like `2026-03` count as dates, so "Revenue by month" opens as a line chart.
 - Results grid groups thousands on every number of 1,000 or more (except id/year columns), so a column no longer shows `5693` next to `5,231.5`.

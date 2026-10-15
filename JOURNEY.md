@@ -186,7 +186,7 @@ Notation: circle = entry/exit, diamond = decision, rectangle = action. Written a
 - States:
   - **empty:** idle with placeholder; chips shown only because Ask is on.
   - **loading:** Ask button becomes "Cancel" and Esc cancels (same message as Run: "Cancelled - the server may still finish it in the background."); explanation line says "Claude is writing a query..." (live region).
-  - **error:** explanation line in error style: what happened, why, how to fix. Exact strings are the Ask error rows (ASK-E1 to ASK-E8) in `## Microcopy`.
+  - **error:** explanation line in error style: what happened, why, how to fix. Exact strings are the Ask error rows (ASK-E1 to ASK-E8, ASK-E10) in `## Microcopy`.
   - **logged out:** available when Ask is on (README limit: billed to server key).
   - **Ask off:** the whole card is absent from the DOM flow (hidden); the Worksheet header shows a hint with the enabling command; `/` focuses the editor instead.
 - Keys: Esc while a question is in flight cancels it (Esc precedence, layer 4); `/` focuses the question input (when not typing and no dialog is open); Enter submits; chips are buttons activated by Enter/Space.
@@ -401,6 +401,7 @@ Tone column: **neutral** = status and labels; **direct** = errors, warnings and 
 | ASK-E6 | R7 · error · rate limit | Ask has reached the Claude API rate limit. Wait about a minute, then ask again. Run still works. | direct | happened · why · fix |
 | ASK-E7 | R7/R8 · SQL written, did not run | Claude wrote a query, but it did not run. The database said: {db message}. The SQL is in the worksheet. Edit it and press Run. | direct | happened · why · fix |
 | ASK-E8 | R7 · error · any other failure | Ask could not answer. {server reason}. Try again in a moment, or write the SQL yourself. | direct | happened · why · fix |
+| ASK-E10 | R7 · error · Claude Code not logged in or login expired | Ask could not reach Claude Code. Its login has expired or you are not logged in. Run `claude` in a terminal to log in again, then ask again. | direct | happened · why · fix |
 | ASK-E9 | R8 header · Ask off (hint, not an error) | Ask is off. To turn it on, restart the server with CLOUDSTONE_ASK=subscription (your Claude plan) or CLOUDSTONE_ASK=api (API key). | neutral | |
 
 ### Worksheet (R8)

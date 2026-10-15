@@ -1574,6 +1574,7 @@ function askReason(msg) {
   if (/declined/i.test(msg)) return 'Claude declined to answer that question. Rephrase it, or write the SQL yourself in the worksheet.';
   if (/cut off/i.test(msg)) return "Claude's answer was cut off before it finished. Ask a simpler question.";
   if (/rate limit/i.test(msg)) return 'Ask has reached the Claude API rate limit. Wait about a minute, then ask again. Run still works.';
+  if (/not logged in|login has expired/i.test(msg)) return 'Ask could not reach Claude Code. Its login has expired or you are not logged in. Run `claude` in a terminal to log in again, then ask again.';
   return `Ask could not answer. ${stripDot(msg)}. Try again in a moment, or write the SQL yourself.`;
 }
 function explain(text, err) { const e = $('explain'); e.hidden = !text; e.textContent = text || ''; e.className = 'explain' + (err ? ' err' : ''); }

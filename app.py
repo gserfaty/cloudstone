@@ -144,12 +144,16 @@ def via_claude_code(prompt, run=subprocess.run):
         raise ValueError("Claude Code isn't installed or isn't on PATH; install it and run `claude` once to log in")
     except subprocess.TimeoutExpired:
         raise ValueError("Claude Code took longer than 3 minutes; try again")
+    def fail(msg):
+        if re.search(r"authenticat|OAuth|not logged in|/login", msg, re.I):
+            raise ValueError("Claude Code is not logged in, or its login has expired; run `claude` in a terminal to log in again")
+        raise ValueError(msg)
     try:
         out = json.loads(p.stdout)
     except json.JSONDecodeError:
-        raise ValueError(f"Claude Code failed: {(p.stderr or p.stdout).strip()[:300]}")
+        fail(f"Claude Code failed: {(p.stderr or p.stdout).strip()[:300]}")
     if out.get("is_error") or not isinstance(out.get("structured_output"), dict):
-        raise ValueError(f"Claude Code: {str(out.get('result') or out.get('subtype'))[:300]}")
+        fail(f"Claude Code: {str(out.get('result') or out.get('subtype'))[:300]}")
     return out["structured_output"]
 
 
@@ -573,7 +577,11 @@ def check():
         assert not any(k.startswith(("ANTHROPIC_", "CLAUDE")) for k in kw["env"]) and kw["cwd"] != str(HERE)
         limit = json.dumps({"is_error": True, "result": "Claude usage limit reached"})
         raises(ValueError, ask, anon, "x", None, lambda *a, **k: NS(stdout=limit, stderr=""))
-        raises(ValueError, ask, anon, "x", None, lambda *a, **k: NS(stdout="", stderr="Not logged in"))
+        try:
+            ask(anon, "x", None, lambda *a, **k: NS(stdout="", stderr="Not logged in"))
+            raise SystemExit("expected login error")
+        except ValueError as e:
+            assert "log in again" in str(e)
 
         def missing(*a, **k):
             raise FileNotFoundError
