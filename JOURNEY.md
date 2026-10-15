@@ -163,7 +163,7 @@ Notation: circle = entry/exit, diamond = decision, rectangle = action. Written a
   - **error:** `/tables` or `/profile` failure shows the message inline in place of the list (not only a toast).
   - **logged out:** `my_data` is shown with "Sign up to upload and keep your own tables."; demo tables fully usable.
   - **Ask off:** n/a - no Ask element in Explorer.
-- Keys: `/` is not used here. Search box focusable by Tab; Up/Down moves between table rows and their expanders; Enter on the name previews; Right/Left expands/collapses columns (or Enter on the expander); Enter on a column inserts it.
+- Keys: `/` is not used here. Search box focusable by Tab; the explorer is then one Tab stop with roving focus (it remembers the last row); Up/Down moves between table rows, expanders and columns; Enter on the name previews; Right/Left expands/collapses columns (Right on an expanded table moves to its first column; Left on a column returns to its table and collapses it; or Enter on the expander); Enter on a column inserts it.
 - Cut: 2 groups (Hick); search carries the long-list case (Hick).
 
 ##### R5 Example queries
@@ -247,7 +247,7 @@ Notation: circle = entry/exit, diamond = decision, rectangle = action. Written a
 - Auth: segmented Log in / Sign up, username, password with Show/Hide, hint (sign-up only), inline error (`role=alert`), one primary submit. Account: change password, delete account (password required + confirmation).
 - Cut: the Log in / Sign up segmented control offers exactly two modes in one dialog instead of two separate dialogs or links (Hick).
 - States: **empty** n/a - opened only by user action. **loading** submit busy. **error** inline, form data kept (except password on failure of delete). **logged out** in R15 only the Auth dialog is offered; Account is unreachable. **Ask off** n/a - unaffected.
-- Keys: modal; Esc closes it (Esc precedence, layer 2); focus lands on Username; focus returns to the trigger on close; Enter submits.
+- Keys: modal; Esc closes it (Esc precedence, layer 2); focus lands on Username; focus returns to the trigger on close; Enter submits. The Log in / Sign up control is a tablist: one Tab stop, Left/Right arrows switch mode.
 
 ##### R16 Toasts and live regions
 - Toasts for outcomes that have no home elsewhere (upload done, copied, logged in/out). Errors use `role=alert`; success is announced through a polite live region. Status line, explanation line and Chart title are the other live regions. Max 3 toasts visible (Hick).

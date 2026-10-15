@@ -1300,6 +1300,7 @@ function tableItem(name) {
         b.dataset.nav = '1';
         return el('li', {}, b);
       }));
+      roveExplorer();
     } catch (err) { cols.replaceChildren(el('li', {className: 'note err', textContent: `Could not load columns for ${name}. ${stripDot(err.message)}. Click the table again to retry.`})); }
   };
   exp.onclick = () => toggle(exp.getAttribute('aria-expanded') !== 'true');
@@ -1322,6 +1323,7 @@ function renderTableLists() {
   $('demo').replaceChildren(...(sd.length ? sd.map(tableItem) : note(none)));
   $('tables').replaceChildren(...(sm.length ? sm.map(tableItem)
     : note(q && mine.length ? none : user ? 'Nothing yet. Drop a file above to add one.' : 'Sign up to upload and keep your own tables.')));
+  roveExplorer();
 }
 async function loadTables() {
   try {
@@ -1349,10 +1351,23 @@ $('explorer').addEventListener('keydown', e => {
   const i = all.indexOf(t);
   if (e.key === 'ArrowDown') { e.preventDefault(); all[Math.min(all.length - 1, i + 1)]?.focus(); }
   else if (e.key === 'ArrowUp') { e.preventDefault(); all[Math.max(0, i - 1)]?.focus(); }
-  else if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && t.classList.contains('tn')) {
-    e.preventDefault(); t.closest('li')._toggle(e.key === 'ArrowRight');
+  else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+    const inCol = t.closest('.cols'), tli = inCol ? inCol.parentElement : t.closest('li');
+    const open = tli.querySelector('.exp').getAttribute('aria-expanded') === 'true';
+    e.preventDefault();
+    if (e.key === 'ArrowRight') { if (inCol) return; if (open) tli.querySelector('.cols button')?.focus(); else tli._toggle(true); }
+    else { if (inCol) tli.querySelector('.tn').focus(); tli._toggle(false); }
   }
 });
+// one Tab stop for the whole explorer; arrows move within it
+let explorerStop = null;
+function roveExplorer(focused) {
+  const all = [...$('explorer').querySelectorAll('button[data-nav]')];
+  if (focused) explorerStop = focused;
+  if (!all.includes(explorerStop)) explorerStop = all.find(b => b.offsetParent) || all[0];
+  for (const b of all) b.tabIndex = b === explorerStop ? 0 : -1;
+}
+$('explorer').addEventListener('focusin', e => { const t = e.target.closest('button[data-nav]'); if (t) roveExplorer(t); });
 
 // ---------- editor (R8) ----------
 function syncGutter() {
@@ -1647,7 +1662,14 @@ function openAuth(mode, opener) {
 }
 $('authdlg').addEventListener('close', () => { authFromUpload = false; if (authOpener && document.contains(authOpener)) authOpener.focus(); });
 for (const b of document.querySelectorAll('[data-auth]')) b.onclick = () => openAuth(b.dataset.auth, b);
-for (const b of document.querySelectorAll('.seg .tab')) b.onclick = () => setAuthMode(b.dataset.mode);
+for (const b of document.querySelectorAll('.seg .tab')) {
+  b.onclick = () => setAuthMode(b.dataset.mode);
+  b.onkeydown = e => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    e.preventDefault(); setAuthMode(authMode === 'login' ? 'signup' : 'login');
+    document.querySelector(`.seg .tab[data-mode=${authMode}]`).focus();
+  };
+}
 for (const b of document.querySelectorAll('[data-close]')) b.onclick = () => b.closest('dialog').close();
 for (const b of document.querySelectorAll('[data-reveal]')) b.onclick = () => {
   const i = $(b.dataset.reveal), hidden = i.type === 'password';
