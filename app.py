@@ -44,38 +44,40 @@ LOG_FORMATS = {
     "access": (r'^(\S+) (\S+) (\S+) \[([^\]]+)\] "(\S+) (\S+) ([^"]*)" (\d{3}) (\d+|-)(?: "([^"]*)" "([^"]*)")?',
                ["ip", "ident", "user", "ts", "method", "path", "protocol", "status", "bytes", "referrer", "user_agent"],
                {"ts": "try_strptime(left(s.ts, 20), '%d/%b/%Y:%H:%M:%S')",  # local time; the zone offset is dropped
+                "ident": "nullif(nullif(s.ident, ''), '-')", "user": "nullif(nullif(s.user, ''), '-')",
                 "status": "try_cast(s.status AS INT)", "bytes": "try_cast(s.bytes AS BIGINT)"}),
     "syslog": (r'^(\w{3} [ \d]\d \d\d:\d\d:\d\d) (\S+) ([^\s:\[]+)(?:\[(\d+)\])?: (.*)$',
                ["ts", "host", "app", "pid", "message"], {"pid": "try_cast(s.pid AS INT)"}),
 }
-LOGFMT_KEY = r"(?:^|\s)([A-Za-z_][\w.]*)="
+LOGFMT_TOKEN = r'([A-Za-z_][\w.]*)=("(?:[^"\\]|\\.)*"|\S*)'  # key=value, quoted values consumed whole
 
 
-def log_source(db, path):
-    """FROM-clause (one '?' for the file) for a .log: parsed columns if >= 80% of a 200-line sample fits a known
-    format, else (line_no, line). Parsed formats keep line_no and the raw line; unmatched lines get NULL fields."""
-    sample = [r[0] for r in db.execute(f"SELECT line FROM {LOG_LINES} WHERE trim(line) <> '' LIMIT 200", [path]).fetchall()]
-    fits = lambda ok: sum(bool(ok(x)) for x in sample) >= 0.8 * len(sample) > 0
+def log_source(data):
+    """FROM-clause (one '?' for the file) for a .log: parsed columns if >= 80% of a head sample (first 64 KB,
+    200 non-empty lines, at least 5) fits a known format, else (line_no, line). Parsed formats keep line_no and
+    the raw line; unmatched lines get NULL fields."""
+    sample = [l for l in data[:65536].decode("utf-8", "replace").splitlines() if l.strip()][:200]
+    fits = lambda ok: len(sample) >= 5 and sum(bool(ok(x)) for x in sample) >= 0.8 * len(sample)
 
     def is_json(line):
         try:
             return isinstance(json.loads(line), dict)
         except ValueError:
             return False
-    if fits(is_json):
+    if len(sample) >= 5 and all(map(is_json, sample)):  # every line, since a bad line becomes an empty row
         return "read_json_auto(?, format = 'newline_delimited', ignore_errors = true)"  # ponytail: no line_no here
     for pattern, names, typed in LOG_FORMATS.values():
         if fits(re.compile(pattern).match):
             cols = ", ".join(f"{typed.get(n) or f'nullif(s.{n}, {chr(39) * 2})'} AS {n}" for n in names)
             return (f"(SELECT line_no, line, {cols} FROM (SELECT line_no, line, CASE WHEN regexp_matches(line, '{pattern}') "
                     f"THEN regexp_extract(line, '{pattern}', {names}) END AS s FROM {LOG_LINES}))")
-    pair = re.compile(r"^\s*[A-Za-z_][\w.]*=")
-    if fits(pair.match):
-        keys = list(dict.fromkeys(k for line in sample for k in re.findall(LOGFMT_KEY, line)))
+    if fits(re.compile(r"\s*[A-Za-z_][\w.]*=").match):
+        keys = list(dict.fromkeys(k for line in sample for k, _ in re.findall(LOGFMT_TOKEN, line)))
         keys = [k for k in keys if k not in ("line", "line_no")][:50]
-        cols = ", ".join(f"nullif(trim(regexp_extract(line, '(?:^|\\s){k}=(\"[^\"]*\"|\\S*)', 1), '\"'), '') AS \"{k}\""
-                         for k in keys)
-        return f"(SELECT line_no, line, {cols} FROM {LOG_LINES})" if cols else LOG_LINES
+        cols = ", ".join(f"nullif(trim(substr(list_filter(toks, t -> starts_with(t, '{k}='))[1], {len(k) + 2}), '\"'), '') "
+                         f"AS \"{k}\"" for k in keys)
+        return (f"(SELECT line_no, line, {cols} FROM (SELECT line_no, line, "
+                f"regexp_extract_all(line, '{LOGFMT_TOKEN}', 0) AS toks FROM {LOG_LINES}))") if cols else LOG_LINES
     return LOG_LINES
 
 
@@ -93,7 +95,7 @@ def load(db, filename, data, tmp_root=None):
         if ext == ".xlsx":
             xlsx_to_csv(path, path := os.path.join(tmp, "upload.csv"))
         name = table_name(filename)
-        src = log_source(db, path) if ext == ".log" else readers[ext]
+        src = log_source(data) if ext == ".log" else readers[ext]
         db.execute(f'CREATE OR REPLACE TABLE main."{name}" AS SELECT * FROM {src}', [path])
     return name
 
@@ -536,15 +538,25 @@ def check():
     assert query(db, "SELECT ip, user, ts, method, path, status, bytes, user_agent FROM acc WHERE line_no = 1")["rows"] == [
         ("1.2.3.4", "bob", datetime.datetime(2026, 9, 14, 8, 0, 11), "GET", "/a?x=1", 404, None, "curl/8")]
     assert query(db, "SELECT line, ip, status FROM acc WHERE line_no = 10")["rows"] == [("garbage line", None, None)]
-    load(db, "sys.log", b"Sep  4 03:00:44 web02 sshd[731]: Failed password for root\nSep 14 03:01:42 db1 kernel: oom\n")
-    assert query(db, "SELECT ts, host, app, pid, message FROM sys ORDER BY line_no")["rows"] == [
+    load(db, "sys.log", b"Sep  4 03:00:44 web02 sshd[731]: Failed password for root\nSep 14 03:01:42 db1 kernel: oom\n" * 3)
+    assert query(db, "SELECT ts, host, app, pid, message FROM sys ORDER BY line_no LIMIT 2")["rows"] == [
         ("Sep  4 03:00:44", "web02", "sshd", 731, "Failed password for root"), ("Sep 14 03:01:42", "db1", "kernel", None, "oom")]
     load(db, "fmt.log", b'level=info msg="hello world" ms=5\nlevel=error ms=70 code=E1\n' * 4 + b"not logfmt at all\nlevel=warn\n")
     assert cols("fmt") == ["line_no", "line", "level", "msg", "ms", "code"]
     assert query(db, "SELECT msg, code FROM fmt WHERE line_no IN (1, 2) ORDER BY line_no")["rows"] == [("hello world", None), (None, "E1")]
     assert query(db, "SELECT level, line FROM fmt WHERE line_no = 9")["rows"] == [(None, "not logfmt at all")]
-    load(db, "js.log", b'{"a":1,"b":"x"}\n{"a":2,"b":"y"}\n')
-    assert query(db, "SELECT sum(a) FROM js")["rows"] == [(3,)]
+    load(db, "js.log", b'{"a":1,"b":"x"}\n{"a":2,"b":"y"}\n' * 3)
+    assert query(db, "SELECT sum(a) FROM js")["rows"] == [(9,)]
+    load(db, "js2.log", b'{"a":1}\n' * 9 + b"oops\n")  # one bad line: not JSON lines, raw lines kept
+    assert cols("js2") == ["line_no", "line"]
+    # keys inside quoted values are not keys; '-' ident/user is NULL; tiny files stay raw
+    load(db, "q.log", b'msg="a level=3 b" level=ok\n' * 5)
+    assert query(db, "SELECT level, msg FROM q WHERE line_no = 1")["rows"] == [("ok", "a level=3 b")]
+    assert query(db, "SELECT ident, user FROM acc WHERE line_no = 1")["rows"] == [(None, "bob")]
+    load(db, "one.log", b"k=v\n")
+    assert cols("one") == ["line_no", "line"]
+    load(db, "late.log", b"x" * 70000 + b"\n" + b"k=v\n" * 9)  # only the head is sampled
+    assert cols("late") == ["line_no", "line"]
     load(db, "plain.log", b"2026-09-14T08:00:36Z INFO  http method=GET\nsomething else\n")
     assert cols("plain") == ["line_no", "line"]
 

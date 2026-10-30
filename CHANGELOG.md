@@ -5,6 +5,7 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 ## [Unreleased]
 
 ### Fixed
+- 2026-10-30: log parsing: logfmt no longer reads keys inside quoted values, JSON-lines needs every sampled line to be an object, only the first 64 KB is sampled (in Python), access-log `-` ident/user become NULL, and files with fewer than 5 lines stay raw.
 - 2026-10-30: table names containing a double quote could inject SQL through `ident()` (profile, Ask schema, delete); quotes are now escaped in `app.py` and the preview query in `index.html`.
 - 2026-10-30: deleting a table that is already gone refreshes the list and says so; after a failed delete, focus stays in the confirm.
 
