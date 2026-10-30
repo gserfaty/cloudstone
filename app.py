@@ -74,7 +74,7 @@ def log_source(data):
     if fits(re.compile(r"\s*[A-Za-z_][\w.]*=").match):
         keys = list(dict.fromkeys(k for line in sample for k, _ in re.findall(LOGFMT_TOKEN, line)))
         keys = [k for k in keys if k not in ("line", "line_no")][:50]
-        cols = ", ".join(f"nullif(trim(substr(list_filter(toks, t -> starts_with(t, '{k}='))[1], {len(k) + 2}), '\"'), '') "
+        cols = ", ".join(f"nullif(trim(substr(list_filter(toks, lambda t: starts_with(t, '{k}='))[1], {len(k) + 2}), '\"'), '') "
                          f"AS \"{k}\"" for k in keys)
         return (f"(SELECT line_no, line, {cols} FROM (SELECT line_no, line, "
                 f"regexp_extract_all(line, '{LOGFMT_TOKEN}', 0) AS toks FROM {LOG_LINES}))") if cols else LOG_LINES
