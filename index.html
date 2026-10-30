@@ -583,7 +583,7 @@ const stripDot = s => String(s || '').trim().replace(/\.+$/, '');
 const plural = (n, w) => `${n.toLocaleString('en-US')} ${w}${n === 1 ? '' : 's'}`;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 
-const DEMO_TYPES = {sales: 'csv', employees: 'xlsx', products: 'json', events: 'ndjson', customers: 'json', web_server: 'log', shipments: 'parquet'};
+const DEMO_TYPES = {sales: 'csv', employees: 'xlsx', products: 'json', events: 'ndjson', customers: 'json', web_server: 'log', nginx_access: 'log', syslog: 'log', app_events: 'log', shipments: 'parquet'};
 const SUGGESTIONS = ['Which sales rep sold the most speakers?', 'Average delivery days per carrier', 'Which customers came from the legacy system?', 'Error lines per hour in the server log'];
 const EXAMPLES = [
   ['Revenue by region', 'CSV', `SELECT region, round(sum(quantity * unit_price), 2) AS revenue
@@ -617,6 +617,12 @@ GROUP BY 1 ORDER BY 2 DESC`],
        max(regexp_extract(line, 'ms=(\\d+)', 1)::INT) AS max_ms
 FROM demo.web_server WHERE line LIKE '%INFO  http%'
 GROUP BY 1 ORDER BY avg_ms DESC`],
+  ['Status codes per path', 'LOG · nginx access', `SELECT path, status, count(*) AS requests
+FROM demo.nginx_access GROUP BY 1, 2 ORDER BY 3 DESC`],
+  ['Errors per app', 'LOG · syslog', `SELECT app, count(*) AS lines, count(*) FILTER (WHERE message ILIKE '%error%' OR message ILIKE '%failed%') AS problems
+FROM demo.syslog GROUP BY 1 ORDER BY 3 DESC`],
+  ['Latency by service', 'LOG · logfmt', `SELECT service, count(*) AS events, round(avg(duration_ms::INT)) AS avg_ms, max(duration_ms::INT) AS max_ms
+FROM demo.app_events GROUP BY 1 ORDER BY avg_ms DESC`],
   ['Delivery time by carrier', 'Parquet ⋈ CSV join', `SELECT sh.carrier,
        count(*) AS shipments,
        round(avg(date_diff('hour', sh.shipped_at, sh.delivered_at)) / 24, 1) AS avg_days,

@@ -140,3 +140,8 @@ def test_signup_upload_delete_table_and_account(app, tmp_path):
     app.locator("#delpw").fill("correct horse 123")
     app.locator("#delgo").click()
     expect(app.locator("#loggedout")).to_be_visible()
+
+
+def test_nginx_demo_has_parsed_columns(app):
+    app.locator("button[data-table='demo.nginx_access']").click()
+    expect(app.locator("#gridres thead")).to_contain_text("status")

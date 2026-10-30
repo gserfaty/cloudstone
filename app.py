@@ -3,7 +3,7 @@
 Run:   python app.py            -> http://127.0.0.1:8000
 Check: python app.py check
 """
-import csv, hashlib, hmac, json, os, re, secrets, shutil, sqlite3, subprocess, sys, tempfile, time
+import csv, datetime, hashlib, hmac, json, os, re, secrets, shutil, sqlite3, subprocess, sys, tempfile, time
 from http.cookies import SimpleCookie
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
@@ -37,14 +37,54 @@ def xlsx_to_csv(src, dst):
         csv.writer(f).writerows(ws.iter_rows(values_only=True))
 
 
+LOG_LINES = ("(SELECT unnest(range(1, len(l) + 1)) AS line_no, unnest(l) AS line FROM "
+             "(SELECT regexp_split_to_array(rtrim(content, chr(13) || chr(10)), '\\r?\\n') AS l FROM read_text(?)))")
+# Regex log formats: pattern (RE2 and Python agree on these), group names, typed overrides.
+LOG_FORMATS = {
+    "access": (r'^(\S+) (\S+) (\S+) \[([^\]]+)\] "(\S+) (\S+) ([^"]*)" (\d{3}) (\d+|-)(?: "([^"]*)" "([^"]*)")?',
+               ["ip", "ident", "user", "ts", "method", "path", "protocol", "status", "bytes", "referrer", "user_agent"],
+               {"ts": "try_strptime(left(s.ts, 20), '%d/%b/%Y:%H:%M:%S')",  # local time; the zone offset is dropped
+                "status": "try_cast(s.status AS INT)", "bytes": "try_cast(s.bytes AS BIGINT)"}),
+    "syslog": (r'^(\w{3} [ \d]\d \d\d:\d\d:\d\d) (\S+) ([^\s:\[]+)(?:\[(\d+)\])?: (.*)$',
+               ["ts", "host", "app", "pid", "message"], {"pid": "try_cast(s.pid AS INT)"}),
+}
+LOGFMT_KEY = r"(?:^|\s)([A-Za-z_][\w.]*)="
+
+
+def log_source(db, path):
+    """FROM-clause (one '?' for the file) for a .log: parsed columns if >= 80% of a 200-line sample fits a known
+    format, else (line_no, line). Parsed formats keep line_no and the raw line; unmatched lines get NULL fields."""
+    sample = [r[0] for r in db.execute(f"SELECT line FROM {LOG_LINES} WHERE trim(line) <> '' LIMIT 200", [path]).fetchall()]
+    fits = lambda ok: sum(bool(ok(x)) for x in sample) >= 0.8 * len(sample) > 0
+
+    def is_json(line):
+        try:
+            return isinstance(json.loads(line), dict)
+        except ValueError:
+            return False
+    if fits(is_json):
+        return "read_json_auto(?, format = 'newline_delimited', ignore_errors = true)"  # ponytail: no line_no here
+    for pattern, names, typed in LOG_FORMATS.values():
+        if fits(re.compile(pattern).match):
+            cols = ", ".join(f"{typed.get(n) or f'nullif(s.{n}, {chr(39) * 2})'} AS {n}" for n in names)
+            return (f"(SELECT line_no, line, {cols} FROM (SELECT line_no, line, CASE WHEN regexp_matches(line, '{pattern}') "
+                    f"THEN regexp_extract(line, '{pattern}', {names}) END AS s FROM {LOG_LINES}))")
+    pair = re.compile(r"^\s*[A-Za-z_][\w.]*=")
+    if fits(pair.match):
+        keys = list(dict.fromkeys(k for line in sample for k in re.findall(LOGFMT_KEY, line)))
+        keys = [k for k in keys if k not in ("line", "line_no")][:50]
+        cols = ", ".join(f"nullif(trim(regexp_extract(line, '(?:^|\\s){k}=(\"[^\"]*\"|\\S*)', 1), '\"'), '') AS \"{k}\""
+                         for k in keys)
+        return f"(SELECT line_no, line, {cols} FROM {LOG_LINES})" if cols else LOG_LINES
+    return LOG_LINES
+
+
 def load(db, filename, data, tmp_root=None):
     """Load file bytes into a table in db's main schema. tmp_root must be readable by db's sandbox."""
     ext = Path(filename).suffix.lower()
-    lines = ("(SELECT unnest(range(1, len(l) + 1)) AS line_no, unnest(l) AS line FROM "
-             "(SELECT regexp_split_to_array(rtrim(content, chr(13) || chr(10)), '\\r?\\n') AS l FROM read_text(?)))")
     readers = {".csv": "read_csv_auto(?)", ".json": "read_json_auto(?)", ".ndjson": "read_json_auto(?)",
                ".jsonl": "read_json_auto(?)", ".xlsx": "read_csv_auto(?)", ".parquet": "read_parquet(?)",
-               ".log": lines}  # one row per line: (line_no, line)
+               ".log": None}  # chosen per file by log_source()
     if ext not in readers:
         raise ValueError(f"unsupported file type: {ext or filename}")
     with tempfile.TemporaryDirectory(dir=tmp_root) as tmp:
@@ -53,7 +93,8 @@ def load(db, filename, data, tmp_root=None):
         if ext == ".xlsx":
             xlsx_to_csv(path, path := os.path.join(tmp, "upload.csv"))
         name = table_name(filename)
-        db.execute(f'CREATE OR REPLACE TABLE main."{name}" AS SELECT * FROM {readers[ext]}', [path])
+        src = log_source(db, path) if ext == ".log" else readers[ext]
+        db.execute(f'CREATE OR REPLACE TABLE main."{name}" AS SELECT * FROM {src}', [path])
     return name
 
 
@@ -486,14 +527,35 @@ def check():
     assert query(db, "SELECT x + y FROM sheet")["rows"] == [(3.5,)]
     raises(ValueError, load, db, "notes.txt", b"hi")
 
+    # log formats: detected from a sample, parsed columns plus line_no and raw line, NULLs for odd lines
+    cols = lambda t: [c[0] for c in db.execute(f"DESCRIBE {t}").fetchall()]
+    acc = (b'1.2.3.4 - bob [14/Sep/2026:08:00:11 +0000] "GET /a?x=1 HTTP/1.1" 404 - "-" "curl/8"\n' * 9
+           + b"garbage line\n")
+    load(db, "acc.log", acc)
+    assert cols("acc")[:4] == ["line_no", "line", "ip", "ident"] and "user_agent" in cols("acc")
+    assert query(db, "SELECT ip, user, ts, method, path, status, bytes, user_agent FROM acc WHERE line_no = 1")["rows"] == [
+        ("1.2.3.4", "bob", datetime.datetime(2026, 9, 14, 8, 0, 11), "GET", "/a?x=1", 404, None, "curl/8")]
+    assert query(db, "SELECT line, ip, status FROM acc WHERE line_no = 10")["rows"] == [("garbage line", None, None)]
+    load(db, "sys.log", b"Sep  4 03:00:44 web02 sshd[731]: Failed password for root\nSep 14 03:01:42 db1 kernel: oom\n")
+    assert query(db, "SELECT ts, host, app, pid, message FROM sys ORDER BY line_no")["rows"] == [
+        ("Sep  4 03:00:44", "web02", "sshd", 731, "Failed password for root"), ("Sep 14 03:01:42", "db1", "kernel", None, "oom")]
+    load(db, "fmt.log", b'level=info msg="hello world" ms=5\nlevel=error ms=70 code=E1\n' * 4 + b"not logfmt at all\nlevel=warn\n")
+    assert cols("fmt") == ["line_no", "line", "level", "msg", "ms", "code"]
+    assert query(db, "SELECT msg, code FROM fmt WHERE line_no IN (1, 2) ORDER BY line_no")["rows"] == [("hello world", None), (None, "E1")]
+    assert query(db, "SELECT level, line FROM fmt WHERE line_no = 9")["rows"] == [(None, "not logfmt at all")]
+    load(db, "js.log", b'{"a":1,"b":"x"}\n{"a":2,"b":"y"}\n')
+    assert query(db, "SELECT sum(a) FROM js")["rows"] == [(3,)]
+    load(db, "plain.log", b"2026-09-14T08:00:36Z INFO  http method=GET\nsomething else\n")
+    assert cols("plain") == ["line_no", "line"]
+
     with tempfile.TemporaryDirectory() as tmp:
         DATA = Path(tmp)
         start()
         auth, anon = Handler.auth, Handler.anon
 
         # demo data, read-only and sandboxed for anonymous visitors
-        assert tables(anon) == ["demo.customers", "demo.employees", "demo.events", "demo.products",
-                                "demo.sales", "demo.shipments", "demo.web_server"]
+        assert tables(anon) == ["demo.app_events", "demo.customers", "demo.employees", "demo.events", "demo.nginx_access", "demo.products",
+                                "demo.sales", "demo.shipments", "demo.syslog", "demo.web_server"]
         cols = dict(c[:2] for c in anon.execute("DESCRIBE demo.customers").fetchall())
         assert cols["id"] == cols["tags"] == "JSON" and cols["email"] == "VARCHAR"  # mixed shapes stay queryable
         assert query(anon, "SELECT count(*) FROM demo.shipments JOIN demo.sales USING (order_id)")["rows"] == [(120,)]

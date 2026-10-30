@@ -9,6 +9,7 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 - 2026-10-30: deleting a table that is already gone refreshes the list and says so; after a failed delete, focus stays in the confirm.
 
 ### Added
+- 2026-10-30: `.log` uploads are sniffed (first 200 lines, 80% match) and parsed into columns for JSON lines, nginx/Apache access logs, RFC 3164 syslog and logfmt; other logs stay `(line_no, line)`. New demos `nginx_access`, `syslog` and `app_events` with three example queries.
 - 2026-10-30: delete-table button in the Explorer for your own tables (inline confirm, Delete key on a focused table), backed by `POST /tables/delete`; demo tables cannot be deleted.
 - 2026-10-30: GitHub Actions CI (`.github/workflows/ci.yml`) running `python app.py check` and the browser tests on every push and pull request.
 - 2026-10-30: browser tests (`tests/test_browser.py`, pytest + Playwright, dev dependencies in `requirements-dev.txt`) covering load, query, sort, column details, chart, history, Ask off, explorer tab stop, `/` shortcut and the sign up, upload, delete account flow.
