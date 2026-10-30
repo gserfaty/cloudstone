@@ -13,11 +13,13 @@ browser (index.html) ──fetch + session cookie──▶ app.py (http.server)
 
 | File | Role |
 |------|------|
-| `app.py` | Stdlib `HTTPServer` on `127.0.0.1:8000`. Serves the page, accounts, uploads, queries. Also holds the self-check (`python app.py check`). |
+| `app.py` | Stdlib `HTTPServer` on `127.0.0.1:8000` (`CLOUDSTONE_PORT` and `CLOUDSTONE_DATA` override the port and data directory). Serves the page, accounts, uploads, queries. Also holds the self-check (`python app.py check`). |
 | `index.html` | Whole UI: plain HTML/CSS/JS, no build step. Chart.js from cdnjs, Archivo and IBM Plex Mono from Google Fonts (falls back to system fonts offline). Light theme only; the `:root` block is DESIGN.md's token block verbatim, and no color literal appears outside it. |
 | Claude | Turns questions into SQL in `ask()`: through the local Claude Code CLI on your Claude plan (`subscription` mode) or the `anthropic` SDK with an API key (`api` mode). |
 | `demo/` | Demo files, one per supported format. Rebuilt into `data/demo.duckdb` on every start. |
 | `data/` | All runtime state, git-ignored. Created on first run. |
+| `tests/` | Browser tests (pytest + Playwright): start `app.py` on port 8765 with a temporary data dir and drive the page in headless Chromium. Dev dependencies in `requirements-dev.txt`. |
+| `.github/workflows/ci.yml` | GitHub Actions on every push and pull request: `python app.py check`, then `pytest -q`. |
 | `JOURNEY.md` | Design contract for the UI: the analyst's job, flows and the Workbench page spec (regions, states, keyboard). |
 | `DESIGN.md` | Visual identity ("Verdigris Ledger") and the light-only CSS token block the UI uses. Locked on 2026-10-13 after the user approved the mock. |
 | `.design-foundations/` | The design-for-ai workflow's research brief, phased plan, per-phase build/review reports and dealer ledger. |

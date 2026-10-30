@@ -14,7 +14,7 @@ import duckdb
 
 HERE = Path(__file__).parent
 DEMO = HERE / "demo"
-DATA = HERE / "data"
+DATA = Path(os.environ.get("CLOUDSTONE_DATA") or HERE / "data")
 MAX_ROWS = 1000
 MAX_BODY = 200 * 1024 * 1024
 SESSION_DAYS = 30
@@ -619,5 +619,6 @@ if __name__ == "__main__":
     else:
         start()
         # ponytail: single-threaded server; fine for local use, ThreadingHTTPServer + per-request cursors to scale
-        print("http://127.0.0.1:8000")
-        HTTPServer(("127.0.0.1", 8000), Handler).serve_forever()
+        port = int(os.environ.get("CLOUDSTONE_PORT", 8000))
+        print(f"http://127.0.0.1:{port}", flush=True)
+        HTTPServer(("127.0.0.1", port), Handler).serve_forever()

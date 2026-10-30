@@ -74,7 +74,7 @@ In both modes Claude receives your question, the names and types of every table 
 .venv/bin/python app.py
 ```
 
-Open http://127.0.0.1:8000. The page opens on `demo.sales`; click any table in the explorer to see its first 100 rows and its profile. Sign up (top right) to upload your own files.
+Open http://127.0.0.1:8000. Set `CLOUDSTONE_PORT` to use another port and `CLOUDSTONE_DATA` to keep the data elsewhere (both optional). The page opens on `demo.sales`; click any table in the explorer to see its first 100 rows and its profile. Sign up (top right) to upload your own files.
 
 All runtime data lives in `data/` (git-ignored): accounts in `data/auth.sqlite3`, each user's tables in `data/users/u<id>.duckdb`. Delete `data/` to reset everything.
 
@@ -85,6 +85,16 @@ All runtime data lives in `data/` (git-ignored): accounts in `data/auth.sqlite3`
 ```
 
 Prints `ok` when loading, profiling, querying, accounts, per-user isolation and plain-English questions all work. The check uses a stand-in for the Claude API, so it needs no key and costs nothing.
+
+Browser tests (Playwright, headless Chromium; they start their own server on port 8765 with a temporary data directory):
+
+```bash
+.venv/bin/pip install -r requirements-dev.txt
+.venv/bin/python -m playwright install chromium
+.venv/bin/python -m pytest -q
+```
+
+GitHub Actions runs both the check and the browser tests on every push and pull request.
 
 ## Security
 

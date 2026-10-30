@@ -5,6 +5,9 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 ## [Unreleased]
 
 ### Added
+- 2026-10-30: GitHub Actions CI (`.github/workflows/ci.yml`) running `python app.py check` and the browser tests on every push and pull request.
+- 2026-10-30: browser tests (`tests/test_browser.py`, pytest + Playwright, dev dependencies in `requirements-dev.txt`) covering load, query, sort, column details, chart, history, Ask off, explorer tab stop, `/` shortcut and the sign up, upload, delete account flow.
+- 2026-10-30: `CLOUDSTONE_PORT` and `CLOUDSTONE_DATA` environment variables to choose the server port and data directory.
 - 2026-10-14: fix plan for the verification findings (`.design-foundations/build/2026-10-14-fix-plan.md`); all fixes re-tested with real key presses and simulated Chart.js/storage failures.
 - 2026-10-14: browser verification report for the paths left untested after the redesign (Ask, Chart.js missing, blocked storage, keyboard-only): `.design-foundations/build/2026-10-14-browser-verification.md`.
 - MIT license (`LICENSE`).
