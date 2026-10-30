@@ -5,6 +5,7 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 ## [Unreleased]
 
 ### Added
+- 2026-10-30: delete-table button in the Explorer for your own tables (inline confirm, Delete key on a focused table), backed by `POST /tables/delete`; demo tables cannot be deleted.
 - 2026-10-30: GitHub Actions CI (`.github/workflows/ci.yml`) running `python app.py check` and the browser tests on every push and pull request.
 - 2026-10-30: browser tests (`tests/test_browser.py`, pytest + Playwright, dev dependencies in `requirements-dev.txt`) covering load, query, sort, column details, chart, history, Ask off, explorer tab stop, `/` shortcut and the sign up, upload, delete account flow.
 - 2026-10-30: `CLOUDSTONE_PORT` and `CLOUDSTONE_DATA` environment variables to choose the server port and data directory.

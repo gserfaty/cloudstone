@@ -39,6 +39,7 @@ browser (index.html) ──fetch + session cookie──▶ app.py (http.server)
 | POST | `/logout` | ✓ | `{}` | `{user: null}`, clears cookie |
 | POST | `/password` | ✓ | `{old, new}` | `{user}` + new cookie; all other sessions end |
 | POST | `/account/delete` | ✓ | `{password}` | `{user: null}`; user's database and uploads deleted |
+| POST | `/tables/delete` | ✓ | `{table}` | updated table list; only the user's own tables (never `demo.*`), else 400 |
 | POST | `/upload` | ✓ | `?name=file.ext`, raw file bytes | `{table, profile}` |
 
 Errors return JSON `{"error": "..."}`: 400 bad input, 401 not logged in or wrong password, 403 cross-origin or locked out, 413 body over 200 MB, 502 Claude API failure (missing key, rate limit, outage). Values JSON-encode with `default=str` (dates, decimals, UUIDs become strings; structs and lists stay JSON).

@@ -15,7 +15,7 @@ A local data workbench: upload structured and semi-structured files, then profil
   | `demo.customers` | `demo/customers.json` | Messy JSON: 24 customers merged from 3 systems with different keys, ids as numbers or strings, money as numbers or text, tags as a list or a string, address as an object or a sentence. Fields that vary become `JSON` columns, queried with `->>` |
   | `demo.web_server` | `demo/web_server.log` | Raw server log: 444 lines of request, warning, error and stack-trace lines, one row per line, parsed with `regexp_extract` |
   | `demo.shipments` | `demo/shipments.parquet` | Parquet: one shipment per order (joins to sales via `order_id`), timestamps, decimals and a list of checkpoint objects |
-- **Accounts** — sign up, log in, log out, change password, delete account. Each user's uploads are saved in their own database and survive restarts.
+- **Accounts** — sign up, log in, log out, change password, delete account, delete your own tables from the Explorer. Each user's uploads are saved in their own database and survive restarts.
 - **Upload** (logged in) CSV, JSON, NDJSON/JSONL, XLSX, Parquet and `.log` files (several at once). A `.log` file becomes one row per line (`line_no`, `line`). Each file becomes a table named after the file under **Your tables**; re-uploading replaces it.
 - **Structured, nested and messy data** — column types are inferred, nested JSON is queryable directly (`SELECT context.page FROM demo.events`), and JSON fields whose type varies between records become `JSON` columns (`SELECT tags->>'$[0]' FROM demo.customers`).
 - **Auto profile** — per column: type, null %, approx distinct count, min/max, mean, std, quartiles.
@@ -109,7 +109,7 @@ GitHub Actions runs both the check and the browser tests on every push and pull 
 - Excel: first sheet only.
 - Runs on localhost over plain HTTP. Put it behind HTTPS (and add `Secure` to the cookie) before exposing it to a network.
 - No password reset by email: a forgotten password means a new account.
-- No delete-table button yet: drop tables with SQL (`DROP TABLE x`). Results download as CSV from the Results card, but SQL-side export (`COPY ... TO`) is blocked by the sandbox.
+- Results download as CSV from the Results card, but SQL-side export (`COPY ... TO`) is blocked by the sandbox.
 - Uploads are capped at 200 MB.
 - With Ask on, logged-out visitors can ask questions too, and every question is billed to the server's API key. Fine on localhost; add a login requirement or rate limit before exposing it.
 - Questions don't carry context: each one is answered on its own, without the previous question.

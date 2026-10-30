@@ -118,3 +118,25 @@ def test_signup_upload_and_delete_account(app, tmp_path):
     app.locator("#delpw").fill("correct horse 123")
     app.locator("#delgo").click()
     expect(app.locator("#loggedout")).to_be_visible()
+
+
+def test_signup_upload_delete_table_and_account(app, tmp_path):
+    app.locator("[data-auth=signup]").click()
+    app.locator("#username").fill("tabler")
+    app.locator("#password").fill("correct horse 123")
+    app.locator("#authsubmit").click()
+    expect(app.locator("#loggedin")).to_be_visible()
+    csv = tmp_path / "pets.csv"
+    csv.write_text("name,age\nrex,3\nfido,5\n")
+    app.locator("#file").set_input_files(str(csv))
+    expect(app.locator("#tables .name", has_text="pets")).to_be_visible()
+    expect(app.locator("#demo .del")).to_have_count(0)  # never offered for demo tables
+    app.locator("#tables .trow").hover()
+    app.get_by_role("button", name="Delete table pets").click()
+    app.get_by_role("button", name="Delete table", exact=True).click()
+    expect(app.locator("#tables .name", has_text="pets")).to_have_count(0)
+    expect(app.locator("#toasts")).to_contain_text("Deleted pets.")
+    app.locator("#accountbtn").click()
+    app.locator("#delpw").fill("correct horse 123")
+    app.locator("#delgo").click()
+    expect(app.locator("#loggedout")).to_be_visible()

@@ -163,7 +163,7 @@ Notation: circle = entry/exit, diamond = decision, rectangle = action. Written a
   - **error:** `/tables` or `/profile` failure shows the message inline in place of the list (not only a toast).
   - **logged out:** `my_data` is shown with "Sign up to upload and keep your own tables."; demo tables fully usable.
   - **Ask off:** n/a - no Ask element in Explorer.
-- Keys: `/` is not used here. Search box focusable by Tab; the explorer is then one Tab stop with roving focus (it remembers the last row); Up/Down moves between table rows, expanders and columns; Enter on the name previews; Right/Left expands/collapses columns (Right on an expanded table moves to its first column; Left on a column returns to its table and collapses it; or Enter on the expander); Enter on a column inserts it.
+- Keys: `/` is not used here. Search box focusable by Tab; the explorer is then one Tab stop with roving focus (it remembers the last row); Up/Down moves between table rows, expanders and columns; Enter on the name previews; Right/Left expands/collapses columns (Right on an expanded table moves to its first column; Left on a column returns to its table and collapses it; or Enter on the expander); Enter on a column inserts it. Own tables only (logged in, never demo): a small delete button after the name, in the same roving stop (hidden until row hover or focus, always visible on touch); Enter on it, or Delete on a focused table name, opens an inline confirm under the row (focus on Cancel); Esc closes it (Esc precedence, layer 1). On confirm the table is dropped, the list refreshes, and if it was the open table the views reset to `demo.sales`.
 - Cut: 2 groups (Hick); search carries the long-list case (Hick).
 
 ##### R5 Example queries
@@ -381,6 +381,9 @@ Tone column: **neutral** = status and labels; **direct** = errors, warnings and 
 | MC-24 | R6 · row labels | `Asked: {question}` (Ask rows only) · `{time}` (e.g. "2 min ago") · `{n} rows · {ms} ms` · `OK` or `Error` | neutral | |
 | MC-25 | R6 · row actions | Load (aria: "Load query from {time}") · Rerun (aria: "Rerun query from {time}") | neutral | |
 | MC-26 | R6 · clear confirm | Clear all history? Every saved run in this browser for this account is removed. It cannot be undone. Buttons: Clear history · Cancel | direct | |
+| MC-27b | R4 · delete table, confirm | Delete {table}? The table and its data are removed from your account. It cannot be undone. Buttons: Delete table · Cancel (aria on button: "Delete table {table}") | direct | |
+| MC-27c | R4 · deleted (toast) | Deleted {table}. | calm | |
+| MC-27d | R4 · error, delete (toast, stays) | Could not delete {table}. {server reason}. The table is still there; try again. | direct | happened · why · fix |
 | MC-27 | R6 · cleared (toast) | History cleared. | calm | |
 
 ### Ask card (R7) and Ask-off hint

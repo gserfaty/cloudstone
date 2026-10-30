@@ -70,6 +70,13 @@ def ident(name):
     return ".".join(f'"{part}"' for part in name.split(".", 1))
 
 
+def drop_table(db, name):
+    if name not in tables(db) or name.startswith("demo."):
+        raise ValueError(f"no such table of yours: {name}")
+    db.execute(f"DROP TABLE {ident(name)}")
+    return tables(db)
+
+
 def profile(db, name):
     if name not in tables(db):
         raise ValueError(f"no such table: {name}")
@@ -423,6 +430,8 @@ class Handler(BaseHTTPRequestHandler):
             if url.path == "/account/delete":
                 delete_account(self.auth, me[0], me[1], str(data.get("password", "")))
                 return self.send(200, {"user": None}, cookie="")
+            if url.path == "/tables/delete":
+                return self.send(200, drop_table(db, str(data.get("table", ""))))
             if url.path == "/upload":
                 name = load(db, q.get("name", ""), body, DATA / "uploads" / str(me[0]))
                 return self.send(200, {"table": name, "profile": profile(db, name)})
@@ -520,6 +529,11 @@ def check():
         assert "mine" in tables(a) and "mine" not in tables(b)
         assert query(a, "SELECT * FROM demo.sales LIMIT 1")["rows"]
         raises(duckdb.Error, query, a, "DROP TABLE demo.sales")
+        load(a, "scratch.csv", b"v\n1\n", DATA / "uploads" / str(ana))
+        assert "scratch" in tables(a) and "scratch" not in drop_table(a, "scratch")  # own table dropped
+        raises(ValueError, drop_table, a, "demo.sales")  # demo refused
+        raises(ValueError, drop_table, a, "nope")  # unknown refused
+        assert "demo.sales" in tables(a)
         raises(duckdb.Error, query, b, f"ATTACH '{sq(DATA / 'users' / f'u{ana}.duckdb')}' AS x")
         raises(duckdb.Error, query, b, f"SELECT * FROM read_csv_auto('{sq(HERE / 'app.py')}')")
         raises(duckdb.Error, query, a, "COPY mine TO '/tmp/cloudstone-leak.csv'")

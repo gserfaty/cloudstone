@@ -177,6 +177,11 @@ ul { list-style: none; padding: 0; }
 .trow:hover { background: var(--surface-hover); }
 .trow:has([aria-current=true]) { background: var(--accent-selected); }
 .trow .exp { width: 24px; height: 24px; display: inline-grid; place-items: center; flex: none; color: var(--text-muted); border-radius: var(--radius-control); }
+.trow .del { width: 24px; height: 24px; display: inline-grid; place-items: center; flex: none; color: var(--text-muted); border-radius: var(--radius-control); opacity: 0; transition: opacity var(--dur-1); }
+.trow:hover .del, .trow:focus-within .del, .del:focus-visible { opacity: 1; }
+.trow .del:hover { color: var(--error-11); }
+@media (hover: none) { .trow .del { opacity: 1; } }
+.del svg { width: 12px; height: 12px; }
 .exp svg, .chev { width: 12px; height: 12px; transition: transform var(--dur-1); }
 .exp[aria-expanded=true] svg { transform: rotate(90deg); }
 .trow .tn { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 28px; padding-right: 8px; font-size: var(--text-13); }
@@ -1306,9 +1311,46 @@ function tableItem(name) {
   exp.onclick = () => toggle(exp.getAttribute('aria-expanded') !== 'true');
   open.addEventListener('click', () => { if (exp.getAttribute('aria-expanded') === 'true' && cols.querySelector('.err')) { cols.replaceChildren(); toggle(true); } });
   if (expanded.has(name)) toggle(true);
-  const li = el('li', {}, el('div', {className: 'trow'}, exp, open), cols);
+  const row = el('div', {className: 'trow'}, exp, open);
+  const li = el('li', {}, row, cols);
+  if (user && !schema) {
+    const del = el('button', {type: 'button', className: 'del', title: `Delete ${name}`}, icon('x'));
+    del.setAttribute('aria-label', `Delete table ${name}`); del.dataset.nav = '1';
+    const no = el('button', {type: 'button', className: 'btn', textContent: 'Cancel'});
+    const yes = el('button', {type: 'button', className: 'btn', textContent: 'Delete table'});
+    const ask = el('div', {className: 'confirm', role: 'group', hidden: true},
+      el('div', {textContent: `Delete ${name}? The table and its data are removed from your account. It cannot be undone.`}), el('div', {className: 'row'}, yes, no));
+    ask.setAttribute('aria-label', `Delete ${name}`);
+    const close = () => { ask.hidden = true; del.focus(); };
+    del.onclick = () => { closeDeleteConfirm(); ask.hidden = false; no.focus(); };
+    del.addEventListener('keydown', e => { if (e.key === 'Delete') del.click(); });
+    open.addEventListener('keydown', e => { if (e.key === 'Delete') del.click(); });
+    no.onclick = close; ask._close = close;
+    yes.onclick = () => deleteTable(name, yes);
+    li.append(ask);
+    row.append(del);
+  }
   li._toggle = toggle;
   return li;
+}
+function closeDeleteConfirm() {
+  const open = $('tables').querySelector('.confirm:not([hidden])');
+  if (open) open._close();
+  return !!open;
+}
+async function deleteTable(name, btn) {
+  btn.setAttribute('aria-busy', 'true'); btn.disabled = true;
+  try {
+    tableNames = await post('/tables/delete', {table: name});
+    colCache.delete(name); expanded.delete(name);
+    renderTableLists();
+    toast(`Deleted ${name}.`);
+    (document.querySelector('#tables [data-nav]') || $('filter')).focus();
+    if (current === name) await openTable('demo.sales');
+  } catch (err) {
+    btn.removeAttribute('aria-busy'); btn.disabled = false;
+    toast(`Could not delete ${name}. ${isNet(err) ? 'Could not reach Cloudstone' : stripDot(err.message)}. The table is still there; try again.`, {err: true});
+  }
 }
 function renderTableLists() {
   const q = $('filter').value.trim().toLowerCase();
@@ -1750,6 +1792,7 @@ document.addEventListener('keydown', e => {
   const open = document.querySelector('dialog[open]');
   if (e.key === 'Escape') {
     if (closePop()) { pop.grid = null; e.preventDefault(); return; }                      // 1 popover
+    if (closeDeleteConfirm()) { e.preventDefault(); return; }                               // 1 delete-table confirm
     if (!$('hconfirm').hidden) { setConfirm(false); $('hclear').focus(); e.preventDefault(); return; }  // 1 clear confirm
     if (open) return;                                                                       // 2 dialog (native)
     if (panelOpen && $('results').contains(document.activeElement)) {                       // 3 column panel
