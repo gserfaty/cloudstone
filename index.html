@@ -578,7 +578,7 @@ label.field input { height: 32px; font-size: var(--text-14); width: 100%; }
 const $ = id => document.getElementById(id);
 const el = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids); return e; };
 const icon = id => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('aria-hidden', 'true'); s.innerHTML = `<use href="#i-${id}"/>`; return s; };
-const ident = name => name.split('.').map(p => `"${p}"`).join('.');
+const ident = name => name.split('.').map(p => `"${p.replace(/"/g, '""')}"`).join('.');
 const stripDot = s => String(s || '').trim().replace(/\.+$/, '');
 const plural = (n, w) => `${n.toLocaleString('en-US')} ${w}${n === 1 ? '' : 's'}`;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -1349,7 +1349,13 @@ async function deleteTable(name, btn) {
     if (current === name) await openTable('demo.sales');
   } catch (err) {
     btn.removeAttribute('aria-busy'); btn.disabled = false;
+    if (!isNet(err) && /^no such table/.test(err.message)) {
+      await loadTables(); closeDeleteConfirm();
+      (document.querySelector('#tables [data-nav]') || $('filter')).focus();
+      return toast(`${name} is already gone. The list is refreshed, so nothing was deleted.`);
+    }
     toast(`Could not delete ${name}. ${isNet(err) ? 'Could not reach Cloudstone' : stripDot(err.message)}. The table is still there; try again.`, {err: true});
+    btn.closest('.confirm')?.querySelector('.btn:last-child').focus();
   }
 }
 function renderTableLists() {

@@ -4,6 +4,10 @@ Format: [Keep a Changelog](https://keepachangelog.com). Newest first.
 
 ## [Unreleased]
 
+### Fixed
+- 2026-10-30: table names containing a double quote could inject SQL through `ident()` (profile, Ask schema, delete); quotes are now escaped in `app.py` and the preview query in `index.html`.
+- 2026-10-30: deleting a table that is already gone refreshes the list and says so; after a failed delete, focus stays in the confirm.
+
 ### Added
 - 2026-10-30: delete-table button in the Explorer for your own tables (inline confirm, Delete key on a focused table), backed by `POST /tables/delete`; demo tables cannot be deleted.
 - 2026-10-30: GitHub Actions CI (`.github/workflows/ci.yml`) running `python app.py check` and the browser tests on every push and pull request.

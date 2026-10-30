@@ -67,7 +67,7 @@ def tables(db):
 
 def ident(name):
     """'demo.sales' -> "demo"."sales"; only call on names returned by tables()."""
-    return ".".join(f'"{part}"' for part in name.split(".", 1))
+    return ".".join('"' + part.replace('"', '""') + '"' for part in name.split(".", 1))
 
 
 def drop_table(db, name):
@@ -534,6 +534,12 @@ def check():
         raises(ValueError, drop_table, a, "demo.sales")  # demo refused
         raises(ValueError, drop_table, a, "nope")  # unknown refused
         assert "demo.sales" in tables(a)
+        a.execute('CREATE TABLE "x""; DROP TABLE keep; --" AS SELECT 1 AS n')  # quote in a name must not inject SQL
+        a.execute("CREATE TABLE keep AS SELECT 1 AS n")
+        evil = next(t for t in tables(a) if t.startswith("x"))
+        assert profile(a, evil)["rows"] and "keep" in tables(a)
+        assert evil not in drop_table(a, evil) and "keep" in tables(a)
+        a.execute("DROP TABLE keep")
         raises(duckdb.Error, query, b, f"ATTACH '{sq(DATA / 'users' / f'u{ana}.duckdb')}' AS x")
         raises(duckdb.Error, query, b, f"SELECT * FROM read_csv_auto('{sq(HERE / 'app.py')}')")
         raises(duckdb.Error, query, a, "COPY mine TO '/tmp/cloudstone-leak.csv'")

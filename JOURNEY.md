@@ -381,10 +381,11 @@ Tone column: **neutral** = status and labels; **direct** = errors, warnings and 
 | MC-24 | R6 · row labels | `Asked: {question}` (Ask rows only) · `{time}` (e.g. "2 min ago") · `{n} rows · {ms} ms` · `OK` or `Error` | neutral | |
 | MC-25 | R6 · row actions | Load (aria: "Load query from {time}") · Rerun (aria: "Rerun query from {time}") | neutral | |
 | MC-26 | R6 · clear confirm | Clear all history? Every saved run in this browser for this account is removed. It cannot be undone. Buttons: Clear history · Cancel | direct | |
+| MC-27 | R6 · cleared (toast) | History cleared. | calm | |
 | MC-27b | R4 · delete table, confirm | Delete {table}? The table and its data are removed from your account. It cannot be undone. Buttons: Delete table · Cancel (aria on button: "Delete table {table}") | direct | |
 | MC-27c | R4 · deleted (toast) | Deleted {table}. | calm | |
 | MC-27d | R4 · error, delete (toast, stays) | Could not delete {table}. {server reason}. The table is still there; try again. | direct | happened · why · fix |
-| MC-27 | R6 · cleared (toast) | History cleared. | calm | |
+| MC-27e | R4 · delete, table already gone (toast) | {table} is already gone. The list is refreshed, so nothing was deleted. | neutral | |
 
 ### Ask card (R7) and Ask-off hint
 
